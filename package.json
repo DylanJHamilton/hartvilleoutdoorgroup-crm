@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "@angular/cdk": "^20.2.0",
+    "@angular/material": "^20.2.0",
+    "@fullcalendar/angular": "^6.1.19",
+    "@fullcalendar/core": "^6.1.19",
+    "@fullcalendar/daygrid": "^6.1.19",
+    "@fullcalendar/timegrid": "^6.1.19",
+    "@ngneat/reactive-forms": "^5.0.2",
+    "@ngrx/effects": "^20.0.0",
+    "@ngrx/router-store": "^20.0.0",
+    "@ngrx/store": "^20.0.0",
+    "@ngrx/store-devtools": "^20.0.0",
+    "ag-grid-angular": "^34.1.2",
+    "ag-grid-community": "^34.1.2",
+    "apexcharts": "^5.3.4",
+    "chart.js": "^4.5.0",
+    "echarts": "^6.0.0",
+    "ng-apexcharts": "^2.0.1",
+    "ng2-charts": "^8.0.0",
+    "ngx-echarts": "^20.0.2",
+    "ngx-logger": "^5.0.12",
+    "ngx-mask": "^20.0.3",
+    "ngx-skeleton-loader": "^11.2.1",
+    "ngx-toastr": "^19.0.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17"
+  }
+}

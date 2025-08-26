@@ -1,0 +1,9 @@
+export type Permission =
+  | 'portal.view' | 'portal.manage'
+  | 'store.view' | 'store.manage'
+  | 'sales.view' | 'sales.edit'
+  | 'inventory.view' | 'inventory.edit'
+  | 'service.view' | 'service.edit'
+  | 'delivery.view' | 'delivery.edit'
+  | 'rentals.view' | 'rentals.edit'
+  | 'reports.view' | 'settings.manage';
