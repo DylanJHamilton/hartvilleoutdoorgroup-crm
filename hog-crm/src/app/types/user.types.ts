@@ -1,7 +1,5 @@
-export type Role =
-  | 'OWNER' | 'ADMIN' | 'MANAGER'
-  | 'SALES' | 'SERVICE' | 'DELIVERY'
-  | 'RENTALS' | 'INVENTORY' | 'CS';
+import type { Role } from './role.types';
+
 
 export interface User {
   id: string;

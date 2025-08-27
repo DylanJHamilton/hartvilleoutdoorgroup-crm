@@ -7,7 +7,5 @@ export const portalAccessGuard: CanActivateFn = () => {
   const router = inject(Router);
   const roles = ctx.roles();
   const ok = roles.includes('OWNER') || roles.includes('ADMIN') || roles.includes('MANAGER');
-  if (ok) return true;
-  router.navigate(['/']); // fallback (e.g., send to store/home)
-  return false;
+  return ok ? true : router.parseUrl('/portal/unauthorized');
 };

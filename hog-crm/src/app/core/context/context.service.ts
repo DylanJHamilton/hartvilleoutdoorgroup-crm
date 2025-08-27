@@ -1,6 +1,6 @@
 // src/app/core/context/context.service.ts
 import { Injectable, signal, computed } from '@angular/core';
-import type { Role } from '../auth/auth.service';
+import type { Role } from '../../types/role.types';
 
 export interface StoreRef { id: string; name: string; city?: string; }
 

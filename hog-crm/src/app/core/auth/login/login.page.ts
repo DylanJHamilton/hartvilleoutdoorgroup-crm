@@ -8,8 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService } from '../../core/auth/auth.service';
-import { LoginRedirectService } from '../../core/auth/login-redirect.service';
+import { AuthService } from './../auth.service';
+import { LoginRedirectService } from './../login-redirect.service';
 
 @Component({
   standalone: true,
@@ -19,33 +19,36 @@ import { LoginRedirectService } from '../../core/auth/login-redirect.service';
     MatCardModule, MatFormFieldModule, MatInputModule,
     MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule
   ],
-  styles: [`
-    .wrap { min-height: 100vh; display:flex; align-items:center; justify-content:center; padding:16px; }
-    mat-card { width: 100%; max-width: 420px; border-radius: 14px; }
-    .actions { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
-    .error { color: #c62828; margin-top: 8px; font-size: 12px; }
-  `],
+  styleUrl: './login.page.scss', // or styleUrls: ['./login.page.scss'],
   template: `
-  <div class="wrap">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Sign in</mat-card-title>
-        <mat-card-subtitle>Hartville Outdoor Group CRM</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <mat-form-field appearance="outline" style="width:100%">
+ <div class="auth-wrap">
+    <div class="auth-card">
+      <!-- Brand -->
+      <div class="auth-brand">
+        <!-- Put your logo at assets/brand/hog-logo.svg -->
+        <img src="assets/brand/hog-logo.svg" alt="Hartville Outdoor Group" />
+        <h2>Sign in to Hartville CRM</h2>
+        <p class="muted">Use your work email to continue</p>
+      </div>
+
+      <!-- Card -->
+      <mat-card appearance="outlined" class="card">
+        <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+          <!-- Email -->
+          <mat-form-field appearance="outline" class="field">
             <mat-label>Email</mat-label>
-            <input matInput formControlName="email" type="email" autocomplete="username" />
+            <input matInput formControlName="email" type="email" autocomplete="username" placeholder="you@company.com" />
+            <mat-icon matSuffix>mail</mat-icon>
             <mat-error *ngIf="form.controls.email.invalid && form.controls.email.touched">
               Enter a valid email
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" style="width:100%">
+          <!-- Password -->
+          <mat-form-field appearance="outline" class="field">
             <mat-label>Password</mat-label>
-            <input matInput [type]="show ? 'text' : 'password'" formControlName="password" autocomplete="current-password" />
-            <button mat-icon-button matSuffix type="button" (click)="show=!show" aria-label="Toggle password">
+            <input matInput [type]="show ? 'text' : 'password'" formControlName="password" autocomplete="current-password" placeholder="••••••••" />
+            <button mat-icon-button matSuffix type="button" (click)="show = !show" aria-label="Toggle password">
               <mat-icon>{{ show ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
             <mat-error *ngIf="form.controls.password.invalid && form.controls.password.touched">
@@ -53,18 +56,36 @@ import { LoginRedirectService } from '../../core/auth/login-redirect.service';
             </mat-error>
           </mat-form-field>
 
-          <div class="actions">
+          <!-- Remember + Forgot -->
+          <div class="row row-compact">
             <mat-checkbox formControlName="remember">Remember me</mat-checkbox>
-            <button mat-flat-button color="primary" [disabled]="form.invalid || loading">
-              <ng-container *ngIf="!loading">Sign in</ng-container>
-              <mat-progress-spinner *ngIf="loading" diameter="18" mode="indeterminate"></mat-progress-spinner>
-            </button>
+            <!-- Using a plain anchor to avoid RouterModule import in this pass -->
+            <a class="link" href="#">Forgot password?</a>
           </div>
 
+          <!-- Submit -->
+          <button mat-flat-button color="primary" class="btn" type="submit" [disabled]="form.invalid || loading">
+            <ng-container *ngIf="!loading">Sign in</ng-container>
+            <mat-progress-spinner *ngIf="loading" diameter="18" mode="indeterminate"></mat-progress-spinner>
+          </button>
+
+          <!-- Divider -->
+          <div class="divider"><span>or</span></div>
+
+          <!-- Secondary action (placeholder) -->
+          <button mat-stroked-button color="primary" class="btn-alt" type="button">
+            Create an account
+          </button>
+
+          <!-- Error -->
           <div class="error" *ngIf="error">{{ error }}</div>
         </form>
-      </mat-card-content>
-    </mat-card>
+      </mat-card>
+
+      <div class="auth-footer">
+        <span class="muted">© Hartville Outdoor Group</span>
+      </div>
+    </div>
   </div>
   `
 })

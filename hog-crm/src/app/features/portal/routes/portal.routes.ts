@@ -51,6 +51,11 @@ export const PORTAL_ROUTES: Routes = [
           import('../scheduling/scheduling.page').then(m => m.SchedulingPage),
         title: 'Scheduling',
       },
+      {
+        path: 'unauthorized',
+        loadComponent: () => import('../components/unauthorized.page').then(m => m.UnauthorizedPage),
+        title: 'Unauthorized',
+      }
     ],
   },
 ];

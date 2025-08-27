@@ -1,57 +1,91 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ContextService } from '../../../core/context/context.service';
+// src/app/features/store/dashboard/store-dashboard.page.ts
+import { Component, computed, inject } from '@angular/core';
+import { CommonModule, NgComponentOutlet } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { AuthService } from '../../../core/auth/auth.service';
 
+
+// Import the concrete dashboard component TYPES
+import { DashAdminPage } from './dashboards/dash-admin.page';
+import { DashManagerPage } from './dashboards/dash-manager.page';
+import { DashSalesPage } from './dashboards/dash-sales.page';
+import { DashServicePage } from './dashboards/dash-service.page';
+import { DashDeliveryPage } from './dashboards/dash-delivery.page';
+import { DashInventoryPage } from './dashboards/dash-inventory.page';
+import { DashCsPage } from './dashboards/dash-cs.page';
+
+type Role =
+  | 'ADMIN'
+  | 'MANAGER'
+  | 'SALES'
+  | 'SERVICE'
+  | 'DELIVERY'
+  | 'INVENTORY'
+  | 'CS';
+
+  
 @Component({
   standalone: true,
   selector: 'hog-store-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, NgComponentOutlet],
   template: `
-    <!-- Priority: OWNER/ADMIN > MANAGER > SALES > SERVICE > DELIVERY > INVENTORY > CS -->
-    <ng-container [ngSwitch]="role">
-      <ng-container *ngSwitchCase="'ADMIN'">
-        <ng-container *ngComponentOutlet="dashAdmin"></ng-container>
+    <ng-container *ngIf="role() as r">
+      <ng-container *ngIf="r === 'ADMIN'">
+        <ng-container *ngComponentOutlet="DashAdmin"></ng-container>
       </ng-container>
-      <ng-container *ngSwitchCase="'OWNER'">
-        <ng-container *ngComponentOutlet="dashAdmin"></ng-container>
+
+      <ng-container *ngIf="r === 'MANAGER'">
+        <ng-container *ngComponentOutlet="DashManager"></ng-container>
       </ng-container>
-      <ng-container *ngSwitchCase="'MANAGER'">
-        <ng-container *ngComponentOutlet="dashManager"></ng-container>
+
+      <ng-container *ngIf="r === 'SALES'">
+        <ng-container *ngComponentOutlet="DashSales"></ng-container>
       </ng-container>
-      <ng-container *ngSwitchCase="'SALES'">
-        <ng-container *ngComponentOutlet="dashSales"></ng-container>
+
+      <ng-container *ngIf="r === 'SERVICE'">
+        <ng-container *ngComponentOutlet="DashService"></ng-container>
       </ng-container>
-      <ng-container *ngSwitchCase="'SERVICE'">
-        <ng-container *ngComponentOutlet="dashService"></ng-container>
+
+      <ng-container *ngIf="r === 'DELIVERY'">
+        <ng-container *ngComponentOutlet="DashDelivery"></ng-container>
       </ng-container>
-      <ng-container *ngSwitchCase="'DELIVERY'">
-        <ng-container *ngComponentOutlet="dashDelivery"></ng-container>
+
+      <ng-container *ngIf="r === 'INVENTORY'">
+        <ng-container *ngComponentOutlet="DashInventory"></ng-container>
       </ng-container>
-      <ng-container *ngSwitchCase="'INVENTORY'">
-        <ng-container *ngComponentOutlet="dashInventory"></ng-container>
-      </ng-container>
-      <ng-container *ngSwitchDefault>
-        <ng-container *ngComponentOutlet="dashCs"></ng-container>
+
+      <ng-container *ngIf="r === 'CS'">
+        <ng-container *ngComponentOutlet="DashCs"></ng-container>
       </ng-container>
     </ng-container>
   `
 })
 export class StoreDashboardPage {
-  private ctx = inject(ContextService);
+  private store = inject(Store);
+  // inside class:
+  private auth = inject(AuthService);
 
-  // pick highest-priority role
-  get role(): string {
-    const r = this.ctx.roles();
-    const order = ['OWNER','ADMIN','MANAGER','SALES','SERVICE','DELIVERY','INVENTORY','CS'];
-    return order.find(x => r.includes(x as any)) ?? 'CS';
-  }
+  /**
+   * Reads roles from state.auth.roles if present; otherwise undefined.
+   * This avoids importing a selector you don't have yet.
+   */
+  private rolesSignal = this.store.selectSignal((state: any) => state?.auth?.roles as string[] | undefined);
 
-  // lazy component references (imported dynamically)
-  dashAdmin    = () => import('./dashboards/dash-admin.page').then(m => m.DashAdminPage);
-  dashManager  = () => import('./dashboards/dash-manager.page').then(m => m.DashManagerPage);
-  dashSales    = () => import('./dashboards/dash-sales.page').then(m => m.DashSalesPage);
-  dashService  = () => import('./dashboards/dash-service.page').then(m => m.DashServicePage);
-  dashDelivery = () => import('./dashboards/dash-delivery.page').then(m => m.DashDeliveryPage);
-  dashInventory= () => import('./dashboards/dash-inventory.page').then(m => m.DashInventoryPage);
-  dashCs       = () => import('./dashboards/dash-cs.page').then(m => m.DashCsPage);
+  /**
+   * First role wins; normalize to our Role union, fallback to ADMIN.
+   */
+    // replace your previous role computed with:
+  role = computed<Role>(() => {
+    const r = (this.auth.getRole() || 'ADMIN').toUpperCase();
+    return (['ADMIN','MANAGER','SALES','SERVICE','DELIVERY','INVENTORY','CS'].includes(r) ? r as Role : 'ADMIN');
+  });
+
+  // Component TYPES for ngComponentOutlet (do NOT use lazy functions here)
+  DashAdmin = DashAdminPage;
+  DashManager = DashManagerPage;
+  DashSales = DashSalesPage;
+  DashService = DashServicePage;
+  DashDelivery = DashDeliveryPage;
+  DashInventory = DashInventoryPage;
+  DashCs = DashCsPage;
 }

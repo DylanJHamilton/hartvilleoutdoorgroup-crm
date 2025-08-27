@@ -1,57 +1,110 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+// src/app/core/auth/auth.service.ts
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
 import { API_BASE_URL } from '../config/app-tokens';
-
-export type Role =
-  | 'OWNER' | 'ADMIN' | 'MANAGER'
-  | 'SALES' | 'SERVICE' | 'DELIVERY'
-  | 'RENTALS' | 'INVENTORY' | 'CS';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  roles: Role[];
-  orgId: string;
-  storeIds: string[];
-}
-
-const KEY = 'hog-auth';
+import type { User } from '../../types/user.types';
+import type { Role } from '../../types/role.types';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
-  private base = inject(API_BASE_URL);
+  private apiBase = inject(API_BASE_URL);
 
-  readonly user = signal<User | null>(null);
-  readonly token = signal<string | null>(null);
-  readonly isLoggedIn = computed(() => !!this.token());
+  private readonly tokenKey = 'auth_token';
+  private readonly roleKey = 'auth_role';
+  private readonly userKey = 'auth_user';
 
-  constructor() {
-    const raw = localStorage.getItem(KEY);
+  // In-memory fallbacks so nothing crashes if code executes during SSR
+  private memoryToken: string | null = null;
+  private memoryRole: Role | null = null;
+  private memoryUser: User | null = null;
+
+  private get isBrowser(): boolean {
+    return typeof window !== 'undefined' && typeof window.document !== 'undefined';
+  }
+
+  // ---- Safe storage helpers (browser-only) ----
+  private readLS(key: string): string | null {
+    if (!this.isBrowser) return null;
+    try { return window.localStorage.getItem(key); } catch { return null; }
+  }
+  private writeLS(key: string, val: string | null): void {
+    if (!this.isBrowser) return;
+    try {
+      if (val === null) window.localStorage.removeItem(key);
+      else window.localStorage.setItem(key, val);
+    } catch { /* ignore */ }
+  }
+
+  // ---- TOKEN API ----
+  getToken(): string | null {
+    return this.readLS(this.tokenKey) ?? this.memoryToken;
+  }
+  setSession(token: string): void {
+    this.memoryToken = token;
+    this.writeLS(this.tokenKey, token);
+  }
+  logout(): void {
+    this.memoryToken = null;
+    this.memoryRole = null;
+    this.memoryUser = null;
+    this.writeLS(this.tokenKey, null);
+    this.writeLS(this.roleKey, null);
+    this.writeLS(this.userKey, null);
+  }
+
+  // ---- ROLE API ----
+  getRole(): Role | null {
+    const v = this.readLS(this.roleKey);
+    return (v as Role) ?? this.memoryRole ?? null;
+  }
+  setRole(role: Role | null): void {
+    this.memoryRole = role;
+    this.writeLS(this.roleKey, role ?? null);
+  }
+
+  // ---- USER API ----
+  getUser(): User | null {
+    const raw = this.readLS(this.userKey);
     if (raw) {
-      try {
-        const { token, user } = JSON.parse(raw);
-        this.token.set(token);
-        this.user.set(user);
-      } catch {}
+      try { return JSON.parse(raw) as User; } catch { /* ignore */ }
     }
+    return this.memoryUser;
+  }
+  setUser(u: User | null): void {
+    this.memoryUser = u;
+    this.writeLS(this.userKey, u ? JSON.stringify(u) : null);
   }
 
-  async signIn(email: string, password: string, remember = true) {
-    const res = await firstValueFrom(
-      this.http.post<{ token: string; user: User }>(`${this.base}/auth/login`, { email, password })
-    );
-    this.token.set(res.token);
-    this.user.set(res.user);
-    if (remember) localStorage.setItem(KEY, JSON.stringify(res));
-    return res.user;
+  // ---- STATUS ----
+  isLoggedIn(): boolean {
+    return !!this.getToken();
   }
 
-  signOut() {
-    this.token.set(null);
-    this.user.set(null);
-    localStorage.removeItem(KEY);
+  // ---- Legacy shims (compat with existing code) ----
+  token(): string | null { return this.getToken(); }
+  user(): User | null { return this.getUser(); }
+
+  // Stub sign-in to keep app working; replace with real API when ready
+  async signIn(email: string, _password: string, _remember = true): Promise<User> {
+    // inside AuthService.signIn(...)
+    const role = this.getRole() ?? ('ADMIN' as Role);
+    const user: User = {
+      id: 'demo',
+      name: 'Demo User',
+      email,
+      roles: [role],
+      orgId: 'demo-org',
+      storeIds: [],
+    };
+    this.setSession('demo-token');
+    this.setUser(user);
+    this.setRole(role);
+    return user;
+
+  }
+
+  signOut(): void {
+    this.logout();
   }
 }
