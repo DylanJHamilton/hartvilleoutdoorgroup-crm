@@ -3,6 +3,8 @@ import { Component, computed, inject } from '@angular/core';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { AuthService } from '../../../core/auth/auth.service';
+import { Role } from '../../../types/role.types';
+
 
 
 // Import the concrete dashboard component TYPES
@@ -14,19 +16,11 @@ import { DashDeliveryPage } from './dashboards/dash-delivery.page';
 import { DashInventoryPage } from './dashboards/dash-inventory.page';
 import { DashCsPage } from './dashboards/dash-cs.page';
 
-type Role =
-  | 'ADMIN'
-  | 'MANAGER'
-  | 'SALES'
-  | 'SERVICE'
-  | 'DELIVERY'
-  | 'INVENTORY'
-  | 'CS';
 
   
 @Component({
   standalone: true,
-  selector: 'hog-store-dashboard',
+  selector: 'hog-location-dashboard',
   imports: [CommonModule, NgComponentOutlet],
   template: `
     <ng-container *ngIf="role() as r">
@@ -60,7 +54,7 @@ type Role =
     </ng-container>
   `
 })
-export class StoreDashboardPage {
+export class LocationDashboardPage {
   private store = inject(Store);
   // inside class:
   private auth = inject(AuthService);

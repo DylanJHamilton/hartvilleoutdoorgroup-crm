@@ -10,16 +10,16 @@ import { NavItem } from '../../../shared/shared.types';
   imports: [AppShellComponent],
   template: `
     <hog-app-shell
-      [brand]="activeStoreName"
-      [subtitle]="'Store Operations'"
-      [title]="'Hartville Outdoor Group — Store'"
+      [brand]="activeLocationName"
+      [subtitle]="'Location Operations'"
+      [title]="'Hartville Outdoor Group — Location'"
       [nav]="nav">
     </hog-app-shell>
   `
 })
-export class StoreShellComponent {
+export class LocationShellComponent {
   private ctx = inject(ContextService);
-  activeStoreName = this.ctx.activeStore()?.name ?? 'Store';
+  activeLocationName = this.ctx.activeLocation()?.name ?? 'Location';
   nav: NavItem[] = [
     { label: 'Dashboard',  icon: 'dashboard',   link: ['dashboard'] },
     { label: 'Sales',      icon: 'sell',        link: ['sales'] },

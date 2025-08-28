@@ -1,20 +1,20 @@
 import { Routes } from '@angular/router';
-import { storeAccessGuard } from './store-access.guard';
-import { storeResolver } from './store.resolver';
-import { StoreShellComponent } from './components/store-shell.component';
+import { locationAccessGuard } from './location-access.guard';
+import { locationResolver } from './location.resolver';
+import { LocationShellComponent } from './components/location-shell.component';
 
 export const STORE_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [storeAccessGuard],
-    resolve: { ok: storeResolver },
-    component: StoreShellComponent,
+    canActivate: [locationAccessGuard],
+    resolve: { ok: locationResolver },
+    component: LocationShellComponent,
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
         path: 'dashboard',
-        loadComponent: () => import('./dashboard/store-dashboard.page').then(m => m.StoreDashboardPage),
-        title: 'Store Dashboard'
+        loadComponent: () => import('./dashboard/location-dashboard.page').then(m => m.LocationDashboardPage),
+        title: 'Location Dashboard'
       },
       { path: 'sales',      loadComponent: () => import('./sales/sales.page').then(m => m.SalesPage), title: 'Sales' },
       { path: 'inventory',  loadComponent: () => import('./inventory/inventory.page').then(m => m.InventoryPage), title: 'Inventory' },
