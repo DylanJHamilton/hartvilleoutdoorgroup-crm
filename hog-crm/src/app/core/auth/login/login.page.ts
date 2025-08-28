@@ -1,98 +1,102 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
+
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService } from './../auth.service';
-import { LoginRedirectService } from './../login-redirect.service';
-
+import { AuthService } from '../auth.service';
+import { LoginRedirectService } from '../login-redirect.service';
 @Component({
   standalone: true,
   selector: 'hog-login',
   imports: [
     CommonModule, ReactiveFormsModule,
-    MatCardModule, MatFormFieldModule, MatInputModule,
+    MatTabsModule,                    // ✅ needed for <mat-tab-group>/<mat-tab>
+    MatFormFieldModule, MatInputModule,
     MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule
   ],
-  styleUrl: './login.page.scss', // or styleUrls: ['./login.page.scss'],
+  styleUrl: './login.page.scss',
   template: `
- <div class="auth-wrap">
-    <div class="auth-card">
-      <!-- Brand -->
-      <div class="auth-brand">
-        <!-- Put your logo at assets/brand/hog-logo.svg -->
-        <img src="assets/brand/hog-logo.svg" alt="Hartville Outdoor Group" />
-        <h2>Sign in to Hartville CRM</h2>
-        <p class="muted">Use your work email to continue</p>
+        <div class="auth-page">
+      <!-- LEFT: form panel -->
+      <div class="auth-page__content-block">
+        <div class="auth-page__content-wrapper">
+
+          <!-- Single centered tab header (visual parity with FlatLogic) -->
+          <mat-tab-group class="auth-page__group" mat-stretch-tabs>
+            <mat-tab label="Login">
+              <h4 class="auth-page__group-title">Welcome!</h4>
+
+              <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+              <mat-form-field appearance="fill" floatLabel="always" class="form__input underline">
+                <mat-label>Email Address *</mat-label>
+                <input matInput type="email" formControlName="email" autocomplete="username" />
+                <mat-error *ngIf="form.controls.email.invalid && form.controls.email.touched">
+                  Enter a valid email
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="fill" floatLabel="always" class="form__input underline">
+                <mat-label>Password *</mat-label>
+                <input matInput [type]="show ? 'text' : 'password'" formControlName="password" autocomplete="current-password" />
+                <button mat-icon-button matSuffix type="button" (click)="show=!show" aria-label="Toggle password">
+                  <mat-icon>{{ show ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                <mat-error *ngIf="form.controls.password.invalid && form.controls.password.touched">
+                  Password is required
+                </mat-error>
+              </mat-form-field>
+
+
+
+                <div class="form-row">
+                  <mat-checkbox style="color: #111;" color="primary" formControlName="remember" class="remember"
+                    [style.--mdc-checkbox-selected-checkmark-color]="'#ffffff'"
+
+                  ><span style="color:#111;">Remember me</span></mat-checkbox>
+                  <a class="link" href="javascript:void(0)">Forgot password?</a>
+                </div>
+
+                <!-- Always visible, full-width login button -->
+                <button mat-raised-button color="primary" class="login-btn"
+                        type="submit" [disabled]="loading">
+                  <ng-container *ngIf="!loading">Login</ng-container>
+                  <mat-progress-spinner *ngIf="loading" diameter="18" mode="indeterminate"></mat-progress-spinner>
+                </button>
+
+                <div class="error" *ngIf="error">{{ error }}</div>
+              </form>
+            </mat-tab>
+          </mat-tab-group>
+
+          <!-- Left-panel copyright -->
+          <footer class="auth-page__copyright">
+            © {{ year }} Hartville Outdoor Group. All rights reserved.
+          </footer>
+        </div>
       </div>
 
-      <!-- Card -->
-      <mat-card appearance="outlined" class="card">
-        <form class="form" [formGroup]="form" (ngSubmit)="submit()">
-          <!-- Email -->
-          <mat-form-field appearance="outline" class="field">
-            <mat-label>Email</mat-label>
-            <input matInput formControlName="email" type="email" autocomplete="username" placeholder="you@company.com" />
-            <mat-icon matSuffix>mail</mat-icon>
-            <mat-error *ngIf="form.controls.email.invalid && form.controls.email.touched">
-              Enter a valid email
-            </mat-error>
-          </mat-form-field>
-
-          <!-- Password -->
-          <mat-form-field appearance="outline" class="field">
-            <mat-label>Password</mat-label>
-            <input matInput [type]="show ? 'text' : 'password'" formControlName="password" autocomplete="current-password" placeholder="••••••••" />
-            <button mat-icon-button matSuffix type="button" (click)="show = !show" aria-label="Toggle password">
-              <mat-icon>{{ show ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-            <mat-error *ngIf="form.controls.password.invalid && form.controls.password.touched">
-              Password is required
-            </mat-error>
-          </mat-form-field>
-
-          <!-- Remember + Forgot -->
-          <div class="row row-compact">
-            <mat-checkbox formControlName="remember">Remember me</mat-checkbox>
-            <!-- Using a plain anchor to avoid RouterModule import in this pass -->
-            <a class="link" href="#">Forgot password?</a>
-          </div>
-
-          <!-- Submit -->
-          <button mat-flat-button color="primary" class="btn" type="submit" [disabled]="form.invalid || loading">
-            <ng-container *ngIf="!loading">Sign in</ng-container>
-            <mat-progress-spinner *ngIf="loading" diameter="18" mode="indeterminate"></mat-progress-spinner>
-          </button>
-
-          <!-- Divider -->
-          <div class="divider"><span>or</span></div>
-
-          <!-- Secondary action (placeholder) -->
-          <button mat-stroked-button color="primary" class="btn-alt" type="button">
-            Create an account
-          </button>
-
-          <!-- Error -->
-          <div class="error" *ngIf="error">{{ error }}</div>
-        </form>
-      </mat-card>
-
-      <div class="auth-footer">
-        <span class="muted">© Hartville Outdoor Group</span>
+      <!-- RIGHT: brand/blue panel (unchanged) -->
+      <div class="auth-page__logo">
+        <div class="auth-page__logo-wrapper">
+          <h6 class="auth-page__logo-title">Hartville Outdoor Group - CRM</h6>
+        </div>
       </div>
     </div>
-  </div>
+
   `
 })
 export class LoginPage {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private redirect = inject(LoginRedirectService);
+
+  year = new Date().getFullYear();     // ✅ no “new Date()” in template
 
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],

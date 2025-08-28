@@ -1,30 +1,19 @@
 import { Routes } from '@angular/router';
+import { AppHomeComponent } from './app-home-component/app-home-component';
 
 export const routes: Routes = [
-  // Default → Login
-  { path: '', pathMatch: 'full', redirectTo: 'auth/login' },
+  {
+    path: '',
+    component: AppHomeComponent,
+  },
 
-  // Auth area (login/forgot/etc.)
+  // Alias so /#/auth/login also works while we stabilize
   {
     path: 'auth',
-    loadChildren: () =>
-      import('./core/auth/auth.routes').then(m => m.AUTH_ROUTES),
+    children: [
+      { path: 'login', redirectTo: '/login', pathMatch: 'full' }, // absolute to top-level /login
+    ],
   },
 
-  // App portal (dashboards, features)
-  {
-    path: 'portal',
-    loadChildren: () =>
-      import('./features/portal/routes/portal.routes').then(m => m.PORTAL_ROUTES),
-  },
-
-    // App portal (dashboards, features)
-  {
-    path: 'dashboard',
-    loadChildren: () =>
-      import('./features/store/store.routes').then(m => m.STORE_ROUTES),
-  },
-
-  // Fallback → Login
-  { path: '**', redirectTo: 'auth/login' },
+  { path: '**', redirectTo: '' },
 ];

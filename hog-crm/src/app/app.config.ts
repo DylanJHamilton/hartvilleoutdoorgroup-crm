@@ -4,7 +4,6 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideRouter, withDebugTracing, withHashLocation } from '@angular/router';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 // ⛔ Disable hydration while stabilizing (this avoids SSR code paths)
 // import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import {
@@ -20,9 +19,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideRouter(routes, withHashLocation(), withDebugTracing()), // ✅ hash routing => /#/auth/login
-    provideNoopAnimations(),                   // ✅ simplest/safer while debugging
-    provideHttpClient(withInterceptorsFromDi(), withFetch()),
+    provideRouter(routes, withHashLocation()), // ✅ hash routing => /#/auth/login
+    provideHttpClient(),
     { provide: API_BASE_URL, useValue: 'http://localhost:3000' },
     { provide: APP_NAME, useValue: 'Hartville Outdoor CRM' },
   ],

@@ -1,8 +1,215 @@
-/* HOG CRM — Global styles (no Sass theming here) */
+/* Angular Material v20 (M2 theming API) */
+@use '@angular/material' as mat;
 
-.snack-success { background: #2e7d32 !important; color: #fff !important; }
-.snack-info    { background: #1976d2 !important; color: #fff !important; }
-.snack-warn    { background: #ed6c02 !important; color: #fff !important; }
-.snack-error   { background: #c62828 !important; color: #fff !important; }
+/* Fonts & icons */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-/* Add other global CSS below. Do NOT @use or @import anything here. */
+
+
+/* 1) Core styles */
+@include mat.core();
+
+/* 2) Palettes (M2 helpers are prefixed with m2-) */
+$hog-primary: mat.m2-define-palette(mat.$m2-indigo-palette);
+$hog-accent:  mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
+$hog-warn:    mat.m2-define-palette(mat.$m2-red-palette);
+
+/* 3) Typography (use the m2- helpers) */
+$hog-typography: mat.m2-define-typography-config(
+  $font-family: 'Inter, Roboto, "Helvetica Neue", Arial, sans-serif',
+  $headline-1: mat.m2-define-typography-level(96px, 96px, 300),
+  $headline-2: mat.m2-define-typography-level(60px, 60px, 300),
+  $headline-3: mat.m2-define-typography-level(48px, 48px, 400),
+  $headline-4: mat.m2-define-typography-level(34px, 40px, 400),
+  $headline-5: mat.m2-define-typography-level(24px, 32px, 500),
+  $headline-6: mat.m2-define-typography-level(20px, 28px, 600),
+  $subtitle-1: mat.m2-define-typography-level(16px, 24px, 500),
+  $subtitle-2: mat.m2-define-typography-level(14px, 22px, 600),
+  $body-1:     mat.m2-define-typography-level(14px, 22px, 400),
+  $body-2:     mat.m2-define-typography-level(16px, 24px, 400),
+  $button:     mat.m2-define-typography-level(14px, 14px, 600),
+  $caption:    mat.m2-define-typography-level(12px, 18px, 400)
+);
+
+/* 4) Density */
+$hog-density: 0;
+
+/* 5) Light/Dark themes (M2 helpers again) */
+$hog-light-theme: mat.m2-define-light-theme((
+  color: (primary: $hog-primary, accent: $hog-accent, warn: $hog-warn),
+  typography: $hog-typography,
+  density: $hog-density,
+));
+
+$hog-dark-theme: mat.m2-define-dark-theme((
+  color: (primary: $hog-primary, accent: $hog-accent, warn: $hog-warn),
+  typography: $hog-typography,
+  density: $hog-density,
+));
+
+/* 6) Apply theme styles */
+@include mat.all-component-themes($hog-light-theme);
+@include mat.typography-hierarchy($hog-light-theme);
+
+/* Auto-apply dark colors on prefers-dark, or set data-theme="dark" yourself */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) { @include mat.all-component-colors($hog-dark-theme); }
+}
+[data-theme='dark'] { @include mat.all-component-colors($hog-dark-theme); }
+
+/* --- App polish ----------------------------------------------------------- */
+:root {
+  --bg-grad: radial-gradient(1200px 600px at 10% -10%, #f7f9fc 0%, #eef2f9 45%, #e9eef8 100%);
+  --text-900: #0f172a;
+  --text-600: #475569;
+}
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg-grad);
+  color: var(--text-900);
+}
+
+.mat-mdc-form-field { width: 100%; }
+
+.hog-elevated {
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(2,6,23,.14);
+  background: #fff;
+}
+
+/* Dark background if you force dark mode */
+[data-theme='dark'] body {
+  background: radial-gradient(1200px 600px at 10% -10%, #0b1020 0%, #0e1428 45%, #0b1222 100%);
+  color: #e5e7eb;
+}
+
+/* Ensure floating labels always show on login form */
+.auth-page .mat-mdc-form-field-infix {
+  padding-top: 20px !important;   /* room for label */
+  padding-bottom: 6px !important;
+  min-height: 56px;               /* enough for label + input */
+  overflow: visible !important;
+}
+
+.auth-page .mat-mdc-text-field-wrapper {
+  overflow: visible !important;   /* don’t clip the label */
+}
+
+/* force float-above state to be visible */
+.auth-page .mdc-floating-label--float-above {
+  opacity: 1 !important;
+  transform: translateY(-20px) scale(0.85) !important;
+  transform-origin: left top !important;
+}
+
+/* === FINAL, SCOPED FIX FOR LOGIN LABEL VISIBILITY === */
+
+/* 1) Give vertical room and stop clipping anywhere in the field stack */
+.auth-page .underline .mat-mdc-text-field-wrapper,
+.auth-page .underline .mat-mdc-form-field-infix,
+.auth-page .underline .mdc-text-field {
+  overflow: visible !important;
+}
+
+.auth-page .underline .mat-mdc-form-field-infix {
+  /* space reserved for the floating label */
+  padding-top: 20px !important;
+  padding-bottom: 8px !important;
+  min-height: 56px !important;
+}
+
+/* 2) Kill filled background + focus overlay (keeps underline look) */
+.auth-page .underline .mdc-text-field--filled {
+  --mdc-filled-text-field-container-color: transparent !important;
+  --mdc-filled-text-field-disabled-container-color: transparent !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.auth-page .underline .mat-mdc-form-field-focus-overlay {
+  background-color: transparent !important;
+}
+
+/* 3) Force the label to render where we can see it on first paint */
+.auth-page .underline .mdc-floating-label {
+  opacity: 1 !important;
+  z-index: 2;                 /* sit above input text */
+  pointer-events: none;       /* never intercept clicks */
+  color: #6b7280 !important;  /* slate-500, readable */
+}
+
+/* when Angular Material applies float-above, hard-place it */
+.auth-page .underline .mdc-floating-label--float-above {
+  top: 0 !important;
+  transform: translateY(-18px) scale(0.85) !important; /* adjust -16/-20 if you prefer */
+  transform-origin: left top !important;
+}
+
+/* underline colors like FlatLogic */
+.auth-page .underline .mdc-text-field--filled .mdc-line-ripple::before {
+  border-bottom-color: #e5e7eb !important;
+  opacity: 1;
+}
+.auth-page .underline .mdc-text-field--filled .mdc-line-ripple::after {
+  border-bottom-color: #3f51b5 !important;
+}
+
+/* input text color */
+.auth-page .underline .mdc-text-field__input { color: #111827 !important; }
+
+/* keep mat-tab body from adding a tiny inner scrollbar */
+.auth-page .mat-mdc-tab-group,
+.auth-page .mat-mdc-tab-body-content {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* === FlatLogic-style always-visible floating labels === */
+.auth-page .underline .mat-mdc-form-field-infix {
+  padding-top: 20px !important;   /* space for label */
+  padding-bottom: 8px !important;
+  min-height: 56px !important;
+  overflow: visible !important;
+}
+
+.auth-page .underline .mdc-floating-label {
+  opacity: 1 !important;
+  pointer-events: none;
+  color: #6b7280 !important;      /* slate-500 */
+  transform-origin: left top !important;
+}
+
+/* Use MDC’s own float-above transform for the “good” look */
+.auth-page .underline .mdc-floating-label--float-above {
+  transform: translateY(-106%) scale(0.75) !important;
+}
+
+/* Kill gray background */
+.auth-page .underline .mdc-text-field--filled {
+  --mdc-filled-text-field-container-color: transparent !important;
+  --mdc-filled-text-field-disabled-container-color: transparent !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.auth-page .underline .mat-mdc-form-field-focus-overlay {
+  background-color: transparent !important;
+}
+
+/* Underline colors */
+.auth-page .underline .mdc-text-field--filled .mdc-line-ripple::before {
+  border-bottom-color: #e5e7eb !important;
+  opacity: 1;
+}
+.auth-page .underline .mdc-text-field--filled .mdc-line-ripple::after {
+  border-bottom-color: #3f51b5 !important;
+}
+
+/* Input text */
+.auth-page .underline .mdc-text-field__input {
+  color: #111827 !important;
+}
