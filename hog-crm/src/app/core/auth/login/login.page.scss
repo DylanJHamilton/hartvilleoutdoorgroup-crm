@@ -271,5 +271,8 @@ $blue-ink: #3f51b5;
 .auth-page .mat-mdc-tab-group,
 .auth-page .mat-mdc-tab-body-content {
   height: auto !important;
-  overflow: visible !important;
+}
+.mat-mdc-tab-body.mat-mdc-tab-body-active{
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
 }

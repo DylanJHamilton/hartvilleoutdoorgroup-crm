@@ -4,6 +4,7 @@ export type Role =
   | 'ADMIN'
   | 'MANAGER'
   | 'SALES'
+  | 'SUPPORT'
   | 'SERVICE'
   | 'DELIVERY'
   | 'INVENTORY'

@@ -1,31 +1,40 @@
 import { Injectable, inject } from '@angular/core';
-import { Router, UrlTree } from '@angular/router';
-import { AuthService } from './auth.service';
-import { User } from '../../types/user.types';
+import { Router } from '@angular/router';
+import type { User } from '../../types/user.types';
+import type { Role } from '../../types/role.types';
 
 @Injectable({ providedIn: 'root' })
 export class LoginRedirectService {
   private router = inject(Router);
-  private auth = inject(AuthService);
 
-  // Existing method stays (used after form submit, etc.)
-  goHome(user?: User) {
-    const url = this.homeUrlTree(user);
-    this.router.navigateByUrl(url);
+  private isPrivileged(roles: Role[] = []): boolean {
+    return roles.some(r =>
+      r === 'OWNER' ||
+      r === 'ADMIN' ||
+      r === 'MANAGER'
+    );
   }
 
-  // New: pure redirect as UrlTree (safe for guards)
-  homeUrlTree(user?: User): UrlTree {
-    const u = user ?? this.auth.user();
-    const roles = u?.roles ?? [];
-    const stores = u?.storeIds ?? [];
+  private pickPrimaryLocationId(user: User): string | null {
+    const ids = user.locationIds ?? [];
+    return ids.length > 0 ? ids[0] : null;
+  }
 
-    const isAdmin = roles.some(r => r === 'OWNER' || r === 'ADMIN' || r === 'MANAGER');
+  /** Pure function: returns the landing URL for a freshly authenticated user */
+  getLandingUrl(user: User | null): string {
+    if (!user) return '/auth/login';
 
-    if (isAdmin || stores.length !== 1) {
-      return this.router.parseUrl('/portal');
+    if (this.isPrivileged(user.roles)) {
+      return '/portal';
     }
-    // If you already have /store/:id, use that. If not, send to /portal for now.
-    return this.router.parseUrl(stores.length === 1 ? `/store/${stores[0]}` : '/portal');
+
+    const loc = this.pickPrimaryLocationId(user);
+    return loc ? `/location/${loc}/dashboard` : '/portal'; // fallback
+  }
+
+  /** Side-effect: immediately navigate there */
+  goHome(user: User | null) {
+    const url = this.getLandingUrl(user);
+    this.router.navigateByUrl(url);
   }
 }

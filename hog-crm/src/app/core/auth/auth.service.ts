@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../config/app-tokens';
 import type { User } from '../../types/user.types';
 import type { Role } from '../../types/role.types';
+import { mockUsers } from '../../mock/users.mock';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -85,24 +86,17 @@ export class AuthService {
   token(): string | null { return this.getToken(); }
   user(): User | null { return this.getUser(); }
 
-  // Stub sign-in to keep app working; replace with real API when ready
-  async signIn(email: string, _password: string, _remember = true): Promise<User> {
-    // inside AuthService.signIn(...)
-    const role = this.getRole() ?? ('ADMIN' as Role);
-    const user: User = {
-      id: 'demo',
-      name: 'Demo User',
-      email,
-      roles: [role],
-      orgId: 'demo-org',
-      storeIds: [],
-    };
-    this.setSession('demo-token');
-    this.setUser(user);
-    this.setRole(role);
-    return user;
+ async signIn(email: string, _password: string, _remember = true): Promise<User> {
+  const user = mockUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+  if (!user) throw { error: { message: 'Invalid credentials' } };
 
-  }
+  // persist session + user; DO NOT fabricate roles
+  this.setSession('demo-token');
+  this.setUser(user);
+  this.setRole(null); // optional: clear legacy single-role slot to avoid confusion
+
+  return user;
+}
 
   signOut(): void {
     this.logout();
