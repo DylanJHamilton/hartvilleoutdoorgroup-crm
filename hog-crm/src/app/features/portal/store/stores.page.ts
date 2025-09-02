@@ -1,31 +1,48 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
-import { ContextService } from '../../../core/context/context.service';
+import { mockStores } from '../../../mock/locations.mock';
 
 @Component({
   standalone: true,
   selector: 'hog-stores',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, MatCardModule, RouterLink],
   template: `
-    <h1 class="text-2xl font-semibold">Stores</h1>
-    <div class="mt-4 space-y-2">
-      <div *ngFor="let s of stores" class="p-3 bg-white dark:bg-neutral-900 rounded border border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+    <section class="page">
+      <div class="header">
         <div>
-          <div class="font-medium">{{ s.name }}</div>
-          <div class="text-xs text-neutral-500">{{ s.city || '—' }}</div>
+          <div class="breadcrumb">Portal / Stores</div>
+          <h1 class="title">Stores</h1>
+          <div class="subtitle">Open any store dashboard</div>
         </div>
-        <a [routerLink]="['/store', s.id]" class="px-3 py-1 rounded bg-neutral-900 text-white text-sm">Open</a>
       </div>
-    </div>
-  `
+
+      <div class="cards">
+        <mat-card class="store mat-elevation-z1" *ngFor="let s of stores">
+          <mat-card-header>
+            <mat-card-title>{{ s.name }}</mat-card-title>
+            <mat-card-subtitle>ID: {{ s.id }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-actions>
+            <a mat-button color="primary" [routerLink]="'/location/' + s.id + '/dashboard'">Open</a>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </section>
+  `,
+  styles: [`
+    .page { display:flex; flex-direction:column; gap:16px; }
+    .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+    .breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+    .title { font: 600 22px/1.2 system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; margin:4px 0; }
+    .subtitle { color:rgba(0,0,0,.54); font-size:13px }
+    .cards { display:grid; gap:16px; grid-template-columns: repeat(12, 1fr); }
+    .store { grid-column: span 4; }
+    @media (max-width: 1200px) { .store { grid-column: span 6; } }
+    @media (max-width: 700px) { .store { grid-column: span 12; } }
+  `]
 })
 export class StoresPage {
-  private ctx = inject(ContextService);
-  // Replace with API call later
-  stores = [
-    { id: '1', name: 'Hartville — Main', city: 'Hartville' },
-    { id: '2', name: 'Medina', city: 'Medina' },
-    { id: '3', name: 'Mentor', city: 'Mentor' },
-  ];
+  stores = mockStores;
 }

@@ -217,3 +217,141 @@ body {
   overflow-y: hidden !important;
   overflow-x: hidden !important;
 }
+
+/* =========================================================
+   GLOBAL, BRUTE-FORCE FIXES FOR USER SETTINGS READABILITY
+   Applies only inside .user-settings wrapper.
+   Works with Material MDC (Angular Material v15+).
+========================================================= */
+
+/* ---- Default (light) tokens ---- */
+.user-settings {
+  --surface: #ffffff;
+  --on-surface: rgba(0,0,0,.87);
+  --subtle: rgba(0,0,0,.62);
+  --field-bg: #ffffff;
+  --field-border: rgba(0,0,0,.24);
+  --field-border-hover: rgba(0,0,0,.38);
+  --field-border-focus: #7aa2ff;
+  --panel-bg: #ffffff;
+  --panel-on: rgba(0,0,0,.87);
+  color: var(--on-surface) !important;
+}
+
+/* ---- Optional dark theme (add .dark-theme to <body> or root) ---- */
+.dark-theme .user-settings,
+.theme-dark .user-settings,
+body.dark .user-settings {
+  --surface: #0b1220;
+  --on-surface: #e2e8f0;
+  --subtle: rgba(226,232,240,.72);
+  --field-bg: #121a2b;
+  --field-border: rgba(226,232,240,.22);
+  --field-border-hover: rgba(226,232,240,.36);
+  --field-border-focus: #7aa2ff;
+  --panel-bg: #0f172a;
+  --panel-on: #e2e8f0;
+}
+
+/* ---------------- Text fields & selects ---------------- */
+.user-settings .mat-mdc-form-field { width: 100%; }
+
+.user-settings .mat-mdc-text-field-wrapper.mdc-text-field--outlined {
+  background: var(--field-bg) !important;
+}
+
+.user-settings .mdc-notched-outline__leading,
+.user-settings .mdc-notched-outline__trailing,
+.user-settings .mdc-notched-outline__notch {
+  border-color: var(--field-border) !important;
+}
+
+.user-settings .mat-mdc-form-field:hover .mdc-notched-outline__leading,
+.user-settings .mat-mdc-form-field:hover .mdc-notched-outline__trailing,
+.user-settings .mat-mdc-form-field:hover .mdc-notched-outline__notch {
+  border-color: var(--field-border-hover) !important;
+}
+
+.user-settings .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+.user-settings .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing,
+.user-settings .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch {
+  border-color: var(--field-border-focus) !important;
+}
+
+.user-settings .mat-mdc-input-element,
+.user-settings .mat-mdc-select-value-text,
+.user-settings .mat-mdc-select-arrow {
+  color: var(--on-surface) !important;
+}
+
+.user-settings .mat-mdc-form-field .mdc-floating-label,
+.user-settings .mat-mdc-form-field .mdc-floating-label--float-above {
+  color: var(--subtle) !important;
+}
+
+.user-settings .mat-mdc-form-field-subscript-wrapper,
+.user-settings .mat-mdc-form-field-hint-wrapper {
+  color: var(--subtle) !important;
+}
+
+/* Disabled */
+.user-settings .mat-mdc-form-field.mat-mdc-form-field-disabled .mdc-notched-outline__leading,
+.user-settings .mat-mdc-form-field.mat-mdc-form-field-disabled .mdc-notched-outline__trailing,
+.user-settings .mat-mdc-form-field.mat-mdc-form-field-disabled .mdc-notched-outline__notch {
+  border-color: var(--field-border) !important;
+  opacity: .6;
+}
+.user-settings .mat-mdc-form-field.mat-mdc-form-field-disabled .mat-mdc-input-element {
+  color: var(--subtle) !important;
+}
+
+/* ---------------- Checkboxes ---------------- */
+.user-settings .mat-mdc-checkbox .mdc-form-field > label {
+  color: var(--on-surface) !important;
+}
+.user-settings .mat-mdc-checkbox .mdc-checkbox__background {
+  border-color: var(--field-border) !important;
+}
+.user-settings .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
+  border-color: var(--field-border-focus) !important;
+}
+
+/* ---------------- Chips ---------------- */
+.user-settings .mat-mdc-chip {
+  background: var(--field-bg) !important;
+  color: var(--on-surface) !important;
+  border: 1px solid var(--field-border) !important;
+}
+
+/* ---------------- Assignment rows / cards ---------------- */
+.user-settings .assignment-row {
+  background: var(--surface) !important;
+  border: 1px solid var(--field-border) !important;
+}
+.user-settings .assignment-row .loc-name {
+  color: var(--on-surface) !important;
+}
+
+/* ---------------- Buttons ---------------- */
+.user-settings .settings-actions button[mat-stroked-button] {
+  border-color: var(--field-border) !important;
+  color: var(--on-surface) !important;
+}
+
+/* ---------------- Select overlay panel (global overlay) ---------------- */
+.cdk-overlay-container .mat-mdc-select-panel {
+  background: var(--panel-bg) !important;
+  color: var(--panel-on) !important;
+}
+.cdk-overlay-container .mat-mdc-option .mdc-list-item__primary-text {
+  color: var(--panel-on) !important;
+}
+.cdk-overlay-container .mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text {
+  font-weight: 600 !important;
+}
+
+/* Safety: label contrast inside filled/outline dense variants too */
+.user-settings .mat-mdc-form-field-infix,
+.user-settings .mat-mdc-select-value {
+  color: var(--on-surface) !important;
+}

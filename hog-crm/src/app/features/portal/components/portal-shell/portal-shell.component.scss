@@ -1,0 +1,186 @@
+/* Layout */
+.portal {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #f6f7fb;
+}
+
+/* Toolbar */
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: visible; /* ensure dropdowns aren’t clipped */
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+
+    .mat-icon { margin-right: 6px; }
+  }
+
+  .spacer { flex: 1; }
+
+  /* keep icons/text white over primary */
+  .user-trigger,
+  .user-trigger .user-name,
+  .user-trigger mat-icon {
+    color: #fff !important;
+  }
+}
+
+/* Desktop navigation spacing */
+.nav-desktop a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 2px;
+}
+
+/* Active badge in toolbar */
+a.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+}
+
+/* --- Dropdown under username (click to open) --- */
+.user {
+  position: relative; /* anchor for absolute dropdown on desktop */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.user-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  .chev { opacity: 0.9; font-size: 18px; }
+}
+
+/* CLOSED by default */
+.user-menu {
+  position: absolute;
+  right: 0;
+  left: auto;
+  top: calc(100% + 8px);
+  min-width: 220px;
+  max-width: min(92vw, 360px);
+  max-height: min(70vh, 480px);
+  overflow: auto;
+  background: #fff;
+  color: rgba(0,0,0,0.87);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.16);
+  padding: 6px 0;
+  display: none;          /* hidden by default */
+  z-index: 100;
+
+  /* vertical list layout */
+  flex-direction: column;
+  align-items: stretch;
+
+  .mat-icon { color: rgba(0,0,0,0.62); }
+}
+
+/* OPEN state */
+.user-menu.open {
+  display: flex;
+}
+
+.user-menu__name {
+  font-weight: 600;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgba(0,0,0,0.87);
+}
+
+.settings-btn,
+.logout-btn-menu {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 8px 16px;
+  text-align: left;
+  border-radius: 0;
+  color: rgba(0,0,0,0.87) !important;
+
+  .mat-icon { margin-right: 8px; color: rgba(0,0,0,0.62); }
+}
+
+/* Content padding — restores breathing room on all pages */
+.content {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 20px;
+}
+
+/* Mobile menu button defaults */
+.menu-btn { display: none; margin-right: 4px; }
+
+/* Mobile flyout — default hidden */
+.nav-mobile { display: none; }
+
+/* HARD RULE: even if menuOpen=true, nav-mobile MUST NOT show on desktop */
+@media (min-width: 961px) {
+  .nav-mobile { display: none !important; }
+}
+
+/* Mobile layout */
+@media (max-width: 960px) {
+  .menu-btn { display: inline-flex; }
+  .nav-desktop { display: none; }
+
+  .nav-mobile {
+    position: sticky;
+    top: 64px; /* toolbar height approx */
+    z-index: 15;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: flex-start;
+      background: #ffffff;
+      border-radius: 8px;
+
+      /* readable text/icons on white */
+      color: rgba(0,0,0,0.87) !important;
+
+      .mat-icon { color: rgba(0,0,0,0.87) !important; }
+
+      &:hover { background: rgba(0,0,0,0.04); }
+    }
+  }
+
+  /* Dropdown becomes fixed so it never clips on small screens */
+  .user-menu.open {
+    position: fixed;
+    right: 10px;
+    left: 10px;
+    top: 64px; /* roughly toolbar height */
+    max-width: none;
+    width: auto;
+    flex-direction: column;
+  }
+
+  .content { padding: 12px 14px; }
+}

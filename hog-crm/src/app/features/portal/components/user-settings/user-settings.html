@@ -1,0 +1,236 @@
+<div class="gohl-settings-wrap">
+  <!-- Header -->
+  <header class="gohl-header">
+    <div class="hdr-left">
+      <div class="avatar lg">
+        <img *ngIf="avatarPreviewUrl; else hdrPlaceholder" [src]="avatarPreviewUrl" alt="Profile picture" />
+        <ng-template #hdrPlaceholder><div class="avatar-ph"><mat-icon>person</mat-icon></div></ng-template>
+      </div>
+      <div class="hdr-meta">
+        <div class="title">User Settings</div>
+        <div class="sub">{{ form.get('email')?.value || user?.email }}</div>
+      </div>
+    </div>
+    <div class="hdr-right" *ngIf="context === 'location'">
+      <a [routerLink]="portalSettingsRoute" class="link">Open Portal Settings</a>
+    </div>
+  </header>
+
+  <div class="gohl-grid">
+    <!-- Left rail -->
+    <aside class="gohl-rail">
+      <nav class="rail-nav">
+        <button type="button" class="rail-link" (click)="scrollToSection('profile')">
+          <mat-icon>person</mat-icon><span>Profile</span>
+        </button>
+        <button type="button" class="rail-link" (click)="scrollToSection('security')">
+          <mat-icon>lock</mat-icon><span>Security</span>
+        </button>
+        <button type="button" class="rail-link" (click)="scrollToSection('preferences')">
+          <mat-icon>tune</mat-icon><span>Preferences</span>
+        </button>
+        <button type="button" class="rail-link" (click)="scrollToSection('notifications')">
+          <mat-icon>notifications</mat-icon><span>Notifications</span>
+        </button>
+        <button type="button" class="rail-link" (click)="scrollToSection('tables')">
+          <mat-icon>table_chart</mat-icon><span>Tables & UI</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Content -->
+    <form class="gohl-content user-settings" [formGroup]="form" (ngSubmit)="onSave()">
+
+      <!-- Profile -->
+      <section id="profile" class="card">
+        <div class="card-hd">
+          <div>
+            <h2>Profile</h2>
+            <p>Basic information shown across the portal and locations.</p>
+          </div>
+        </div>
+        <div class="card-bd">
+          <div class="profile-row">
+            <div class="avatar lg">
+              <img *ngIf="avatarPreviewUrl; else placeholder" [src]="avatarPreviewUrl" alt="Profile picture" />
+              <ng-template #placeholder><div class="avatar-ph"><mat-icon>person</mat-icon></div></ng-template>
+            </div>
+            <div class="avatar-actions">
+              <button mat-stroked-button type="button" class="btn-stroked" (click)="fileInput.click()">
+                <mat-icon>photo_camera</mat-icon><span>Change Picture</span>
+              </button>
+              <input #fileInput type="file" accept="image/*" hidden (change)="onAvatarPicked($event)" />
+              <button mat-button type="button" class="btn-ghost" *ngIf="avatarPreviewUrl" (click)="clearAvatar()">
+                <mat-icon>close</mat-icon><span>Remove</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <mat-form-field appearance="outline">
+              <mat-label>Display name</mat-label>
+              <input matInput formControlName="name" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Phone</mat-label>
+              <input matInput type="tel" formControlName="phone" placeholder="(555) 123-4567" />
+            </mat-form-field>
+          </div>
+        </div>
+      </section>
+
+      <!-- Security -->
+      <section id="security" class="card">
+        <div class="card-hd">
+          <div>
+            <h2>Security</h2>
+            <p>Update credentials. You’ll be asked to re-authenticate if required.</p>
+          </div>
+        </div>
+        <div class="card-bd">
+          <div class="grid-2">
+            <mat-form-field appearance="outline">
+              <mat-label>New password</mat-label>
+              <input matInput type="password" formControlName="password" placeholder="Leave blank to keep current" />
+            </mat-form-field>
+          </div>
+        </div>
+      </section>
+
+      <!-- Preferences -->
+      <section id="preferences" class="card">
+        <div class="card-hd">
+          <div>
+            <h2>Preferences</h2>
+            <p>Theme, density, and defaults used across the app.</p>
+          </div>
+        </div>
+        <div class="card-bd">
+          <div class="grid-3">
+            <mat-form-field appearance="outline">
+              <mat-label>Theme</mat-label>
+              <mat-select formControlName="theme">
+                <mat-option value="system">System</mat-option>
+                <mat-option value="light">Light</mat-option>
+                <mat-option value="dark">Dark</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Density</mat-label>
+              <mat-select formControlName="density">
+                <mat-option value="comfortable">Comfortable</mat-option>
+                <mat-option value="compact">Compact</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Default landing</mat-label>
+              <mat-select formControlName="defaultLanding">
+                <mat-option value="portal-dashboard">Portal Dashboard</mat-option>
+                <mat-option value="location-dashboard">Location Dashboard</mat-option>
+                <mat-option value="users">Users</mat-option>
+                <mat-option value="stores">Stores</mat-option>
+                <mat-option value="inventory">Inventory</mat-option>
+                <mat-option value="reports">Reports</mat-option>
+                <mat-option value="scheduling">Scheduling</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="grid-3">
+            <mat-form-field appearance="outline">
+              <mat-label>Default location</mat-label>
+              <mat-select formControlName="defaultLocationId">
+                <mat-option [value]="null">None</mat-option>
+                <mat-option *ngFor="let loc of allowedDefaultLocationOptions" [value]="loc.id">
+                  {{ loc.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Time zone</mat-label>
+              <mat-select formControlName="timeZone">
+                <mat-option [value]="null">System</mat-option>
+                <mat-option value="America/New_York">America/New_York</mat-option>
+                <mat-option value="America/Chicago">America/Chicago</mat-option>
+                <mat-option value="America/Denver">America/Denver</mat-option>
+                <mat-option value="America/Los_Angeles">America/Los_Angeles</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="grid-2">
+              <mat-form-field appearance="outline">
+                <mat-label>Time format</mat-label>
+                <mat-select formControlName="timeFormat">
+                  <mat-option value="h:mma">12-hour (3:45pm)</mat-option>
+                  <mat-option value="HH:mm">24-hour (15:45)</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Date format</mat-label>
+                <mat-select formControlName="dateFormat">
+                  <mat-option value="MM/dd/yyyy">MM/dd/yyyy</mat-option>
+                  <mat-option value="dd/MM/yyyy">dd/MM/yyyy</mat-option>
+                  <mat-option value="yyyy-MM-dd">yyyy-MM-dd</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notifications -->
+      <section id="notifications" class="card">
+        <div class="card-hd">
+          <div>
+            <h2>Notifications</h2>
+            <p>Choose how we keep you in the loop.</p>
+          </div>
+        </div>
+        <div class="card-bd">
+          <div class="grid-2">
+            <mat-checkbox formControlName="notifyByEmail">Email notifications</mat-checkbox>
+            <mat-checkbox formControlName="notifyBySms">SMS notifications</mat-checkbox>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tables & UI -->
+      <section id="tables" class="card">
+        <div class="card-hd">
+          <div>
+            <h2>Tables & UI</h2>
+            <p>Display options for lists and dashboards.</p>
+          </div>
+        </div>
+        <div class="card-bd">
+          <div class="grid-3">
+            <mat-checkbox formControlName="tableStriped">Striped tables</mat-checkbox>
+            <mat-checkbox formControlName="tableShowAvatars">Show avatars in tables</mat-checkbox>
+            <mat-checkbox formControlName="showAdvancedPanels">Show advanced panels</mat-checkbox>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sticky action bar -->
+      <div class="sticky-bar">
+        <div class="bar-inner">
+          <span class="hint">Review changes before saving</span>
+          <div class="actions">
+            <button mat-stroked-button type="button" class="btn-stroked" (click)="cancel.emit()">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" class="btn-primary" [disabled]="form.invalid">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

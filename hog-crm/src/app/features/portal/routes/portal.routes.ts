@@ -2,7 +2,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../../../core/auth/auth.guard';
 import { portalAccessGuard } from '../facade/portal-access.guard';
-import { PortalShellComponent } from '../components/portal-shell.component';
+import { PortalShellComponent } from '../components/portal-shell/portal-shell.component';
 
 // NOTE: Remove or fix this if you actually need it.
 // If you need the type, uncomment and point to the right file:
@@ -50,6 +50,12 @@ export const PORTAL_ROUTES: Routes = [
         loadComponent: () =>
           import('../scheduling/scheduling.page').then(m => m.SchedulingPage),
         title: 'Scheduling',
+      },
+      {
+        path: 'settings',
+        loadComponent: () => 
+          import('../components/user-settings/user-settings').then(m => m.UserSettingsComponent),
+        title: 'User Settings',
       },
       {
         path: 'unauthorized',
