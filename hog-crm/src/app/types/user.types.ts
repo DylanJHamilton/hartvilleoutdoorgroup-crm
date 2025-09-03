@@ -16,4 +16,5 @@ export interface User {
   locationIds: string[];  // legacy/simple list (keep for compat)
   assignments?: LocationAssignment[]; // per-location roles (optional)
   settings?: UserSettings;            // <-- NEW (optional, universal settings)
+  avatarUrl?: string;
 }

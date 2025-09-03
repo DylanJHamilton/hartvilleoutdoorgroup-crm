@@ -59,7 +59,14 @@
               <button mat-stroked-button type="button" class="btn-stroked" (click)="fileInput.click()">
                 <mat-icon>photo_camera</mat-icon><span>Change Picture</span>
               </button>
-              <input #fileInput type="file" accept="image/*" hidden (change)="onAvatarPicked($event)" />
+              <!-- moved off-screen instead of `hidden` to ensure programmatic click works reliably -->
+              <input
+                #fileInput
+                type="file"
+                accept="image/*"
+                (change)="onAvatarPicked($event)"
+                 style="display:none"
+              />
               <button mat-button type="button" class="btn-ghost" *ngIf="avatarPreviewUrl" (click)="clearAvatar()">
                 <mat-icon>close</mat-icon><span>Remove</span>
               </button>
@@ -226,8 +233,8 @@
         <div class="bar-inner">
           <span class="hint">Review changes before saving</span>
           <div class="actions">
-            <button mat-stroked-button type="button" class="btn-stroked" (click)="cancel.emit()">Cancel</button>
-            <button mat-flat-button color="primary" type="submit" class="btn-primary" [disabled]="form.invalid">Save Changes</button>
+            <button mat-stroked-button type="button" class="btn-stroked" (click)="onCancelClick()">Cancel</button>
+            <button mat-flat-button color="primary" type="submit" class="btn-primary" (click)="onSave()">Save Changes</button>
           </div>
         </div>
       </div>

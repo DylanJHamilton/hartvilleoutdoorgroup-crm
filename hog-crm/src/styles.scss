@@ -442,3 +442,18 @@ body.dark .user-settings {
   color: #1a1a1a !important;
   border: 1px solid rgba(0,0,0,0.08);
 }
+
+/* Snackbar variants: tuned for your light/dark vars */
+.snack-success { background: #0ea765 !important; color: #fff !important; }
+.snack-info    { background: #2563eb !important; color: #fff !important; }
+.snack-warn    { background: #f59e0b !important; color: #0b1220 !important; }
+.snack-error   { background: #dc2626 !important; color: #fff !important; }
+
+/* Make action readable in all cases */
+.snack-success .mat-mdc-snack-bar-action,
+.snack-info .mat-mdc-snack-bar-action,
+.snack-warn .mat-mdc-snack-bar-action,
+.snack-error .mat-mdc-snack-bar-action {
+  color: currentColor !important;
+  opacity: 0.9;
+}
