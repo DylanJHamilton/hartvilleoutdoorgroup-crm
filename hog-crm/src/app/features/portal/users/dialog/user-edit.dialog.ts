@@ -1,104 +1,166 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { mockStores } from '../../../../mock/locations.mock';
+import { MatDividerModule } from '@angular/material/divider';
+
 import { mockUsers } from '../../../../mock/users.mock';
+import { mockStores } from '../../../../mock/locations.mock';
 import type { Role } from '../../../../types/role.types';
+import { PerformanceService } from '../performance/performance.service';
 
-const ALL_ROLES: Role[] = ['OWNER','ADMIN','MANAGER','SALES','SUPPORT','SERVICE','DELIVERY','INVENTORY','CS','RENTALS'];
+export type EditUserResult = {
+  id: string;
+  name: string;
+  email: string;
+  roles: Role[];
+  locationIds: string[];
+};
 
-export interface EditDialogData { email: string; }
-export interface EditUserResult {
-  id: string; name: string; email: string; roles: Role[]; locationIds: string[];
-}
+type EditData = { email: string };
 
 @Component({
   standalone: true,
   selector: 'hog-user-edit-dialog',
   imports: [
-    CommonModule, MatDialogModule, ReactiveFormsModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule,
+    CommonModule,
+    MatDialogModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatChipsModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDividerModule, // <-- needed for <mat-divider>
   ],
   template: `
-    <h2 mat-dialog-title>Edit User</h2>
-    <form *ngIf="ready" [formGroup]="form" (ngSubmit)="save()" class="col" mat-dialog-content>
-      <mat-form-field appearance="outline">
-        <mat-label>Name</mat-label>
-        <input matInput formControlName="name" />
-        <mat-error *ngIf="form.get('name')?.hasError('required')">Required</mat-error>
-      </mat-form-field>
+    <h2 mat-dialog-title>Edit Employee</h2>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput formControlName="email" />
-        <mat-error *ngIf="form.get('email')?.hasError('required')">Required</mat-error>
-        <mat-error *ngIf="form.get('email')?.hasError('email')">Invalid email</mat-error>
-      </mat-form-field>
-
-       <mat-form-field appearance="outline">
-        <mat-label>Roles</mat-label>
-        <mat-select formControlName="roles" multiple panelClass="hog-select-panel">
-            <mat-option *ngFor="let r of ALL_ROLES" [value]="r">{{ r }}</mat-option>
-        </mat-select>
-        <mat-error *ngIf="form.hasError('minlen')">Pick at least one</mat-error>
+    <form [formGroup]="fm" (ngSubmit)="save()" mat-dialog-content class="wrap">
+      <!-- Core identity/assignment -->
+      <div class="grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name" required />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-        <mat-label>Assigned Stores</mat-label>
-        <mat-select formControlName="locationIds" multiple panelClass="hog-select-panel">
-            <mat-option *ngFor="let s of stores" [value]="s.id">{{ s.name }}</mat-option>
-        </mat-select>
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" required />
         </mat-form-field>
 
+        <mat-form-field appearance="outline">
+          <mat-label>Roles</mat-label>
+          <mat-select formControlName="roles" multiple>
+            <mat-option value="OWNER">OWNER</mat-option>
+            <mat-option value="ADMIN">ADMIN</mat-option>
+            <mat-option value="MANAGER">MANAGER</mat-option>
+            <mat-option value="SALES">SALES</mat-option>
+            <mat-option value="CUSTOMER_SERVICE">CUSTOMER_SERVICE</mat-option>
+            <mat-option value="SERVICE">SERVICE</mat-option>
+            <mat-option value="DELIVERY">DELIVERY</mat-option>
+            <mat-option value="RENTALS">RENTALS</mat-option>
+            <mat-option value="HYBRID">HYBRID</mat-option>
+            <mat-option value="STAFF">STAFF</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Store Locations</mat-label>
+          <mat-select formControlName="locationIds" multiple>
+            <mat-option *ngFor="let s of stores" [value]="s.id">{{ s.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Manager-editable performance fields -->
+      <div class="section-head">Performance (Manager fields)</div>
+      <div class="grid">
+        <mat-form-field appearance="outline">
+          <mat-label>On-Time Rate (%)</mat-label>
+          <input type="number" matInput formControlName="onTimeRate" min="0" max="100" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Attitude (1–5)</mat-label>
+          <input type="number" matInput formControlName="attitudeScore" min="1" max="5" />
+        </mat-form-field>
+
+        <mat-form-field class="full" appearance="outline">
+          <mat-label>Coaching Notes</mat-label>
+          <textarea rows="3" matInput formControlName="coachingNotes"></textarea>
+        </mat-form-field>
+      </div>
     </form>
+
     <div mat-dialog-actions align="end">
       <button mat-button (click)="close()">Cancel</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="save()">Save</button>
+      <button mat-flat-button color="primary" (click)="save()">Save</button>
     </div>
   `,
-  styles: [`.col{display:flex;flex-direction:column;gap:12px;min-width:520px;}.mat-mdc-form-field{width:100%;}`]
+  styles: [`
+    .wrap { min-width: 560px; display:flex; flex-direction:column; gap:12px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    .grid .full { grid-column: 1 / -1; }
+    .section-head { font-weight:700; margin-top:8px; }
+    @media (max-width: 640px) { .wrap { min-width: 0; } .grid { grid-template-columns: 1fr; } }
+  `]
 })
 export class UserEditDialog {
-  ALL_ROLES = ALL_ROLES;
+  private ref = inject(MatDialogRef<UserEditDialog>);
+  private data = inject<EditData>(MAT_DIALOG_DATA);
+  private fb = inject(FormBuilder);
+  private perf = inject(PerformanceService);
+
   stores = mockStores;
-  form!: FormGroup;
-  ready = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private ref: MatDialogRef<UserEditDialog, EditUserResult>,
-    @Inject(MAT_DIALOG_DATA) public data: EditDialogData
-  ) {
-    this.form = this.fb.group({
-      id: [''],
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      roles: [[] as Role[]],
-      locationIds: [[] as string[]],
-    }, { validators: [this.minOneRole()] });
+  target = mockUsers.find(u => u.email.toLowerCase() === this.data.email.toLowerCase());
+  latestPerf = this.target ? this.perf.latestForUser(this.target.id) : undefined;
+  latestPeriod = this.latestPerf?.period ?? null;
 
-    const u = mockUsers.find(x => x.email.toLowerCase() === data.email.toLowerCase());
-    if (u) {
-      this.form.patchValue({
-        id: u.id, name: u.name, email: u.email,
-        roles: u.roles ?? [], locationIds: u.locationIds ?? [],
-      });
-      this.ready = true;
-    }
-  }
+  fm = this.fb.nonNullable.group({
+    id: this.fb.nonNullable.control(this.target?.id ?? ''),
+    name: this.fb.nonNullable.control(this.target?.name ?? '', { validators: [Validators.required] }),
+    email: this.fb.nonNullable.control(this.target?.email ?? '', { validators: [Validators.required, Validators.email] }),
+    roles: this.fb.nonNullable.control<Role[]>([...((this.target?.roles ?? []) as Role[])]),
+    locationIds: this.fb.nonNullable.control<string[]>([...((this.target?.locationIds ?? this.target?.assignments?.map(a => a.locationId) ?? []) as string[])]),
 
-  private minOneRole() {
-    return (group: FormGroup) => {
-      const arr = (group.get('roles')?.value ?? []) as Role[];
-      return arr.length > 0 ? null : { minlen: true };
+    // Manager fields (may be null if not set)
+    onTimeRate: this.fb.control<number | null>(this.latestPerf?.onTimeRate ?? null),
+    attitudeScore: this.fb.control<number | null>(this.latestPerf?.attitudeScore ?? null, { validators: [Validators.min(1), Validators.max(5)] }),
+    coachingNotes: this.fb.nonNullable.control(this.latestPerf?.coachingNotes ?? ''),
+  });
+
+  close(): void { this.ref.close(); }
+
+  save(): void {
+    const v = this.fm.getRawValue();
+    const result: EditUserResult = {
+      id: v.id,                                // non-nullable
+      name: v.name,                            // non-nullable
+      email: (v.email || '').toLowerCase(),    // non-nullable control; sanitize anyway
+      roles: v.roles ?? [],
+      locationIds: v.locationIds ?? []
     };
-  }
 
-  close() { this.ref.close(); }
-  save() { if (!this.form.invalid) this.ref.close(this.form.getRawValue() as EditUserResult); }
+    // Persist manager fields (latest period only, if known)
+    if (this.target && this.latestPeriod) {
+      this.perf.updateManagerFields(this.target.id, this.latestPeriod, {
+        onTimeRate: v.onTimeRate,
+        attitudeScore: v.attitudeScore,
+        coachingNotes: v.coachingNotes ?? '',
+      });
+    }
+
+    this.ref.close(result);
+  }
 }

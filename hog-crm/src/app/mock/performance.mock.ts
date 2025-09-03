@@ -1,0 +1,75 @@
+// src/app/mock/performance.mock.ts
+import type {
+  Performance,                    // <-- Capital P
+  ManagerPerformance,
+  SalesPerformance,
+  CustomerServicePerformance,
+  ServicePerformance,
+  DeliveryPerformance,
+  RentalsPerformance,
+} from '../types/performance.types';
+
+export const mockPerformance: Performance[] = [
+  {
+    userId: 'u3',
+    period: '2025-Q3',
+    storeSales: 128000,
+    staffMorale: 4,
+    inventoryAccuracy: 93,
+    operationalUpkeep: 88,
+    communityEngagement: 5,
+    goalExecution: 4,
+    onTimeRate: 98,
+    attitudeScore: 4,
+    coachingNotes: 'Great initiative on weekend event. Work on inventory audits cadence.'
+  } as ManagerPerformance,
+  {
+    userId: 'u4',
+    period: '2025-Q3',
+    totalSales: 45000,
+    closeRatio: 57,
+    salesCycleDays: 14,
+    followUpAvg: 3,
+    repeatRate: 21,
+    onTimeRate: 96,
+  } as SalesPerformance,
+  {
+    userId: 'u6',
+    period: '2025-Q3',
+    firstResponseMins: 3,
+    resolutionMins: 18,
+    csat: 94,
+    contactsHandled: 325,
+    escalationRate: 7,
+    onTimeRate: 97,
+  } as CustomerServicePerformance,
+  {
+    userId: 'u7',
+    period: '2025-Q3',
+    unitsServiced: 52,
+    avgServiceMins: 42,
+    firstTimeFixRate: 89,
+    repeatIssueRate: 6,
+    csat: 91,
+    safetyIncidents: 0,
+  } as ServicePerformance,
+  {
+    userId: 'u8',
+    period: '2025-Q3',
+    onTimeRate: 95,
+    avgDeliveryMins: 72,
+    efficiency: 3.1,
+    csat: 92,
+    damageRate: 2,
+    safetyIncidents: 0,
+  } as DeliveryPerformance,
+  {
+    userId: 'u9',
+    period: '2025-Q3',
+    rentalVolume: 44,
+    rentalRevenue: 18500,
+    conversionRate: 37,
+    utilizationRate: 82,
+    repeatRentalRate: 26,
+  } as RentalsPerformance,
+];

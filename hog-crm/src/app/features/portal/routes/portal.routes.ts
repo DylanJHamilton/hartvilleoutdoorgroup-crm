@@ -39,7 +39,7 @@ export const PORTAL_ROUTES: Routes = [
         path: 'users',
         canActivate: [usersAccessGuard],
         loadComponent: () =>
-          import('../users/users.page').then(m => m.UsersPage),
+          import('../users/users-page/users.page').then(m => m.UsersPage),
         title: 'Users',
       },
       {
