@@ -30,7 +30,10 @@
         <mat-icon>space_dashboard</mat-icon><span>Dashboard</span>
       </a>
       <a *ngIf="canSeePrivNav" mat-button routerLink="/portal/users" routerLinkActive="active" (click)="closeMenu()">
-        <mat-icon>group</mat-icon><span>Users</span>
+        <mat-icon>group</mat-icon><span>Employees</span>
+      </a>
+      <a *ngIf="canSeePrivNav" mat-button routerLink="/portal/customers" routerLinkActive="active" (click)="closeMenu()">
+        <mat-icon>contact_page</mat-icon><span>Customers</span>
       </a>
       <a *ngIf="canSeePrivNav" mat-button routerLink="/portal/stores" routerLinkActive="active" (click)="closeMenu()">
         <mat-icon>store</mat-icon><span>Stores</span>
@@ -87,7 +90,10 @@
       <mat-icon>space_dashboard</mat-icon><span>Dashboard</span>
     </a>
     <a mat-button routerLink="/portal/users" routerLinkActive="active" (click)="closeMenu()">
-      <mat-icon>group</mat-icon><span>Users</span>
+      <mat-icon>group</mat-icon><span>Employees</span>
+    </a>
+    <a mat-button routerLink="/portal/customers" routerLinkActive="active" (click)="closeMenu()">
+      <mat-icon>contact_page</mat-icon><span>Customers</span>
     </a>
     <a mat-button routerLink="/portal/stores" routerLinkActive="active" (click)="closeMenu()">
       <mat-icon>store</mat-icon><span>Stores</span>

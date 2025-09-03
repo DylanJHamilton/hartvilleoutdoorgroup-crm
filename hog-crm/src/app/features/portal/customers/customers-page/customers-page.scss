@@ -1,0 +1,93 @@
+.page { display:flex; flex-direction:column; gap:16px; }
+.header { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; }
+.breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+.title { font:600 22px/1.2 system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; margin:4px 0; color:#1a1a1a; }
+.subtitle { color:rgba(0,0,0,.7); font-size:13px; }
+.actions { display:flex; align-items:center; gap:12px; }
+.w240 { width:240px; }
+
+/* Light override exactly like Users */
+.mat-light-override {
+  --mdc-theme-surface: #ffffff;
+  --mdc-theme-on-surface: rgba(0,0,0,0.87);
+  --mdc-theme-background: #ffffff;
+  --mdc-theme-on-background: rgba(0,0,0,0.87);
+  --mat-app-background-color: #ffffff;
+
+  --mat-table-background-color: #ffffff;
+  --mat-table-row-item-outline-color: rgba(0,0,0,0.08);
+  --mat-table-header-headline-color: rgba(0,0,0,0.87);
+  --mat-table-row-item-label-text-color: rgba(0,0,0,0.87);
+  --mat-table-row-item-icon-color: rgba(0,0,0,0.62);
+
+  color: rgba(0,0,0,0.87);
+  background: #fff;
+}
+
+.customers-card { background:#fff; }
+.table-wrap { overflow:auto; }
+
+/* Table skin mirrors Users */
+table.customers-table {
+  width:100%;
+  background:#fff;
+  border-collapse:separate;
+  border-spacing:0;
+}
+th.mat-header-cell { background:#fff; font-weight:600; }
+td.mat-mdc-cell, th.mat-mdc-header-cell { border-bottom-color: rgba(0,0,0,0.08); }
+tr.mat-mdc-row:nth-child(even) { background:#fafafa; }
+tr.mat-mdc-row:hover { background:#f3f6fb; }
+
+/* Name cell avatar/meta (same as Users) */
+.user-cell { display:flex; align-items:center; gap:10px; }
+.avatar { width:36px; height:36px; border-radius:50%; background:#e9eef6; color:#3b4a66; display:inline-grid; place-items:center; }
+.avatar mat-icon { font-size:20px; }
+.user-meta { display:flex; flex-direction:column; }
+.user-name { font-weight:600; color:#1a1a1a; }
+.user-email { font-size:12px; color:rgba(0,0,0,.6); }
+.sep { opacity:.5; }
+
+/* Chips readable on light */
+.owner-chip, .loc-chip {
+  background: #eef3ff;
+  color: #1a1a1a !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+}
+.loc-chip { background:#eef8f1; }
+.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label {
+  color: #1a1a1a !important;
+}
+
+/* Truncation utility */
+.truncate { display:inline-block; max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* Actions column */
+.col-actions { white-space:nowrap; text-align:right; }
+.col-actions button { margin-left:4px; }
+.edit.mat-mdc-button:not(:disabled){ color: #000; }
+.view.mat-mdc-button:not(:disabled){ color: #000; }
+.delete.mat-mdc-button:not(:disabled){ color: red; }
+
+
+/* Paginator matches Users card */
+.mat-mdc-paginator {
+  background:#fff !important;
+  color: rgba(0,0,0,0.87) !important;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  border-radius: 0 0 12px 12px;
+}
+.mat-mdc-paginator .mat-mdc-icon-button .mat-mdc-button-touch-target,
+.mat-mdc-paginator .mat-mdc-icon-button,
+.mat-mdc-paginator .mat-mdc-icon-button mat-icon {
+  color: rgba(0,0,0,0.62) !important;
+  fill: rgba(0,0,0,0.62) !important;
+}
+.mat-mdc-paginator .mat-mdc-select-value,
+.mat-mdc-paginator .mat-mdc-select-arrow,
+.mat-mdc-paginator .mat-mdc-paginator-range-label {
+  color: rgba(0,0,0,0.87) !important;
+}
+
+/* Responsive parity */
+@media (max-width: 960px) { .user-email { display:none; } }
