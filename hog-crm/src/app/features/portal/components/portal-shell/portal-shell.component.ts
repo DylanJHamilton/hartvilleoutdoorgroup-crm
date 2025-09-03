@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { filter } from 'rxjs/operators';
+import { isPrivilegedGlobal, isHybrid } from '../../../../core/auth/roles.util';
 
 @Component({
   standalone: true,
@@ -83,6 +84,13 @@ export class PortalShellComponent {
       this.showSettings = false;
       this.router.navigate(['/login']);
     }
+  }
+
+    get canSeePrivNav(): boolean {
+    return isPrivilegedGlobal(this.auth.user());
+  }
+  get isHybridUser(): boolean {
+    return isHybrid(this.auth.user());
   }
 
   // --- Global listeners ---

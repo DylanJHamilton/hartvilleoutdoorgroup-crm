@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from '../../../core/auth/auth.guard';
 import { portalAccessGuard } from '../facade/portal-access.guard';
 import { PortalShellComponent } from '../components/portal-shell/portal-shell.component';
+import { usersAccessGuard } from '../users/users-access.guard';
 
 // NOTE: Remove or fix this if you actually need it.
 // If you need the type, uncomment and point to the right file:
@@ -35,6 +36,7 @@ export const PORTAL_ROUTES: Routes = [
       },
       {
         path: 'users',
+        canActivate: [usersAccessGuard],
         loadComponent: () =>
           import('../users/users.page').then(m => m.UsersPage),
         title: 'Users',

@@ -26,22 +26,22 @@
 
     <!-- Desktop nav -->
     <nav class="nav nav-desktop">
-      <a mat-button routerLink="/portal/dashboard" routerLinkActive="active" (click)="closeMenu()">
+      <a  *ngIf="canSeePrivNav" mat-button routerLink="/portal/dashboard" routerLinkActive="active" (click)="closeMenu()">
         <mat-icon>space_dashboard</mat-icon><span>Dashboard</span>
       </a>
-      <a mat-button routerLink="/portal/users" routerLinkActive="active" (click)="closeMenu()">
+      <a *ngIf="canSeePrivNav" mat-button routerLink="/portal/users" routerLinkActive="active" (click)="closeMenu()">
         <mat-icon>group</mat-icon><span>Users</span>
       </a>
-      <a mat-button routerLink="/portal/stores" routerLinkActive="active" (click)="closeMenu()">
+      <a *ngIf="canSeePrivNav" mat-button routerLink="/portal/stores" routerLinkActive="active" (click)="closeMenu()">
         <mat-icon>store</mat-icon><span>Stores</span>
       </a>
-      <a mat-button routerLink="/portal/inventory" routerLinkActive="active" (click)="closeMenu()">
+      <a *ngIf="canSeePrivNav" mat-button routerLink="/portal/inventory" routerLinkActive="active" (click)="closeMenu()">
         <mat-icon>view_column</mat-icon><span>Inventory</span>
       </a>
-      <a mat-button routerLink="/portal/reports" routerLinkActive="active" (click)="closeMenu()">
+      <a *ngIf="canSeePrivNav" mat-button routerLink="/portal/reports" routerLinkActive="active" (click)="closeMenu()">
         <mat-icon>insights</mat-icon><span>Reports</span>
       </a>
-      <a mat-button routerLink="/portal/scheduling" routerLinkActive="active" (click)="closeMenu()">
+      <a *ngIf="canSeePrivNav" mat-button routerLink="/portal/scheduling" routerLinkActive="active" (click)="closeMenu()">
         <mat-icon>event</mat-icon><span>Scheduling</span>
       </a>
     </nav>
