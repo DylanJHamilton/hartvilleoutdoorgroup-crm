@@ -1,0 +1,165 @@
+   :host { display:block; }
+    .page { display:flex; flex-direction:column; gap:16px; padding:16px; background:#f6f7fb; }
+    .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+    .title { font: 600 22px/1.2 system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; margin:4px 0; }
+    .subtitle { color:rgba(0,0,0,.60); font-size:13px; }
+
+    .filters {
+      display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+      background:#ffffff; border:1px solid #e5e7eb; border-radius:12px;
+      padding:8px 12px; box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    .filters .mat-mdc-form-field { --field-min: 210px; min-width: var(--field-min); flex: 1 1 210px; }
+    .filters .mat-mdc-form-field-infix { padding-top: 8px; padding-bottom: 8px; }
+    :host ::ng-deep .filters .mdc-text-field { border-radius:10px; background:#f1f5f9 !important; }
+
+    :host ::ng-deep .hog-filter-panel .mat-mdc-option .mdc-list-item__primary-text { color:#0f172a !important; }
+    :host ::ng-deep .hog-filter-panel .mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text { font-weight:600; }
+
+    .light-card { background:#fff; border-radius:12px; }
+    .grid-12 { display:grid; gap:16px; grid-template-columns:repeat(12,1fr); }
+    .kpi { grid-column: span 3; }
+    .half { grid-column: span 6; }
+    .third { grid-column: span 4; }
+    .two-thirds { grid-column: span 8; }
+    .full { grid-column: 1 / -1; }
+    @media (max-width: 1200px) {
+      .kpi { grid-column: span 6; }
+      .half, .two-thirds { grid-column: span 12; }
+      .third { grid-column: span 6; }
+    }
+    @media (max-width: 900px) {
+      .kpi, .half, .third, .two-thirds { grid-column: span 12; }
+    }
+
+    .kpi-val { font-weight:700; font-size:22px; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .muted { color: rgba(0,0,0,.54); }
+    .inline-links a { text-decoration:none; }
+
+    .chip { display:inline-flex; align-items:center; gap:6px; padding:2px 8px; border-radius:999px; background:#eef2ff; color:#3730a3; font-size:12px; }
+    .chip.red { background:#fee2e2; color:#991b1b; }
+    .chip.orange { background:#ffedd5; color:#9a3412; }
+    .chip.green { background:#dcfce7; color:#166534; }
+
+    .media { display:flex; gap:12px; align-items:center; }
+    .media img { width:64px; height:64px; object-fit:cover; border-radius:8px; background:#eee; }
+    .media .meta { display:flex; flex-direction:column; }
+    .price { font-weight:600; }
+
+    .sneak { display:grid; gap:16px; grid-template-columns: repeat(12, 1fr); }
+    .sneak-left { grid-column: span 8; }
+    .sneak-right { grid-column: span 4; }
+    @media (max-width: 1200px) { .sneak-left, .sneak-right { grid-column: span 12; } }
+
+    .compare-row { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }
+    @media (max-width: 1200px) { .compare-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 900px) { .compare-row { grid-template-columns: 1fr; } }
+
+    .quick-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+    .quick-actions a { line-height: 28px; }
+    :host ::ng-deep .quick-actions .mat-mdc-stroked-button {
+      --mdc-outlined-button-label-text-color: #0f172a;
+      --mdc-outlined-button-outline-color: #cbd5e1;
+      --mat-mdc-button-persistent-ripple-color: rgba(37, 99, 235, .24);
+      --mat-mdc-button-ripple-color: rgba(37, 99, 235, .24);
+      --mat-mdc-button-state-layer-color: rgba(37, 99, 235, .12);
+      color:#0f172a !important; border-color:#cbd5e1 !important;
+    }
+    :host ::ng-deep .quick-actions .mat-mdc-stroked-button:hover {
+      background:#f1f5f9 !important; border-color:#2563eb !important; color:#1e3a8a !important;
+    }
+
+    .centered { display:flex; justify-content:center; }
+    .ticket-list { list-style:none; margin:8px 0 0; padding:0; display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; }
+    .ticket-list li { display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px solid #e5e7eb; padding:6px 8px; border-radius:8px; }
+    .ticket-list .dot { width:10px; height:10px; border-radius:999px; display:inline-block; }
+    .ticket-list .dot.red { background:#ef4444; }
+    .ticket-list .dot.orange { background:#f59e0b; }
+    .ticket-list .dot.green { background:#22c55e; }
+    .ticket-list .dot.slate { background:#64748b; }
+    @media (max-width: 900px) { .ticket-list { grid-template-columns: 1fr; } }
+
+    .crm-table { display:grid; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+    .crm-row { display:grid; grid-template-columns: 100px 120px 140px 1fr 220px 140px 100px; gap:0; }
+    .crm-row > div { padding:10px 12px; border-bottom:1px solid #f1f5f9; }
+    .crm-head { background:#f8fafc; font-weight:600; }
+    .crm-row:last-child > div { border-bottom:none; }
+    .right { text-align:right; }
+    @media (max-width: 1200px) {
+      .crm-table { display:block; overflow:auto; -webkit-overflow-scrolling: touch; }
+      .crm-row { display:grid; grid-template-columns: 100px 110px 120px 420px 200px 120px 100px; min-width: 1070px; }
+    }
+    @media (max-width: 700px) {
+      .crm-table { display:block; }
+      .crm-head { display:none; }
+      .crm-row {
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+        gap:0;
+        border-bottom:1px solid #f1f5f9;
+      }
+      .crm-row > div { border-bottom:none; padding:8px 10px; }
+    }
+
+    .perf-block { margin-bottom:10px; }
+    .bar { height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; }
+    .bar > span { display:block; height:100%; background:#3b82f6; width:var(--w, 50%); }
+    .divider { height:1px; background:#e5e7eb; margin:12px 0; }
+    .perf-dollars { gap:12px; flex-wrap:wrap; }
+    .card-mini { background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:12px; min-width:220px; }
+    .mini-label { font-size:12px; color:#64748b; }
+    .mini-val { font-weight:700; font-size:18px; }
+
+    /* === Make the filter selects match the Dashboard === */
+
+  /* Background + radius for the outlined text field in the light toolbar */
+  :host ::ng-deep .filters .mat-mdc-form-field .mdc-text-field {
+    background:#f1f5f9 !important;
+    border-radius:10px !important;
+  }
+
+  /* Trigger/value/label/arrow colors (prevents the washed-out look) */
+  :host ::ng-deep .filters .mat-mdc-select-trigger,
+  :host ::ng-deep .filters .mat-mdc-select-value,
+  :host ::ng-deep .filters .mat-mdc-select-value-text,
+  :host ::ng-deep .filters .mat-mdc-select-placeholder,
+  :host ::ng-deep .filters .mat-mdc-form-field-label,
+  :host ::ng-deep .filters .mat-mdc-select-arrow svg {
+    color:#0f172a !important;   /* slate-900 */
+    fill:#0f172a !important;
+  }
+
+  /* Outline color (idle) */
+  :host ::ng-deep .filters .mdc-notched-outline__leading,
+  :host ::ng-deep .filters .mdc-notched-outline__notch,
+  :host ::ng-deep .filters .mdc-notched-outline__trailing {
+    border-color:#cbd5e1 !important; /* slate-300 */
+  }
+
+  /* Outline color (focused) */
+  :host ::ng-deep .filters .mdc-text-field--focused .mdc-notched-outline__leading,
+  :host ::ng-deep .filters .mdc-text-field--focused .mdc-notched-outline__notch,
+  :host ::ng-deep .filters .mdc-notched-outline__trailing {
+    border-color:#2563eb !important; /* blue-600 */
+  }
+
+  /* Label color when floating/focused (to match the blue accent) */
+  :host ::ng-deep .filters .mat-mdc-form-field .mdc-floating-label,
+  :host ::ng-deep .filters .mat-mdc-form-field.mat-focused .mdc-floating-label,
+  :host ::ng-deep .filters .mat-mdc-form-field .mdc-floating-label--float-above {
+    color:#2563eb !important;
+    opacity:1 !important;
+  }
+
+  /* Opened panel text (already set, keeping for completeness) */
+  :host ::ng-deep .hog-filter-panel .mat-mdc-option .mdc-list-item__primary-text {
+    color:#0f172a !important;
+  }
+  :host ::ng-deep .hog-filter-panel .mat-mdc-option.mdc-list-item--selected
+    .mdc-list-item__primary-text {
+    font-weight:600;
+  }
+
+.hog-link-btn.mat-mdc-outlined-button:not(:disabled){ color: #000; }

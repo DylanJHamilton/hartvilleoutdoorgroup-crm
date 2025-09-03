@@ -59,11 +59,11 @@
               </div>
             </mat-card-content>
             <mat-card-actions class="quick-actions">
-              <a mat-stroked-button [routerLink]="['/location', loc.id, 'dashboard']">Dashboard</a>
-              <a mat-stroked-button [routerLink]="['/location', loc.id, 'sales']">Sales</a>
-              <a mat-stroked-button [routerLink]="['/location', loc.id, 'sales']">Pipeline</a>
-              <a mat-stroked-button [routerLink]="['/location', loc.id, 'tickets']">Tickets</a>
-              <a mat-stroked-button [routerLink]="['/location', loc.id, 'inventory']">Inventory</a>
+              <a class="location" mat-stroked-button [routerLink]="['/location', loc.id, 'dashboard']">Dashboard</a>
+              <a class="sales" mat-stroked-button [routerLink]="['/location', loc.id, 'sales']">Sales</a>
+              <a class="pipeline" mat-stroked-button [routerLink]="['/location', loc.id, 'sales']">Pipeline</a>
+              <a class="tickets" mat-stroked-button [routerLink]="['/location', loc.id, 'tickets']">Tickets</a>
+              <a class="inventory" mat-stroked-button [routerLink]="['/location', loc.id, 'inventory']">Inventory</a>
             </mat-card-actions>
           </mat-card>
         </div>
