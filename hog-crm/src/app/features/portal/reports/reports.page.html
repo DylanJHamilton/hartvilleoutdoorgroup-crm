@@ -1,0 +1,190 @@
+<section class="page hog-reports">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Portal / Reports</div>
+      <h1 class="title">Reports</h1>
+      <div class="subtitle">{{ scopeLabel() }} • {{ timeframe() }}</div>
+    </div>
+
+    <!-- Bare filters + Compare toggle -->
+    <div class="filters bare" *ngIf="privileged()">
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Store</mat-label>
+        <mat-select [value]="activeStoreId()" (selectionChange)="onStore($event.value)" panelClass="hog-filter-panel">
+          <mat-option *ngIf="canAll()" [value]="''">All Stores</mat-option>
+          <mat-option *ngFor="let s of visibleStores()" [value]="s.id">{{ s.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Timeframe</mat-label>
+        <mat-select [value]="timeframe()" (selectionChange)="onTimeframe($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="MTD">MTD</mat-option>
+          <mat-option value="WTD">WTD</mat-option>
+          <mat-option value="DTD">Daily</mat-option>
+          <mat-option value="YTD">YTD</mat-option>
+          <mat-option value="QTD">Quarter</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button color="primary" *ngIf="canAll()" (click)="toggleCompare()">
+        {{ compareMode() ? 'Hide Compare' : 'Compare Stores' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="grid-12">
+    <mat-card class="kpi light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Total Sales ({{ timeframe() }})</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="kpi-val">{{ totalSales() | currency:'USD':'symbol' }}</div>
+        <div class="muted">Prev {{ timeframeLabel() }}: {{ prevTotalSales() | currency:'USD':'symbol' }} ({{ salesDelta() }}%)</div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="kpi light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Average Order Value</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="kpi-val">{{ aov() | currency:'USD':'symbol' }}</div>
+        <div class="muted">vs Prev: {{ prevAov() | currency:'USD':'symbol' }}</div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="kpi light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Orders</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="kpi-val">{{ orders() }}</div>
+        <div class="muted">vs Prev: {{ prevOrders() }} ({{ ordersDelta() }}%)</div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="kpi light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Refund Rate</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="kpi-val">{{ refundRate() }}%</div>
+        <div class="muted">Target ≤ 2.0%</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Compare Stores block -->
+  <mat-card class="light-card" *ngIf="canAll() && compareMode()">
+    <mat-card-header>
+      <mat-card-title>Store Comparison</mat-card-title>
+      <mat-card-subtitle class="muted">All stores • {{ timeframe() }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="compare-row">
+        <mat-card class="light-card mat-elevation-z1" *ngFor="let s of allStoresCompare()">
+          <mat-card-header>
+            <mat-card-title>{{ s.name }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div [hogChart]="compareSalesChart(s.id)"></div>
+            <div class="row" style="margin-top:8px">
+              <span class="chip">Sales: {{ compareSales(s.id) | currency:'USD' }}</span>
+              <span class="chip">Orders: {{ compareOrders(s.id) }}</span>
+            </div>
+          </mat-card-content>
+          <mat-card-actions class="quick-actions">
+            <a mat-stroked-button class="hog-link-btn" [routerLink]="['/location', s.id, 'dashboard']">Dashboard</a>
+            <a mat-stroked-button class="hog-link-btn" [routerLink]="['/location', s.id, 'sales']">Sales</a>
+            <a mat-stroked-button class="hog-link-btn" [routerLink]="['/location', s.id, 'tickets']">Tickets</a>
+            <a mat-stroked-button class="hog-link-btn" [routerLink]="['/location', s.id, 'inventory']">Inventory</a>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Charts row -->
+  <div class="grid-12">
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Sales Snapshot</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="salesChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Current Sales Pipeline</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="pipelineChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Total Opportunity Sales</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="opportunityChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Trends</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="trendChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Support Tickets</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="centered"><div [hogChart]="ticketsChart()"></div></div>
+        <ul class="ticket-list">
+          <li><span class="dot red"></span> High <b>{{ tickets().high }}</b></li>
+          <li><span class="dot orange"></span> Medium <b>{{ tickets().med }}</b></li>
+          <li><span class="dot green"></span> Low <b>{{ tickets().low }}</b></li>
+          <li><span class="dot slate"></span> SLA 24h Breaches <b>{{ tickets().slaBreaches }}</b></li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Top Performers per Location -->
+  <mat-card class="light-card mat-elevation-z1">
+    <mat-card-header>
+      <mat-card-title>Top Performers per Location</mat-card-title>
+      <mat-card-subtitle class="muted">Quick scan of leaders by department</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="grid-12">
+        <div class="third" *ngFor="let s of performerDeck()">
+          <mat-card class="light-card mat-elevation-z1 perf-card">
+            <mat-card-header>
+              <mat-card-title>{{ s.name }}</mat-card-title>
+              <mat-card-subtitle>ID: {{ s.id }} • {{ storeSlug(s.id) }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="perf-row">
+                <div class="label">Top Sales</div>
+                <div class="who">{{ s.sales.who }}</div>
+                <div class="bar"><span [style.--w.%]="s.sales.bar"></span></div>
+                <div class="why">{{ s.sales.why }}</div>
+              </div>
+              <div class="perf-row">
+                <div class="label">Trending</div>
+                <div class="who">{{ s.trending.who }}</div>
+                <div class="bar"><span [style.--w.%]="s.trending.bar"></span></div>
+                <div class="why">{{ s.trending.why }}</div>
+              </div>
+              <div class="perf-row">
+                <div class="label">Support</div>
+                <div class="who">{{ s.support.who }}</div>
+                <div class="bar"><span [style.--w.%]="s.support.bar"></span></div>
+                <div class="why">{{ s.support.why }}</div>
+              </div>
+              <div class="perf-row">
+                <div class="label">Delivery</div>
+                <div class="who">{{ s.delivery.who }}</div>
+                <div class="bar"><span [style.--w.%]="s.delivery.bar"></span></div>
+                <div class="why">{{ s.delivery.why }}</div>
+              </div>
+              <div class="perf-row">
+                <div class="label">Tech</div>
+                <div class="who">{{ s.tech.who }}</div>
+                <div class="bar"><span [style.--w.%]="s.tech.bar"></span></div>
+                <div class="why">{{ s.tech.why }}</div>
+              </div>
+            </mat-card-content>
+            <mat-card-actions class="quick-actions">
+              <!-- /s1/page, /s2/page, /s3/page -->
+              <a mat-stroked-button class="hog-link-btn" [routerLink]="storePageLink(s.id)">Open {{ storeSlug(s.id) }}</a>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</section>

@@ -1,0 +1,94 @@
+:host { display:block; }
+
+/* Page */
+.page { display:flex; flex-direction:column; gap:16px; padding:16px; background:#f6f7fb; }
+.header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+.title { font: 600 22px/1.2 system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; margin:4px 0; }
+.subtitle { color:rgba(0,0,0,.60); font-size:13px; }
+
+/* Bare filter bar (transparent) */
+.filters { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.filters.bare { background:transparent; border:0; box-shadow:none; padding:0; }
+.filters .mat-mdc-form-field { --field-min: 210px; min-width: var(--field-min); flex: 1 1 210px; }
+.filters .mat-mdc-form-field-infix { padding-top: 8px; padding-bottom: 8px; }
+:host ::ng-deep .filters .mdc-text-field { background:transparent !important; border-radius:10px; }
+:host ::ng-deep .filters .mat-mdc-select-trigger,
+:host ::ng-deep .filters .mat-mdc-select-value,
+:host ::ng-deep .filters .mat-mdc-select-value-text,
+:host ::ng-deep .filters .mat-mdc-select-placeholder,
+:host ::ng-deep .filters .mat-mdc-form-field-label,
+:host ::ng-deep .filters .mat-mdc-select-arrow svg { color:#0f172a !important; fill:#0f172a !important; }
+:host ::ng-deep .filters .mdc-notched-outline__leading,
+:host ::ng-deep .filters .mdc-notched-outline__notch,
+:host ::ng-deep .filters .mdc-notched-outline__trailing { border-color:#cbd5e1 !important; }
+:host ::ng-deep .filters .mdc-text-field--focused .mdc-notched-outline__leading,
+:host ::ng-deep .filters .mdc-text-field--focused .mdc-notched-outline__notch,
+:host ::ng-deep .filters .mdc-text-field--focused .mdc-notched-outline__trailing { border-color:#2563eb !important; }
+:host ::ng-deep .hog-filter-panel .mat-mdc-option .mdc-list-item__primary-text { color:#0f172a !important; }
+:host ::ng-deep .hog-filter-panel .mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text { font-weight:600; }
+
+/* Cards & grids */
+.light-card { background:#fff; border-radius:12px; }
+.grid-12 { display:grid; gap:16px; grid-template-columns:repeat(12,1fr); }
+.kpi { grid-column: span 3; }
+.half { grid-column: span 6; }
+.third { grid-column: span 4; }
+.full { grid-column: 1 / -1; }
+
+@media (max-width: 1200px) {
+  .kpi { grid-column: span 6; }
+  .half { grid-column: span 12; }
+  .third { grid-column: span 6; }
+}
+@media (max-width: 900px) {
+  .kpi, .half, .third { grid-column: span 12; }
+}
+
+.kpi-val { font-weight:700; font-size:22px; }
+.row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.muted { color: rgba(0,0,0,.54); }
+
+/* Compare row */
+.compare-row { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }
+@media (max-width: 1200px) { .compare-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 900px)  { .compare-row { grid-template-columns: 1fr; } }
+
+/* Chips + tickets */
+.chip { display:inline-flex; align-items:center; gap:6px; padding:2px 8px; border-radius:999px; background:#eef2ff; color:#3730a3; font-size:12px; }
+.chip.red { background:#fee2e2; color:#991b1b; }
+.chip.orange { background:#ffedd5; color:#9a3412; }
+.chip.green { background:#dcfce7; color:#166534; }
+
+.centered { display:flex; justify-content:center; }
+.ticket-list { list-style:none; margin:8px 0 0; padding:0; display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; }
+.ticket-list li { display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px solid #e5e7eb; padding:6px 8px; border-radius:8px; }
+.ticket-list .dot { width:10px; height:10px; border-radius:999px; display:inline-block; }
+.ticket-list .dot.red { background:#ef4444; }
+.ticket-list .dot.orange { background:#f59e0b; }
+.ticket-list .dot.green { background:#22c55e; }
+.ticket-list .dot.slate { background:#64748b; }
+@media (max-width: 900px) { .ticket-list { grid-template-columns: 1fr; } }
+
+/* Stroked buttons */
+.quick-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.quick-actions a { line-height: 28px; }
+:host ::ng-deep .quick-actions .mat-mdc-stroked-button {
+  --mdc-outlined-button-label-text-color: #0f172a;
+  --mdc-outlined-button-outline-color: #cbd5e1;
+  --mat-mdc-button-persistent-ripple-color: rgba(37, 99, 235, .24);
+  --mat-mdc-button-ripple-color: rgba(37, 99, 235, .24);
+  --mat-mdc-button-state-layer-color: rgba(37, 99, 235, .12);
+  color:#0f172a !important; border-color:#cbd5e1 !important;
+}
+:host ::ng-deep .quick-actions .mat-mdc-stroked-button:hover {
+  background:#f1f5f9 !important; border-color:#2563eb !important; color:#1e3a8a !important;
+}
+
+/* Perf mini-cards */
+.perf-card .perf-row { display:grid; grid-template-columns: 110px 1fr; grid-auto-rows:auto; gap:6px 10px; margin-bottom:8px; }
+.perf-card .label { font-weight:600; color:#0f172a; }
+.perf-card .who { color:#0f172a; }
+.perf-card .bar { grid-column: 1 / -1; height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; }
+.perf-card .bar > span { display:block; height:100%; background:#3b82f6; width:var(--w, 50%); }
+.perf-card .why { grid-column: 1 / -1; font-size:12px; color:#64748b; }
