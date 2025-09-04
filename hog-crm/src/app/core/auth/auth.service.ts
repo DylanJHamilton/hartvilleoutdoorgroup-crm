@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../config/app-tokens';
 import type { User } from '../../types/user.types';
 import type { Role } from '../../types/role.types';
 import { mockUsers } from '../../mock/users.mock';
+import { landingPathFor } from './roles.util';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -97,6 +98,12 @@ export class AuthService {
 
   return user;
 }
+
+  getPostLoginTarget(returnUrl?: string | null): string {
+    const user = this.getUser();
+    if (returnUrl) return returnUrl;
+    return landingPathFor(user);
+  }
 
   signOut(): void {
     this.logout();

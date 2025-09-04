@@ -1,35 +1,38 @@
+// src/app/core/auth/login-redirect.service.ts
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import type { User } from '../../types/user.types';
-import type { Role } from '../../types/role.types';
+import {
+  canSeeAllLocations,
+  isHybrid,
+  preferredLocationId,
+  userLocationIds,
+} from './roles.util';
 
 @Injectable({ providedIn: 'root' })
 export class LoginRedirectService {
   private router = inject(Router);
 
-  private isPrivileged(roles: Role[] = []): boolean {
-    return roles.some(r =>
-      r === 'OWNER' ||
-      r === 'ADMIN' ||
-      r === 'MANAGER'
-    );
-  }
-
-  private pickPrimaryLocationId(user: User): string | null {
-    const ids = user.locationIds ?? [];
-    return ids.length > 0 ? ids[0] : null;
-  }
-
   /** Pure function: returns the landing URL for a freshly authenticated user */
   getLandingUrl(user: User | null): string {
     if (!user) return '/auth/login';
 
-    if (this.isPrivileged(user.roles)) {
-      return '/portal';
-    }
+    // Owners/Admins -> Portal (full)
+    if (canSeeAllLocations(user)) return '/portal';
 
-    const loc = this.pickPrimaryLocationId(user);
-    return loc ? `/location/${loc}/dashboard` : '/portal'; // fallback
+    // Managers + Hybrids -> Portal (scoped)
+    const isManager = !!user.roles?.includes('MANAGER');
+    if (isManager || isHybrid(user)) return '/portal';
+
+    // Everyone else: prefer specific location when obvious
+    const pref = preferredLocationId(user);        // honors settings.defaultLocationId and single-location
+    if (pref) return `/location/${pref}/dashboard`;
+
+    const locs = userLocationIds(user);
+    if (locs.length > 1) return '/location/select'; // optional picker if you support it
+    if (locs.length === 1) return `/location/${locs[0]}/dashboard`;
+
+    return '/no-access';
   }
 
   /** Side-effect: immediately navigate there */

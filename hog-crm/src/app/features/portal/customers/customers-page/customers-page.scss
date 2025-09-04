@@ -91,3 +91,7 @@ tr.mat-mdc-row:hover { background:#f3f6fb; }
 
 /* Responsive parity */
 @media (max-width: 960px) { .user-email { display:none; } }
+
+.delete.mat-mdc-button:has(.material-icons,mat-icon,[matButtonIcon]){
+  color: red;
+}

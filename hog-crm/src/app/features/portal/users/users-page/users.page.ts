@@ -116,7 +116,7 @@ export class UsersPage implements AfterViewInit {
     return (this.currentUser()?.email || '').toLowerCase() === (email || '').toLowerCase();
   }
 
-  private managerCanActOn(targetEmail: string): boolean {
+  private managerCanActOn(targetEmail: string): boolean {  
     const actor = this.currentUser();
     if (!actor) return false;
     if (!(actor.roles ?? []).includes('MANAGER')) return false;
@@ -124,16 +124,38 @@ export class UsersPage implements AfterViewInit {
     const target = (this.model() ?? []).find(u => u.email.toLowerCase() === targetEmail.toLowerCase());
     if (!target) return false;
 
+    // 🔒 Managers cannot act on Owners/Admins
+    if ((target.roles ?? []).includes('OWNER') || (target.roles ?? []).includes('ADMIN')) return false;
+
+    // Must share at least one location
     const actorStores = new Set(userLocationIds(actor));
     const targetStores = new Set(userLocationIds(target as any));
     return [...actorStores].some(id => targetStores.has(id));
   }
 
+  /** Managers: can view performance for users in their store(s), even if target is Owner/Admin */
+  private managerSharesStore(targetEmail: string): boolean {
+    const actor = this.currentUser();
+    if (!actor) return false;
+    if (!(actor.roles ?? []).includes('MANAGER')) return false;
+
+    const target = (this.model() ?? []).find(
+      u => u.email.toLowerCase() === targetEmail.toLowerCase()
+    );
+    if (!target) return false;
+
+    const actorStores = new Set(userLocationIds(actor));
+    const targetStores = new Set(userLocationIds(target as any));
+    return [...actorStores].some(id => targetStores.has(id));
+  }
+
+
   // --- visibility rules ---
   canViewPerformance(email: string): boolean {
     if (this.isOwnerOrAdmin()) return true;
-    return this.managerCanActOn(email);
+    return this.managerSharesStore(email); // view allowed on store overlap
   }
+
 
   canEdit(email: string): boolean {
     // Owners/Admins: anyone; Managers: only their staff; User can edit self
