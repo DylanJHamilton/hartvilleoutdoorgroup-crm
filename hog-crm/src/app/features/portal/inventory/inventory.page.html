@@ -1,0 +1,58 @@
+<section class="page">
+  <div class="header">
+    <div>
+      <h1>Inventory</h1>
+      <p>Airtable-like grid (MVP)</p>
+    </div>
+  </div>
+
+  <div class="filters">
+    <!-- Store select -->
+    <mat-form-field appearance="outline" class="filter-field" *ngIf="visibleStores() as stores">
+      <mat-label>Store</mat-label>
+      <mat-select [value]="activeStoreId()" (selectionChange)="onStore($event.value)" [panelClass]="'hog-filter-panel'">
+        <mat-option *ngIf="canAll()" [value]="''">All Stores</mat-option>
+        <mat-option *ngFor="let s of stores" [value]="s.id">{{ s.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Category -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Category</mat-label>
+      <mat-select multiple [value]="categories()" (selectionChange)="categories.set($event.value)" [panelClass]="'hog-filter-panel'">
+        <mat-option value="Golf Carts">Golf Carts</mat-option>
+        <mat-option value="Sheds & Garages">Sheds & Garages</mat-option>
+        <mat-option value="Playsets">Playsets</mat-option>
+        <mat-option value="Cabins">Cabins</mat-option>
+        <mat-option value="Parts">Parts</mat-option>
+        <mat-option value="Basketball Hoops">Basketball Hoops</mat-option>
+        <mat-option value="Playgrounds">Playgrounds</mat-option>
+        <mat-option value="Trampolines">Trampolines</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Low stock only -->
+    <mat-checkbox [checked]="lowOnly()" (change)="lowOnly.set($event.checked)">Low stock only</mat-checkbox>
+
+    <!-- Actions -->
+    <button mat-stroked-button color="primary" (click)="addRow()" [disabled]="!isEditable()">
+      <mat-icon>add</mat-icon> Add Row
+    </button>
+    <button mat-stroked-button color="primary" (click)="exportCsv()">
+      <mat-icon>download</mat-icon> Export CSV
+    </button>
+  </div>
+
+  <!-- Table -->
+  <mat-card>
+    <table mat-table [dataSource]="sortedItems()" class="hog-table">
+      <ng-container *ngFor="let col of visibleCols()" [matColumnDef]="col">
+        <th mat-header-cell *matHeaderCellDef>{{ col }}</th>
+        <td mat-cell *matCellDef="let row">{{ row[col] }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="visibleCols()"></tr>
+      <tr mat-row *matRowDef="let row; columns: visibleCols(); trackBy: trackById"></tr>
+    </table>
+  </mat-card>
+</section>

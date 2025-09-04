@@ -1,0 +1,224 @@
+/* Scope only inside inventory page */
+:host {
+  .filter-field {
+    width: 220px;
+    margin-right: 12px;
+
+    .mat-mdc-text-field-wrapper {
+      background-color: #f1f5f9 !important;
+      border-radius: 6px !important;
+    }
+
+    .mat-mdc-form-field-flex {
+      background-color: transparent !important;
+    }
+
+    .mat-mdc-select-trigger {
+      color: #0f172a !important;
+    }
+
+    .mat-mdc-select-placeholder {
+      color: #64748b !important;
+    }
+
+    .mat-mdc-select.mat-mdc-select-focused .mat-mdc-select-trigger {
+      outline: 2px solid #2563eb !important;
+      outline-offset: 2px;
+    }
+  }
+
+  /* Dropdown panel styling */
+  .mat-mdc-select-panel {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+  }
+}
+
+/* ===== Filter bar ===== */
+.filters {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:#eef2f7;               /* slightly darker than page so bar stands out */
+  border:1px solid #d6dae1;
+  border-radius:12px;
+  padding:10px 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+
+/* Make each control clearly visible */
+.filter-field { min-width: 220px; }
+
+/* ---- MDC form field wrapper (the visible “box”) ---- */
+:host ::ng-deep .filters .mat-mdc-form-field {
+  --hog-bg: #f1f5f9;                /* light gray fill (same family as Dashboard) */
+  --hog-fg: #0f172a;                /* dark text */
+  --hog-border: #cbd5e1;            /* slate-300 */
+  --hog-border-focus: #2563eb;      /* blue-600 */
+
+  .mat-mdc-text-field-wrapper {
+    background: var(--hog-bg) !important;
+    border-radius: 10px !important;
+    /* Give it a clear border so it doesn’t vanish */
+    box-shadow: inset 0 0 0 1px var(--hog-border) !important;
+    min-height: 40px;               /* readable height */
+  }
+
+  /* Tighten vertical rhythm */
+  .mat-mdc-form-field-infix { padding-top: 6px !important; padding-bottom: 6px !important; }
+
+  /* Text & placeholder */
+  .mat-mdc-select-trigger,
+  .mat-mdc-select-value,
+  .mat-mdc-select-value-text,
+  .mat-mdc-select-placeholder,
+  .mat-mdc-form-field-label {
+    color: var(--hog-fg) !important;
+  }
+
+  /* Arrow */
+  .mat-mdc-select-arrow svg { fill: var(--hog-fg) !important; }
+
+  /* Outline/focus (MDC uses an outline + state-layer) */
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing { border-color: var(--hog-border) !important; }
+
+  .mdc-text-field--focused .mdc-notched-outline__leading,
+  .mdc-text-field--focused .mdc-notched-outline__notch,
+  .mdc-text-field--focused .mdc-notched-outline__trailing {
+    border-color: var(--hog-border-focus) !important;
+  }
+
+  /* Also add a visible focus ring for keyboard users */
+  .mdc-text-field--focused .mat-mdc-text-field-wrapper {
+    box-shadow: inset 0 0 0 2px var(--hog-border-focus) !important;
+  }
+}
+
+/* Dropdown panel itself (so it doesn’t go white) */
+:host ::ng-deep .mat-mdc-select-panel {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* Options readable + selected weight */
+:host ::ng-deep .mat-mdc-option .mdc-list-item__primary-text { color:#0f172a !important; }
+:host ::ng-deep .mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text { font-weight:600; }
+
+/* Checkbox inside the filter bar */
+:host ::ng-deep .filters .mat-mdc-checkbox .mdc-checkbox__background {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+:host { display:block; }
+
+/* Page */
+.page { display:flex; flex-direction:column; gap:16px; padding:16px; background:#f6f7fb; }
+.header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+.title { font: 600 22px/1.2 system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; margin:4px 0; }
+.subtitle { color:rgba(0,0,0,.60); font-size:13px; }
+
+/* Bare filter bar (transparent) — EXACTLY like your good page */
+.filters { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.filters.bare { background:transparent; border:0; box-shadow:none; padding:0; }
+.filters .mat-mdc-form-field { --field-min: 210px; min-width: var(--field-min); flex: 1 1 210px; }
+.filters .mat-mdc-form-field-infix { padding-top: 8px; padding-bottom: 8px; }
+
+/* keep the field boxes transparent + outlined */
+:host ::ng-deep .filters .mdc-text-field { background:transparent !important; border-radius:10px; }
+/* add wrapper transparency too (some themes paint on the wrapper) */
+:host ::ng-deep .filters .mat-mdc-text-field-wrapper { background:transparent !important; }
+
+:host ::ng-deep .filters .mat-mdc-select-trigger,
+:host ::ng-deep .filters .mat-mdc-select-value,
+:host ::ng-deep .filters .mat-mdc-select-value-text,
+:host ::ng-deep .filters .mat-mdc-select-placeholder,
+:host ::ng-deep .filters .mat-mdc-form-field-label,
+:host ::ng-deep .filters .mat-mdc-select-arrow svg { color:#0f172a !important; fill:#0f172a !important; }
+
+:host ::ng-deep .filters .mdc-notched-outline__leading,
+:host ::ng-deep .filters .mdc-notched-outline__notch,
+:host ::ng-deep .filters .mdc-notched-outline__trailing { border-color:#cbd5e1 !important; }
+
+:host ::ng-deep .filters .mdc-text-field--focused .mdc-notched-outline__leading,
+:host ::ng-deep .filters .mdc-text-field--focused .mdc-notched-outline__notch,
+:host ::ng-deep .filters .mdc-text-field--focused .mdc-notched-outline__trailing { border-color:#2563eb !important; }
+
+:host ::ng-deep .hog-filter-panel .mat-mdc-option .mdc-list-item__primary-text { color:#0f172a !important; }
+:host ::ng-deep .hog-filter-panel .mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text { font-weight:600; }
+
+/* SMALL BOOSTS so the inputs never “disappear” on very light monitors */
+:host ::ng-deep .filters .mat-mdc-text-field-wrapper {
+  box-shadow: inset 0 0 0 1px #cbd5e1;  /* faint border like your other pages */
+}
+:host ::ng-deep .filters .mdc-text-field--focused .mat-mdc-text-field-wrapper {
+  box-shadow: inset 0 0 0 2px #2563eb;
+}
+
+/* (rest of your page styles … table/cards … keep as-is) */
+
+:host ::ng-deep .filters .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+:host ::ng-deep .filters .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+:host ::ng-deep .filters .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-color: #2563eb !important;
+}
+:host ::ng-deep .filters .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+  box-shadow: inset 0 0 0 2px #2563eb !important;
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-floating-label{
+    color: #000000 !important;
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-floating-label{
+    color: #000 !important;
+}
+
+.mat-mdc-checkbox .mat-internal-form-field{
+    color: #000 !important
+}
+
+/* Force outlined label color in this page's filter bar */
+:host ::ng-deep .filters .mat-mdc-form-field.mat-mdc-form-field
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+  .mdc-floating-label {
+  color: #0f172a !important;   /* dark label */
+  opacity: 1 !important;
+}
+
+/* When label floats above */
+:host ::ng-deep .filters .mat-mdc-form-field.mat-mdc-form-field
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+  .mdc-floating-label--float-above {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Use MDC tokens (works across states) */
+:host ::ng-deep .filters .mat-mdc-form-field {
+  --mdc-outlined-text-field-label-text-color: #0f172a !important;
+  --mdc-outlined-text-field-focus-label-text-color: #2563eb !important;
+  --mdc-outlined-text-field-hover-label-text-color: #0f172a !important;
+}
+
+/* Make sure the input text isn't white either */
+:host ::ng-deep .filters input.mat-mdc-input-element {
+  color: #0f172a !important;
+}
+/* Make checkbox background darker + border visible */
+:host ::ng-deep .filters .mat-mdc-checkbox .mdc-checkbox__background {
+  background-color: #f1f5f9 !important; /* same as filter bar bg */
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 4px;
+}
+
+/* Change the checkmark color when checked */
+:host ::ng-deep .filters .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__checkmark-path {
+  stroke: #2563eb !important; /* blue check */
+}
+
+:host ::ng-deep .filters .mat-mdc-checkbox .mdc-form-field {
+  color: #0f172a !important;
+}
