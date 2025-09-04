@@ -1,0 +1,68 @@
+<section class="page">
+  <!-- Header + Store Filter -->
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Portal / Scheduling</div>
+      <h1 class="title">Scheduling</h1>
+      <div class="subtitle">Delivery &amp; Service resource calendars</div>
+    </div>
+
+    <div class="filters">
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Store</mat-label>
+        <mat-select [value]="activeStoreId()" (selectionChange)="onStoreChange($event.value)" panelClass="hog-filter-panel">
+          <mat-option *ngFor="let s of stores" [value]="s.id">{{ s.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Active Deliveries (full width) -->
+  <mat-card class="light-card full mat-elevation-z1">
+    <mat-card-header>
+      <mat-card-title>Active Deliveries</mat-card-title>
+      <mat-card-subtitle class="muted">{{ storeTitle() }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row muted">Day/Week viewport (demo)</div>
+      <div class="cal" style="margin-top:8px">
+        <div class="cell" *ngFor="let day of deliveryCalendar()">
+          <h5>{{ day.label }}</h5>
+          <span class="pill" *ngFor="let item of day.items">
+            {{ item.time }} • {{ item.truck }} • {{ item.driver }} • {{ item.product }}
+          </span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Active Service Jobs (full width) -->
+  <mat-card class="light-card full mat-elevation-z1">
+    <mat-card-header>
+      <mat-card-title>Active Service Jobs</mat-card-title>
+      <mat-card-subtitle class="muted">
+        {{ storeTitle() }} • Open: {{ service().open }} • In Progress: {{ service().progress }} • Waiting Parts: {{ service().parts }}
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="crm-table">
+        <div class="crm-row crm-head">
+          <div>ID</div><div>Severity</div><div>Status</div><div>Title</div><div>Asset</div><div>Tech</div><div>ETA</div>
+        </div>
+        <div class="crm-row" *ngFor="let j of serviceJobs()">
+          <div>#{{ j.id }}</div>
+          <div>
+            <span class="chip" [class.red]="j.sev==='High'"
+                              [class.orange]="j.sev==='Medium'"
+                              [class.green]="j.sev==='Low'">{{ j.sev }}</span>
+          </div>
+          <div>{{ j.status }}</div>
+          <div>{{ j.title }}</div>
+          <div>{{ j.asset }}</div>
+          <div>{{ j.tech }}</div>
+          <div>{{ j.eta }}</div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</section>

@@ -1,0 +1,102 @@
+:host { display:block; }
+
+/* Page + header */
+.page {
+  display:flex; flex-direction:column; gap:16px; padding:16px; background:#f6f7fb;
+}
+.header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+.title { font: 600 22px/1.2 system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; margin:4px 0; }
+.subtitle { color:rgba(0,0,0,.60); font-size:13px; }
+
+/* Filter bar (matches dashboard look) */
+.filters {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:#ffffff; border:1px solid #e5e7eb; border-radius:12px;
+  padding:8px 12px; box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+.filters .mat-mdc-form-field { --field-min: 210px; min-width: var(--field-min); flex: 1 1 210px; }
+.filters .mat-mdc-form-field-infix { padding-top: 8px; padding-bottom: 8px; }
+:host ::ng-deep .filters .mdc-text-field { border-radius:10px; background:#f1f5f9 !important; }
+
+:host ::ng-deep .hog-filter-panel .mat-mdc-option .mdc-list-item__primary-text { color:#0f172a !important; }
+:host ::ng-deep .hog-filter-panel .mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text { font-weight:600; }
+
+/* Cards */
+.light-card { background:#fff; border-radius:12px; }
+.full { grid-column: 1 / -1; }
+
+/* Simple grid wrapper if you add more later */
+.grid-12 { display:grid; gap:16px; grid-template-columns:repeat(12,1fr); }
+
+/* Calendar viewport */
+.cal { display:grid; grid-template-columns: repeat(7, 1fr); gap:8px; }
+.cal .cell { background:#fff; border:1px solid #eee; border-radius:8px; padding:8px; min-height:90px; }
+.cell h5 { margin:0 0 6px 0; font-size:12px; color:#6b7280; }
+.pill { display:block; border-radius:6px; padding:4px 6px; font-size:12px; background:#eef2ff; margin-bottom:6px; }
+@media (max-width: 900px) { .cal { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .cal { grid-template-columns: 1fr; } }
+
+/* CRM table */
+.crm-table { display:grid; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+.crm-row { display:grid; grid-template-columns: 100px 120px 140px 1fr 220px 140px 100px; gap:0; }
+.crm-row > div { padding:10px 12px; border-bottom:1px solid #f1f5f9; }
+.crm-head { background:#f8fafc; font-weight:600; }
+.crm-row:last-child > div { border-bottom:none; }
+
+@media (max-width: 1200px) {
+  .crm-table { display:block; overflow:auto; -webkit-overflow-scrolling: touch; }
+  .crm-row { display:grid; grid-template-columns: 100px 110px 120px 420px 200px 120px 100px; min-width: 1070px; }
+}
+
+/* Mobile-friendly stack */
+@media (max-width: 700px) {
+  .crm-table { display:block; }
+  .crm-head { display:none; }
+  .crm-row {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:0;
+    border-bottom:1px solid #f1f5f9;
+  }
+  .crm-row > div { border-bottom:none; padding:8px 10px; }
+}
+
+/* Severity chips */
+.chip { display:inline-flex; align-items:center; gap:6px; padding:2px 8px; border-radius:999px; background:#eef2ff; color:#3730a3; font-size:12px; }
+.chip.red { background:#fee2e2; color:#991b1b; }
+.chip.orange { background:#ffedd5; color:#9a3412; }
+.chip.green { background:#dcfce7; color:#166534; }
+
+/* Utilities */
+.row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.muted { color: rgba(0,0,0,.54); }
+
+/* Force the select background to match dashboard style */
+:host ::ng-deep .filters .mat-mdc-form-field .mdc-text-field {
+  background: #f1f5f9 !important;   /* light slate background */
+  border-radius: 10px !important;
+}
+
+/* Ensure label + value text stays dark on light bg */
+:host ::ng-deep .filters .mat-mdc-select-trigger,
+:host ::ng-deep .filters .mat-mdc-select-value,
+:host ::ng-deep .filters .mat-mdc-select-value-text,
+:host ::ng-deep .filters .mat-mdc-select-placeholder,
+:host ::ng-deep .filters .mat-mdc-form-field-label,
+:host ::ng-deep .filters .mat-mdc-select-arrow svg {
+  color: #0f172a !important;  /* slate-900 */
+  fill: #0f172a !important;
+}
+
+/* Outline colors */
+:host ::ng-deep .filters .mdc-notched-outline__leading,
+:host ::ng-deep .filters .mdc-notched-outline__notch,
+:host ::ng-deep .filters .mdc-notched-outline__trailing {
+  border-color:#cbd5e1 !important; /* slate-300 */
+}
+:host ::ng-deep .filters .mdc-text-field--focused .mdc-notched-outline__leading,
+:host ::ng-deep .filters .mdc-text-field--focused .mdc-notched-outline__notch,
+:host ::ng-deep .filters .mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color:#2563eb !important; /* blue-600 focus */
+}
