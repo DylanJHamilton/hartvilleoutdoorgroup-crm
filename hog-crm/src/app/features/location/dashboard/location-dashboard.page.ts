@@ -55,15 +55,13 @@ import { DashCsPage } from './dashboards/dash-cs.page';
   `
 })
 export class LocationDashboardPage {
-  private store = inject(Store);
   // inside class:
   private auth = inject(AuthService);
-
+  
   /**
    * Reads roles from state.auth.roles if present; otherwise undefined.
    * This avoids importing a selector you don't have yet.
    */
-  private rolesSignal = this.store.selectSignal((state: any) => state?.auth?.roles as string[] | undefined);
 
   /**
    * First role wins; normalize to our Role union, fallback to ADMIN.
@@ -72,6 +70,7 @@ export class LocationDashboardPage {
   role = computed<Role>(() => {
     const r = (this.auth.getRole() || 'ADMIN').toUpperCase();
     return (['ADMIN','MANAGER','SALES','SERVICE','DELIVERY','INVENTORY','CS'].includes(r) ? r as Role : 'ADMIN');
+    console.log('Running Role Check:', r);
   });
 
   // Component TYPES for ngComponentOutlet (do NOT use lazy functions here)

@@ -490,3 +490,120 @@ body.dark .user-settings {
   }
 
 }
+
+
+
+/* Light palette used by Portal dashboards */
+.hog-portal-light {
+  /* surfaces */
+  --hog-bg:        #f6f7fb;
+  --hog-card:      #ffffff;
+  --hog-border:    #e5e7eb;
+
+  /* text & controls */
+  --hog-text:      #0f172a; // slate-900
+  --hog-subtle:    #334155; // slate-700
+  --hog-outline:   #cbd5e1; // slate-300
+  --hog-focus:     #2563eb; // blue-600
+
+  /* apply to Material surfaces under this subtree */
+  .app-shell,
+  .app-main { background: var(--hog-bg) !important; }
+
+  .mat-mdc-card,
+  .mat-mdc-table,
+  .mat-mdc-form-field,
+  .mat-mdc-menu-panel,
+  .mat-mdc-select-panel {
+    background: var(--hog-card);
+    color: var(--hog-text);
+  }
+
+  .mat-mdc-card {
+    border: 1px solid var(--hog-border);
+  }
+
+  /* inputs/selects “filters.bare” look */
+  .filters.bare .mat-mdc-form-field-appearance-outline .mdc-notched-outline__leading,
+  .filters.bare .mat-mdc-form-field-appearance-outline .mdc-notched-outline__notch,
+  .filters.bare .mat-mdc-form-field-appearance-outline .mdc-notched-outline__trailing {
+    border-color: var(--hog-outline);
+  }
+  .filters.bare .mdc-text-field--focused .mdc-notched-outline__leading,
+  .filters.bare .mdc-text-field--focused .mdc-notched-outline__notch,
+  .filters.bare .mdc-text-field--focused .mdc-notched-outline__trailing {
+    border-color: var(--hog-focus) !important;
+  }
+  .filters.bare .mat-mdc-input-element,
+  .filters.bare .mat-mdc-select-value {
+    color: var(--hog-text);
+  }
+}
+
+/* src/styles.scss (or a globally loaded stylesheet) */
+.hog-portal-light {
+  /* Light tokens (Angular Material + MDC fallbacks) */
+  --mat-sys-background: #f6f7fb;
+  --mat-sys-surface: #ffffff;
+  --mat-sys-on-surface: #0f172a;
+  --mdc-theme-background: #f6f7fb;
+
+  /* Make common containers use the light background */
+  .mat-drawer-content,
+  .mat-sidenav-content,
+  .mat-mdc-sidenav-content,
+  .app-main {
+    background: #f6f7fb !important;
+    color: #0f172a;
+  }
+
+  /* Cards look like Portal cards */
+  .mat-mdc-card {
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  /* Filter inputs: outline + focus match Portal */
+  .filters.bare .mat-mdc-form-field-appearance-outline .mdc-notched-outline__leading,
+  .filters.bare .mat-mdc-form-field-appearance-outline .mdc-notched-outline__notch,
+  .filters.bare .mat-mdc-form-field-appearance-outline .mdc-notched-outline__trailing {
+    border-color: #cbd5e1 !important;
+  }
+  .filters.bare .mdc-text-field--focused .mdc-notched-outline__leading,
+  .filters.bare .mdc-text-field--focused .mdc-notched-outline__notch,
+  .filters.bare .mdc-text-field--focused .mdc-notched-outline__trailing {
+    border-color: #2563eb !important;
+  }
+}
+/* ===== Location subtree: make the left rail surfaces white ===== */
+.location-scope {
+  /* Common sidenav/drawer containers in Material */
+  .mat-sidenav,
+  .mat-drawer,
+  .mat-drawer-inner-container,
+  .mat-mdc-sidenav,
+  .mat-mdc-sidenav-content,
+  .mat-nav-list,
+  .mdc-list,
+  hog-side-nav,
+  hog-side-nav .wrapper {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  /* Drawer container background sometimes bleeds through */
+  .mat-drawer-container {
+    background: #ffffff !important;
+  }
+
+  /* If a backdrop is lingering, neuter it only in this scope */
+  .mat-drawer-backdrop,
+  .cdk-overlay-backdrop {
+    background: transparent !important;
+  }
+
+  /* Nice light divider on the left edge */
+  hog-side-nav {
+    border-right: 1px solid #e5e7eb;
+  }
+}

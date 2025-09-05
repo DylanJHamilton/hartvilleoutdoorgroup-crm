@@ -10,7 +10,7 @@ export const routes: Routes = [
 
   // locationId belongs on parent
   { path: 'location/:locationId',
-    loadChildren: () => import('./features/location/location.routes').then(m => m.STORE_ROUTES)
+    loadChildren: () => import('./features/location/location.routes').then(m => m.LOCATION_ROUTES)
   },
 
   // fallback — unknown URLs bounce home
