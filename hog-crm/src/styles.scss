@@ -457,3 +457,36 @@ body.dark .user-settings {
   color: currentColor !important;
   opacity: 0.9;
 }
+
+/* ===== Global Input / Select Fix ===== */
+:root {
+  --hog-input-fg: #0f172a;   /* dark text */
+  --hog-input-border: #cbd5e1; /* gray border */
+  --hog-input-focus: #2563eb; /* blue focus */
+  --hog-input-bg: #f8fafc;   /* subtle light background */
+}
+
+:root {
+  /* apply to all outlined form fields */
+  .mat-mdc-form-field-appearance-outline .mat-mdc-text-field-wrapper {
+    background: var(--hog-input-bg) !important;
+    border-radius: 8px !important;
+    box-shadow: inset 0 0 0 1px var(--hog-input-border) !important;
+  }
+
+  .mat-mdc-input-element,
+  .mat-mdc-floating-label {
+    color: var(--hog-input-fg) !important;
+  }
+
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-floating-label {
+    color: var(--hog-input-fg) !important;
+  }
+
+  .mdc-text-field--outlined .mdc-notched-outline__leading,
+  .mdc-text-field--outlined .mdc-notched-outline__notch,
+  .mdc-text-field--outlined .mdc-notched-outline__trailing {
+    border-color: var(--hog-input-border) !important;
+  }
+
+}

@@ -222,3 +222,65 @@
 :host ::ng-deep .filters .mat-mdc-checkbox .mdc-form-field {
   color: #0f172a !important;
 }
+
+/* ===== Grid responsive behavior ===== */
+.grid-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
+}
+
+/* Keep layout stable; allow ellipsis where needed */
+.hog-table {
+  width: 100%;
+  table-layout: fixed;              /* prevents columns from exploding */
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Header/body paddings a bit tighter */
+.hog-table th.mat-mdc-header-cell,
+.hog-table td.mat-mdc-cell {
+  padding: 10px 12px;
+  vertical-align: middle;
+  white-space: nowrap;              /* no multi-line rows by default */
+  overflow: hidden;
+  text-overflow: ellipsis;          /* clean truncate */
+}
+
+/* Column widths (tweak as you like). These target mat’s auto-generated classes
+   e.g. .mat-column-sku when your col id is 'sku' */
+.hog-table .mat-column-sku      { width: 140px; }
+.hog-table .mat-column-name     { width: 280px; }  /* main text */
+.hog-table .mat-column-category { width: 170px; }
+.hog-table .mat-column-brand    { width: 220px; }
+.hog-table .mat-column-price    { width: 120px; text-align: right; }
+.hog-table .mat-column-qty      { width: 100px;  text-align: right; }
+.hog-table .mat-column-status   { width: 120px; }
+
+/* On small screens, don’t squish: force horizontal scroll by setting a min width
+   roughly equal to the sum of columns so the table becomes scrollable instead of
+   overflowing the page. Adjust if you add/remove columns. */
+@media (max-width: 900px) {
+  .hog-table { min-width: 1050px; }
+}
+
+/* Slightly tighter padding on narrow phones */
+@media (max-width: 600px) {
+  .hog-table th.mat-mdc-header-cell,
+  .hog-table td.mat-mdc-cell { padding: 8px 10px; }
+}
+
+/* Optional: if you want fewer columns on very small screens, uncomment:
+@media (max-width: 480px) {
+  .hog-table .mat-column-brand,
+  .hog-table .mat-column-status { display: none; }  // keep sku/name/category/price/qty
+  .hog-table { min-width: 760px; } // adjust for removed cols
+}
+*/
+
+/* Make sure card doesn’t clip the scroll shadow */
+:host ::ng-deep mat-card .mat-mdc-card-content,
+:host ::ng-deep mat-card {
+  overflow: visible;
+}

@@ -1,97 +1,134 @@
-.page { display:flex; flex-direction:column; gap:16px; }
-.header { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; }
-.breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
-.title { font:600 22px/1.2 system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; margin:4px 0; color:#1a1a1a; }
-.subtitle { color:rgba(0,0,0,.7); font-size:13px; }
-.actions { display:flex; align-items:center; gap:12px; }
-.w240 { width:240px; }
+/* Actions column buttons */
+.col-actions { white-space: nowrap; text-align: right; }
+.col-actions button { margin-left: 4px; }
+.edit.mat-mdc-button:not(:disabled) { color: #000; }
+.view.mat-mdc-button:not(:disabled) { color: #000; }
+.delete.mat-mdc-button:not(:disabled) { color: red; }
 
-/* Light override exactly like Users */
-.mat-light-override {
-  --mdc-theme-surface: #ffffff;
-  --mdc-theme-on-surface: rgba(0,0,0,0.87);
-  --mdc-theme-background: #ffffff;
-  --mdc-theme-on-background: rgba(0,0,0,0.87);
-  --mat-app-background-color: #ffffff;
-
-  --mat-table-background-color: #ffffff;
-  --mat-table-row-item-outline-color: rgba(0,0,0,0.08);
-  --mat-table-header-headline-color: rgba(0,0,0,0.87);
-  --mat-table-row-item-label-text-color: rgba(0,0,0,0.87);
-  --mat-table-row-item-icon-color: rgba(0,0,0,0.62);
-
-  color: rgba(0,0,0,0.87);
-  background: #fff;
+/* If you want the icon inside the delete button red too (replaces :has()) */
+.delete.mat-mdc-button mat-icon,
+.delete.mat-mdc-button .material-icons,
+.delete.mat-mdc-button [matButtonIcon] {
+  color: red !important;
 }
 
-.customers-card { background:#fff; }
-.table-wrap { overflow:auto; }
+/* ---------- Header: keep Add Customer visible & wrap nicely ---------- */
+.header { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.actions .w240 { width: 240px; }
+.actions button[mat-flat-button] span { display: inline !important; } /* keep label */
+.actions button[mat-flat-button] mat-icon { margin-right: 6px; }
 
-/* Table skin mirrors Users */
-table.customers-table {
-  width:100%;
-  background:#fff;
-  border-collapse:separate;
-  border-spacing:0;
-}
-th.mat-header-cell { background:#fff; font-weight:600; }
-td.mat-mdc-cell, th.mat-mdc-header-cell { border-bottom-color: rgba(0,0,0,0.08); }
-tr.mat-mdc-row:nth-child(even) { background:#fafafa; }
-tr.mat-mdc-row:hover { background:#f3f6fb; }
-
-/* Name cell avatar/meta (same as Users) */
-.user-cell { display:flex; align-items:center; gap:10px; }
-.avatar { width:36px; height:36px; border-radius:50%; background:#e9eef6; color:#3b4a66; display:inline-grid; place-items:center; }
-.avatar mat-icon { font-size:20px; }
-.user-meta { display:flex; flex-direction:column; }
-.user-name { font-weight:600; color:#1a1a1a; }
-.user-email { font-size:12px; color:rgba(0,0,0,.6); }
-.sep { opacity:.5; }
-
-/* Chips readable on light */
-.owner-chip, .loc-chip {
-  background: #eef3ff;
-  color: #1a1a1a !important;
-  border: 1px solid rgba(0,0,0,0.08) !important;
-}
-.loc-chip { background:#eef8f1; }
-.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label {
-  color: #1a1a1a !important;
+@media (max-width: 960px) {
+  .actions { width: 100%; justify-content: space-between; gap: 8px 12px; }
+  .actions .w240 { flex: 1 1 320px; width: min(420px, 64%); }
 }
 
-/* Truncation utility */
-.truncate { display:inline-block; max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-
-/* Actions column */
-.col-actions { white-space:nowrap; text-align:right; }
-.col-actions button { margin-left:4px; }
-.edit.mat-mdc-button:not(:disabled){ color: #000; }
-.view.mat-mdc-button:not(:disabled){ color: #000; }
-.delete.mat-mdc-button:not(:disabled){ color: red; }
-
-
-/* Paginator matches Users card */
-.mat-mdc-paginator {
-  background:#fff !important;
-  color: rgba(0,0,0,0.87) !important;
-  border-top: 1px solid rgba(0,0,0,0.08);
-  border-radius: 0 0 12px 12px;
+/* ---------- Search field = gray filter look ---------- */
+:host ::ng-deep .customers-page .header .mat-mdc-form-field {
+  --hog-bg:#f1f5f9; --hog-fg:#0f172a; --hog-border:#cbd5e1; --hog-focus:#2563eb;
 }
-.mat-mdc-paginator .mat-mdc-icon-button .mat-mdc-button-touch-target,
-.mat-mdc-paginator .mat-mdc-icon-button,
-.mat-mdc-paginator .mat-mdc-icon-button mat-icon {
-  color: rgba(0,0,0,0.62) !important;
-  fill: rgba(0,0,0,0.62) !important;
+:host ::ng-deep .customers-page .header .mat-mdc-text-field-wrapper {
+  background: var(--hog-bg) !important;
+  border-radius: 8px !important;
+  box-shadow: inset 0 0 0 1px var(--hog-border) !important;
+  min-height: 40px;
 }
-.mat-mdc-paginator .mat-mdc-select-value,
-.mat-mdc-paginator .mat-mdc-select-arrow,
-.mat-mdc-paginator .mat-mdc-paginator-range-label {
-  color: rgba(0,0,0,0.87) !important;
+:host ::ng-deep .customers-page .header .mdc-notched-outline__leading,
+:host ::ng-deep .customers-page .header .mdc-notched-outline__notch,
+:host ::ng-deep .customers-page .header .mdc-notched-outline__trailing {
+  border-color: var(--hog-border) !important;
+}
+:host ::ng-deep .customers-page .header .mdc-text-field--focused .mdc-notched-outline__leading,
+:host ::ng-deep .customers-page .header .mdc-text-field--focused .mdc-notched-outline__notch,
+:host ::ng-deep .customers-page .header .mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: var(--hog-focus) !important;
+}
+:host ::ng-deep .customers-page .header .mat-mdc-input-element,
+:host ::ng-deep .customers-page .header .mat-mdc-floating-label {
+  color: var(--hog-fg) !important;
 }
 
-/* Responsive parity */
-@media (max-width: 960px) { .user-email { display:none; } }
+/* ---------- Phone layout: carded rows + mini actions ---------- */
+.mini-actions { display: none; } /* hidden on desktop */
 
-.delete.mat-mdc-button:has(.material-icons,mat-icon,[matButtonIcon]){
-  color: red;
+@media (max-width: 768px) {
+  /* Hide the big Actions column to avoid duplicates */
+  .customers-table .mat-header-row .mat-column-actions,
+  .customers-table .mat-column-actions { display: none !important; }
+
+  /* (Optional) hide chip-heavy cols for cleaner mobile:
+  .customers-table .mat-column-store,
+  .customers-table .mat-column-owner { display: none !important; } */
+
+  .customers-table { display:block; width:100%; }
+  .customers-table .mat-mdc-header-row { display:none !important; }
+
+  .customers-table .mat-mdc-row {
+    display:block !important;
+    margin:12px 0;
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+    background:#fff;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+    height:auto !important;
+    overflow:hidden;
+  }
+
+  .customers-table .mat-mdc-cell {
+    display:block !important;
+    width:100% !important;
+    box-sizing:border-box;
+    padding:10px 12px !important;
+    border-bottom:1px solid #f1f5f9;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: initial !important;
+    vertical-align: top;
+  }
+  .customers-table .mat-mdc-cell:last-child { border-bottom:0; }
+
+  .customers-table .mat-column-product::before,
+  .customers-table .mat-column-value::before,
+  .customers-table .mat-column-note::before {
+    display:block;
+    margin:0 0 6px;
+    font:600 12px/1 system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    letter-spacing:.02em;
+    text-transform:uppercase;
+    color:#64748b;
+    content:'';
+  }
+  .customers-table .mat-column-product::before { content:'Product'; }
+  .customers-table .mat-column-value::before { content:'Value'; }
+  .customers-table .mat-column-note::before { content:'Note'; }
+
+  .user-cell { gap:8px; }
+  .avatar { width:32px; height:32px; }
+
+  .mini-actions {
+    display:flex !important;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:8px;
+  }
+  .mini-actions .mini.mat-mdc-stroked-button,
+  .mini-actions .mini.mat-mdc-outlined-button,
+  .mini-actions .mini.mat-mdc-button {
+    padding:4px 8px;
+    min-height:28px;
+    border-radius:8px;
+    font-size:12px;
+    line-height:1.2;
+  }
+  .mini-actions .mini mat-icon {
+    font-size:18px;
+    width:18px; height:18px;
+    margin-right:4px;
+  }
+  .mini-actions .view, .mini-actions .edit { color:#0f172a; }
+  .mini-actions .delete { color:#b91c1c; }
 }
+
+/* Smooth horizontal scroll just in case */
+.table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }

@@ -9,7 +9,7 @@
     <div class="actions">
       <mat-form-field appearance="outline" class="w240">
         <mat-label>Search name or email</mat-label>
-        <input matInput (keyup)="applyQuickFilter($event)" placeholder="Type to filter…" />
+        <input class="search" matInput (keyup)="applyQuickFilter($event)" placeholder="Type to filter…" />
       </mat-form-field>
 
       <button mat-flat-button color="primary" (click)="onAdd()" *ngIf="isOwnerOrAdmin()">
@@ -23,19 +23,38 @@
       <div class="table-wrap">
         <table mat-table [dataSource]="dataSource" class="users-table">
 
-          <!-- Name -->
+           <!-- Name -->
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Name</th>
             <td mat-cell *matCellDef="let row">
-              <div class="user-cell">
-                <div class="avatar"><mat-icon aria-hidden="true">person</mat-icon></div>
-                <div class="user-meta">
-                  <div class="user-name">{{ row.name }}</div>
-                  <div class="user-email">{{ row.email }}</div>
+            <div class="user-cell">
+              <div class="avatar"><mat-icon aria-hidden="true">person</mat-icon></div>
+              <div class="user-meta">
+                <div class="user-name">{{ row.name }}</div>
+                <div class="user-email">{{ row.email }}</div>
+
+                <!-- Mini actions live *inside* .user-meta -->
+                <div class="mini-actions">
+                  <button class="mini view" mat-stroked-button (click)="onView(row)">
+                    <mat-icon>visibility</mat-icon><span>View</span>
+                  </button>
+                  <button class="mini edit" mat-stroked-button (click)="onEdit(row)" *ngIf="canEdit(row.email)">
+                    <mat-icon>edit</mat-icon><span>Edit</span>
+                  </button>
+                  <button class="mini delete" mat-stroked-button color="warn"
+                          (click)="onDelete(row)" *ngIf="canHardDelete(row.email)">
+                    <mat-icon>delete</mat-icon><span>Delete</span>
+                  </button>
+                  <button class="mini" mat-stroked-button color="warn"
+                          (click)="onRequestDelete(row)" *ngIf="canRequestDeletion(row.email)">
+                    <mat-icon>delete_outline</mat-icon><span>Request</span>
+                  </button>
                 </div>
               </div>
-            </td>
+            </div>
+          </td>
           </ng-container>
+
 
           <!-- Roles -->
           <ng-container matColumnDef="roles">

@@ -85,3 +85,266 @@
     @media (max-width: 960px) { .user-email { display:none; } }
     .edit.mat-mdc-button:not(:disabled){
     color: #000;}
+    
+
+    /*Mobile Responsivness Patch 9/4/25*/
+
+    /* ===== Mobile-first polish (no TS/HTML changes) ===== */
+
+/* Keep the Add user label visible at all times */
+.actions button[mat-flat-button] span { display: inline !important; }
+.actions button[mat-flat-button] mat-icon { margin-right: 6px; }
+
+/* Let the header block wrap cleanly */
+.header { flex-wrap: wrap; }
+.actions { flex-wrap: wrap; gap: 8px 12px; }
+.actions .w240 { width: 240px; }
+
+@media (max-width: 960px) {
+  .actions { width:100%; justify-content: space-between; }
+  .actions .w240 { flex: 1 1 320px; width: min(420px, 64%); }
+}
+
+/* -------- Phone layout: turn each table row into a clean “card” -------- */
+/* ===== Mobile card layout (fixed) ===== */
+@media (max-width: 600px) {
+  /* Keep the Add user label visible */
+  .actions button[mat-flat-button] span { display: inline !important; }
+  .actions button[mat-flat-button] mat-icon { margin-right: 6px; }
+
+  /* Hide header row only on phone */
+  .users-table .mat-mdc-header-row { display: none !important; }
+
+  /* Treat the table as a block container so rows can be carded */
+  .users-table { display: block; width: 100%; }
+
+  /* Each data row becomes a card */
+  .users-table .mat-mdc-row {
+    display: block !important;
+    position: relative;
+    margin: 12px 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    overflow: hidden; /* prevent children from spilling */
+  }
+
+  /* Cells stack vertically and fill the card width */
+  .users-table .mat-mdc-cell {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box;
+    padding: 10px 12px !important;
+    border-bottom: 1px solid #f1f5f9;
+    background: transparent;
+  }
+  .users-table .mat-mdc-cell:last-child { border-bottom: 0; }
+
+  /* Name cell at the top: keep avatar + text tidy */
+  .users-table .mat-column-name { padding-top: 12px !important; }
+  .user-cell { gap: 8px; }
+  .avatar { width: 32px; height: 32px; }
+
+  /* Add readable mini-labels per section (not absolutely positioned) */
+  .users-table .mat-column-roles::before,
+  .users-table .mat-column-locations::before,
+  .users-table .mat-column-performance::before,
+  .users-table .mat-column-actions::before {
+    display: block;
+    position: static;
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: #64748b; /* slate-500 */
+    text-transform: uppercase;
+    content: '';
+  }
+  .users-table .mat-column-roles::before { content: 'Roles'; }
+  .users-table .mat-column-locations::before { content: 'Locations'; }
+  .users-table .mat-column-performance::before { content: 'Performance'; }
+  .users-table .mat-column-actions::before { content: 'Actions'; }
+
+  /* Chips: wrap + smaller footprint */
+  .users-table .mat-chip-set { display:flex; flex-wrap:wrap; gap:6px; }
+  .users-table .mat-mdc-standard-chip { padding: 2px 8px; font-size: 12px; }
+
+  /* Actions: stack buttons, keep labels visible */
+  .users-table .mat-column-actions {
+    display: block !important;
+  }
+  .users-table .mat-column-actions button {
+    display: inline-flex;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 6px;
+    padding-inline: 8px;
+    min-height: 36px;
+  }
+  .users-table .mat-column-actions button mat-icon { margin-right: 6px; }
+
+  /* Paginator compact at phone widths */
+  .mat-mdc-paginator { font-size: 12px; }
+  .mat-mdc-paginator .mat-mdc-select-trigger { font-size: 12px; }
+}
+
+/* Small tablets (keeps table layout but tightens spacing) */
+@media (min-width: 601px) and (max-width: 960px) {
+  .users-table .mat-mdc-cell,
+  .users-table .mat-mdc-header-cell { padding: 8px 10px; }
+  .users-table .mat-column-actions { white-space: nowrap; }
+}
+
+
+/* Ensure horizontal scroll is smooth if width is constrained */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+
+/* ===== Mobile card layout tweaks (actions visible & clean) ===== */
+@media (max-width: 600px) {
+  /* Keep header actions sane on phone */
+  .actions { flex-wrap: wrap; gap: 8px 12px; }
+  .actions .w240 { width: 100%; flex: 1 1 100%; }
+  .actions button[mat-flat-button] span { display: inline !important; }
+  .actions button[mat-flat-button] mat-icon { margin-right: 6px; }
+
+  /* Table behaves as stacked cards (keep from overlapping) */
+  .users-table { display:block; width:100%; }
+  .users-table .mat-mdc-header-row { display:none !important; }
+
+  .users-table .mat-mdc-row {
+    display:block !important;
+    margin:12px 0;
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+    background:#fff;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+
+  .users-table .mat-mdc-cell {
+    display:block !important;
+    width:100% !important;
+    box-sizing:border-box;
+    padding:10px 12px !important;
+    border-bottom:1px solid #f1f5f9;
+    background:transparent;
+  }
+  .users-table .mat-mdc-cell:last-child { border-bottom:0; }
+
+  /* Section labels for clarity */
+  .users-table .mat-column-roles::before,
+  .users-table .mat-column-locations::before,
+  .users-table .mat-column-performance::before,
+  .users-table .mat-column-actions::before {
+    display:block;
+    margin:0 0 6px;
+    font:600 12px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    letter-spacing:.02em;
+    text-transform:uppercase;
+    color:#64748b;
+    content:'';
+  }
+  .users-table .mat-column-roles::before { content:'Roles'; }
+  .users-table .mat-column-locations::before { content:'Locations'; }
+  .users-table .mat-column-performance::before { content:'Performance'; }
+  .users-table .mat-column-actions::before { content:'Actions'; }
+
+  /* Chips look neat and wrap */
+  .users-table .mat-chip-set { display:flex; flex-wrap:wrap; gap:6px; }
+  .users-table .mat-mdc-standard-chip { padding:2px 8px; font-size:12px; }
+
+  /* 🔥 Actions: show buttons, side-by-side, with labels */
+  .users-table .mat-column-actions {
+    display:flex !important;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .users-table .mat-column-actions button {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding-inline:8px;
+    min-height:36px;
+    /* no forced width — keep natural so multiple fit on one line */
+  }
+  .users-table .mat-column-actions button mat-icon { margin-right:0; }
+}
+.search.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-text-field__input{
+  color: #000 !important;
+}
+
+
+/* ===== Mobile mini-actions (keep desktop Actions column intact) ===== */
+.mini-actions { display: none; }
+
+/* Mini actions hidden by default on desktop */
+.mini-actions { display: none; }
+
+/* Show mini actions on phone + small tablet; hide big Actions column */
+/* === Mobile: let rows auto-size so all buttons are visible === */
+@media (max-width: 768px) {
+  /* Remove fixed row height */
+  .users-table .mdc-data-table__row,
+  .users-table .mat-mdc-row {
+    height: auto !important;
+  }
+
+  /* Allow cell content to wrap and be visible */
+  .users-table .mdc-data-table__cell,
+  .users-table .mat-mdc-cell {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: initial !important;
+    vertical-align: top;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  /* Mini actions: wrap nicely and don’t get clipped */
+  .mini-actions {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .mini-actions .mini {
+    flex: 0 1 auto;
+    max-width: 100%;
+    padding: 4px 8px;
+    min-height: 28px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  .mini-actions .mini mat-icon {
+    font-size: 18px;
+    width: 18px; height: 18px;
+    margin-right: 4px;
+  }
+
+  /* Optional: hide Performance column to save vertical space */
+  .users-table .mat-column-performance { display: none !important; }
+}
+/* === Mobile simplification: hide Roles + Locations === */
+@media (max-width: 768px) {
+  .users-table .mat-column-roles,
+  .users-table .mat-column-locations {
+    display: none !important;
+  }
+}
+
+/* === Mobile: hide the big Actions column === */
+@media (max-width: 768px) {
+  .users-table .mat-column-actions {
+    display: none !important;
+  }
+}
+
+   .mini.edit.mat-mdc-outlined-button:not(:disabled){ color: #000; }
+    .mini.view.mat-mdc-outlined-button:not(:disabled){ color: #000; }
+    .mini.delete.mat-mdc-outlined-button:not(:disabled){ color: red; }
+      .search.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-floating-label{
+      color: #000!important;
+    }
