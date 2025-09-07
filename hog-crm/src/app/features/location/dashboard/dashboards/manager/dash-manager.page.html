@@ -1,0 +1,190 @@
+<section class="page hog-manager-dashboard">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Location / {{ storeName() }} / Manager</div>
+      <h1 class="title">Manager Dashboard — {{ storeName() }}</h1>
+      <div class="subtitle">Store overview & team performance • {{ timeframe() }}</div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters bare">
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Timeframe</mat-label>
+        <mat-select [value]="timeframe()" (selectionChange)="onTimeframe($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="MTD">MTD</mat-option>
+          <mat-option value="WTD">WTD</mat-option>
+          <mat-option value="DTD">Daily</mat-option>
+          <mat-option value="QTD">Quarter</mat-option>
+          <mat-option value="YTD">YTD</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button color="primary" (click)="refresh()">Refresh</button>
+      <button mat-stroked-button color="primary" (click)="openReports()">Reports</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid-12">
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Total Sales ({{ timeframe() }})"
+      [value]="totalSalesStr()"
+      [delta]="salesDelta()"
+      icon="payments"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Orders"
+      [value]="ordersStr()"
+      [delta]="ordersDelta()"
+      icon="shopping_cart"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Average Order Value"
+      [value]="aovStr()"
+      [delta]="0"
+      icon="attach_money"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Refund Rate"
+      [value]="refundStr()"
+      [delta]="0"
+      icon="receipt_long"></hog-stat-card>
+  </div>
+
+  <!-- Sales Snapshot + Pipeline -->
+  <div class="grid-12">
+    <mat-card class="two-thirds light-card mat-elevation-z1">
+      <mat-card-header>
+        <mat-card-title>Sales Snapshot ({{ timeframe() }})</mat-card-title>
+        <mat-card-subtitle class="muted">Trend vs period baseline</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div [hogChart]="salesChart()"></div>
+      </mat-card-content>
+      <mat-card-actions class="inline-links">
+        <a mat-stroked-button color="primary" (click)="openSales()">Go to Sales</a>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="third light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Pipeline</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="pipelineChart()"></div></mat-card-content>
+      <mat-card-actions class="inline-links">
+        <a mat-stroked-button color="primary" (click)="openPipeline()">Open Pipeline</a>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="third light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Total Opportunity</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="opportunityChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="third light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Trends</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="trendChart()"></div></mat-card-content>
+      <mat-card-actions class="inline-links">
+        <a mat-stroked-button color="primary" (click)="openReports()">View Reports</a>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Tickets / Deliveries / Service / Inventory -->
+  <div class="grid-12">
+    <mat-card class="third light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Support Tickets</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="centered"><div [hogChart]="ticketsChart()"></div></div>
+        <ul class="ticket-list">
+          <li><span class="dot red"></span> High <b>{{ tickets().high }}</b></li>
+          <li><span class="dot orange"></span> Medium <b>{{ tickets().med }}</b></li>
+          <li><span class="dot green"></span> Low <b>{{ tickets().low }}</b></li>
+          <li><span class="dot slate"></span> SLA 24h Breaches <b>{{ tickets().slaBreaches }}</b></li>
+        </ul>
+      </mat-card-content>
+      <mat-card-actions class="inline-links">
+        <a mat-stroked-button color="primary" (click)="openTickets()">Open Tickets</a>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="third light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Active Deliveries (week)</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="cal">
+          <div class="cell" *ngFor="let d of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']">
+            <h5>{{ d }}</h5>
+            <span class="pill">9:00a • Aiden F. • Truck • Top SKU</span>
+            <span class="pill">1:30p • Team • Trailer • Garage</span>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="inline-links">
+        <a mat-stroked-button color="primary" (click)="openDeliveries()">Deliveries</a>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="third light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Service Jobs</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="crm-table">
+          <div class="crm-row crm-head">
+            <div>ID</div><div>Severity</div><div>Status</div><div>Title</div><div>Tech</div><div>ETA</div>
+          </div>
+          <div class="crm-row">
+            <div>#4312</div><div><span class="chip red">High</span></div><div>In Progress</div><div>Brake adjustment</div><div>D. Carter</div><div>Today 4:30p</div>
+          </div>
+          <div class="crm-row">
+            <div>#4313</div><div><span class="chip orange">Medium</span></div><div>Waiting Parts</div><div>Battery check</div><div>L. Nguyen</div><div>Tomorrow</div>
+          </div>
+          <div class="crm-row">
+            <div>#4314</div><div><span class="chip green">Low</span></div><div>Open</div><div>Detail & prep</div><div>K. Patel</div><div>Fri</div>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="inline-links">
+        <a mat-stroked-button color="primary" (click)="openService()">Open Service</a>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="full light-card mat-elevation-z1">
+      <mat-card-header>
+        <mat-card-title>Inventory Snapshot</mat-card-title>
+        <mat-card-subtitle class="muted">Category status</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="crm-table">
+          <div class="crm-row crm-head">
+            <div>Category</div><div>Sub</div><div class="right">Count</div><div class="right">Low @</div><div>Status</div>
+          </div>
+          <div class="crm-row" *ngFor="let r of invRows()">
+            <div>{{ r.category }}</div>
+            <div class="muted">{{ r.sub }}</div>
+            <div class="right">{{ r.count }}</div>
+            <div class="right">{{ r.lowAt }}</div>
+            <div><span class="chip" [class.red]="r.low" [class.green]="!r.low">{{ r.low ? 'Low' : 'OK' }}</span></div>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="inline-links">
+        <a mat-stroked-button color="primary" (click)="openInventory()">Open Inventory</a>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Team Performance -->
+  <mat-card class="light-card mat-elevation-z1">
+    <mat-card-header><mat-card-title>Team Performance</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <div class="team">
+        <div class="member" *ngFor="let m of staff">
+          <div class="name">{{ m.name }} <span class="muted">• {{ m.role }}</span></div>
+          <div class="bar"><span [style.--w.%]="(m.jobs*5)"></span></div>
+          <div class="meta"><span>{{ m.kpi }}</span> <span *ngIf="m.aov" class="muted">AOV {{ m.aov }}</span> <span class="muted">· {{ m.jobs }} tasks</span></div>
+        </div>
+      </div>
+    </mat-card-content>
+    <mat-card-actions class="inline-links">
+      <a mat-stroked-button color="primary" (click)="openReports()">Compare in Reports</a>
+    </mat-card-actions>
+  </mat-card>
+</section>

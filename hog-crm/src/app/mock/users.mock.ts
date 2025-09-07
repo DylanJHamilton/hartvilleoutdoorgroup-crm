@@ -38,7 +38,7 @@ export const mockUsers: User[] = [
     id: 'u5',
     name: 'Sue Support',
     email: 'support@demo.local',
-    roles: ['SUPPORT'],       // or 'CS' if your Role union prefers that label
+    roles: ['SUPPORT'],       // ok: SUPPORT → normalized to CS by dashboard logic
     orgId: 'hog',
     locationIds: ['s3'],
   },
@@ -63,5 +63,25 @@ export const mockUsers: User[] = [
       { locationId: 's1', roles: ['SALES', 'CS'] },  // two hats in Hartville
       { locationId: 's3', roles: ['SERVICE'] },      // different hat in Mentor
     ]
+  },
+
+  // 🧰 NEW: Service Technician (store s1)
+  {
+    id: 'u8',
+    name: 'Tina Tech',
+    email: 'service@demo.local',
+    roles: ['SERVICE'],
+    orgId: 'hog',
+    locationIds: ['s1'],
+  },
+
+  // 🚚 NEW: Delivery Professional (store s2)
+  {
+    id: 'u9',
+    name: 'Devon Driver',
+    email: 'delivery@demo.local',
+    roles: ['DELIVERY'],
+    orgId: 'hog',
+    locationIds: ['s2'],
   },
 ];

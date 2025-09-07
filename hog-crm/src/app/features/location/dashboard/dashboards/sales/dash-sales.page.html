@@ -1,0 +1,255 @@
+<section class="page hog-sales-dashboard">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Location / {{ storeName() }} / Sales</div>
+      <h1 class="title">My Sales — {{ repName() }}</h1>
+      <div class="subtitle" *ngIf="isSales(); else notSales">
+        Personal performance and coaching for {{ timeframe() }}
+      </div>
+      <ng-template #notSales>
+        <div class="subtitle">You’re viewing the Sales dashboard in read-only mode.</div>
+      </ng-template>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters bare">
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Timeframe</mat-label>
+        <mat-select [value]="timeframe()" (selectionChange)="onTimeframe($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="MTD">MTD</mat-option>
+          <mat-option value="WTD">WTD</mat-option>
+          <mat-option value="DTD">Daily</mat-option>
+          <mat-option value="QTD">Quarter</mat-option>
+          <mat-option value="YTD">YTD</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Stage</mat-label>
+        <mat-select [value]="stage()" (selectionChange)="stage.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="Lead">Lead</mat-option>
+          <mat-option value="Qualified">Qualified</mat-option>
+          <mat-option value="Quoted">Quoted</mat-option>
+          <mat-option value="Verbal Yes">Verbal Yes</mat-option>
+          <mat-option value="Won">Won</mat-option>
+          <mat-option value="Lost">Lost</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [value]="status()" (selectionChange)="status.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="Open">Open</mat-option>
+          <mat-option value="Stalled">Stalled</mat-option>
+          <mat-option value="Won">Won</mat-option>
+          <mat-option value="Lost">Lost</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field q">
+        <mat-label>Search</mat-label>
+        <input matInput [value]="q()" (input)="q.set($any($event.target).value)" placeholder="Customer, product, #ID" />
+      </mat-form-field>
+
+      <button mat-stroked-button color="primary" (click)="refresh()">Refresh</button>
+      <button mat-stroked-button color="primary" (click)="exportCsv()">Export CSV</button>
+    </div>
+  </div>
+
+  <!-- Personal KPIs -->
+  <div class="grid-12">
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="My Sales ({{ timeframe() }})"
+      [value]="(((mtdSales() ?? 0) | currency:'USD':'symbol') ?? '')"
+      [delta]="attainmentPct()"
+      icon="paid"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Quota Attainment"
+      [value]="(attainmentPct() + '%')"
+      [delta]="0"
+      icon="flag"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Pipeline Coverage"
+      [value]="(coverageX() + '×')"
+      [delta]="0"
+      icon="savings"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="AOV"
+      [value]="(((aov() ?? 0) | currency:'USD':'symbol') ?? '')"
+      [delta]="0"
+      icon="receipt_long"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Win Rate"
+      [value]="(winRate() + '%')"
+      [delta]="0"
+      icon="thumb_up_alt"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Meetings Set"
+      [value]="meetings()"
+      [delta]="0"
+      icon="event"></hog-stat-card>
+  </div>
+
+  <!-- Coaching + Quick Links -->
+  <div class="grid-12">
+    <mat-card class="two-thirds light-card mat-elevation-z1">
+      <mat-card-header>
+        <mat-card-title>Coach Me</mat-card-title>
+        <mat-card-subtitle class="muted">Goals & next best actions</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <ul class="goals">
+          <li *ngFor="let c of coaching()">
+            <div class="goal-title">{{ c.title }}</div>
+            <div class="muted">{{ c.why }}</div>
+            <div class="why">{{ c.action }}</div>
+          </li>
+        </ul>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-stroked-button color="primary" (click)="nextBestAction()">Add Follow-up Sprint</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="third light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>My Sales Links</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="links">
+          <a mat-stroked-button color="primary" (click)="openPipeline()">Pipeline</a>
+          <a mat-stroked-button color="primary" (click)="openSalesDocs()">Sales Docs</a>
+          <a mat-stroked-button color="primary" (click)="openWriteups()">Writeups</a>
+          <a mat-stroked-button color="primary" (click)="openReports()">Performance Reports</a>
+        </div>
+        <div class="muted" style="margin-top:8px">Links open in read-only demo mode.</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid-12">
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>My Funnel</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="funnelChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Win Rate Trend</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="winrateChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Forecast ($)</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="forecastChart()"></div></mat-card-content>
+    </mat-card>
+
+    <!-- Top Sellers (cards) -->
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Top Selling Inventory</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="row" style="gap:12px;flex-wrap:wrap">
+          <mat-card class="light-card mat-elevation-z1" style="width:280px" *ngFor="let it of topSellers()">
+            <img [ngSrc]="it.img" width="280" height="160" alt="inventory" (error)="0" style="object-fit:cover;border-top-left-radius:12px;border-top-right-radius:12px;">
+            <mat-card-content>
+              <div style="font-weight:600">{{ it.name }}</div>
+              <div class="muted">{{ it.brand }}</div>
+              <div class="price">{{ (it.price | currency:'USD':'symbol') ?? '' }}</div>
+              <div class="muted">Sold: {{ it.sold }}</div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Pipeline table -->
+  <mat-card class="light-card mat-elevation-z1">
+    <mat-card-header>
+      <mat-card-title>My Pipeline ({{ filtered().length }})</mat-card-title>
+      <mat-card-subtitle class="muted">Respecting filters above</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Customer</th><th>Product</th><th>Stage</th><th>Status</th><th class="right">Value</th><th class="right">Age</th><th class="right">Updated</th><th class="right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of filtered()">
+              <td>#{{ p.id }}</td>
+              <td>{{ p.customer }}</td>
+              <td class="muted">{{ p.product }}</td>
+              <td>
+                <span class="chip"
+                  [class.slate]="p.stage==='Lead'"
+                  [class.blue]="p.stage==='Qualified'"
+                  [class.amber]="p.stage==='Quoted'"
+                  [class.emerald]="p.stage==='Verbal Yes'"
+                  [class.green]="p.stage==='Won'"
+                  [class.red]="p.stage==='Lost'">{{ p.stage }}</span>
+              </td>
+              <td class="muted">{{ p.status }}</td>
+              <td class="right">{{ (p.value | currency:'USD':'symbol') ?? '' }}</td>
+              <td class="right">{{ p.age }}d</td>
+              <td class="right">{{ p.updated }}</td>
+              <td class="right">
+                <button mat-stroked-button (click)="startCall(p)">Call</button>
+                <button mat-stroked-button (click)="sendQuote(p)" [disabled]="p.stage==='Won' || p.stage==='Lost'">Quote</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Available Inventory (view-only) + Sales Docs -->
+  <div class="grid-12">
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Available Inventory (View-only)</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="crm-table">
+          <div class="crm-row crm-head">
+            <div>SKU</div><div>Item</div><div class="right">On Hand</div><div class="right">MSRP</div><div class="right">Action</div>
+          </div>
+          <div class="crm-row" *ngFor="let r of availableInventory()">
+            <div>{{ r.sku }}</div>
+            <div class="muted">{{ r.name }}</div>
+            <div class="right">{{ r.onHand }}</div>
+            <div class="right">{{ (r.msrp | currency:'USD':'symbol') ?? '' }}</div>
+            <div class="right">
+              <button mat-stroked-button disabled>Request Hold</button>
+            </div>
+          </div>
+        </div>
+        <div class="muted" style="margin-top:6px">Ask Inventory for holds; this list is read-only.</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Sales Documents / Writeups</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <ul class="list">
+          <li *ngFor="let d of salesDocs()">
+            <span class="chip doc">{{ d.kind }}</span>
+            <span class="doc-title">{{ d.title }}</span>
+            <span class="muted rightish">{{ d.when }}</span>
+          </li>
+        </ul>
+      </mat-card-content>
+      <mat-card-actions class="inline-links">
+        <a mat-stroked-button color="primary" (click)="openSalesDocs()">Open Docs</a>
+        <a mat-stroked-button color="primary" (click)="openWriteups()">Open Writeups</a>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</section>

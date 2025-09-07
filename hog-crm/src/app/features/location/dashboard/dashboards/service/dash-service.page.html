@@ -1,0 +1,192 @@
+<section class="page hog-service-dashboard">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Location / {{ storeName() }} / Service</div>
+      <h1 class="title">Service — {{ storeName() }}</h1>
+      <div class="subtitle">Active work orders, technician load & parts usage • {{ timeframe() }}</div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters bare">
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Timeframe</mat-label>
+        <mat-select [value]="timeframe()" (selectionChange)="onTimeframe($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="MTD">MTD</mat-option>
+          <mat-option value="WTD">WTD</mat-option>
+          <mat-option value="DTD">Daily</mat-option>
+          <mat-option value="QTD">Quarter</mat-option>
+          <mat-option value="YTD">YTD</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [value]="status()" (selectionChange)="status.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="Open">Open</mat-option>
+          <mat-option value="In Progress">In Progress</mat-option>
+          <mat-option value="Waiting Parts">Waiting Parts</mat-option>
+          <mat-option value="Scheduled">Scheduled</mat-option>
+          <mat-option value="Done">Done</mat-option>
+          <mat-option value="Cancelled">Cancelled</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Severity</mat-label>
+        <mat-select [value]="sev()" (selectionChange)="sev.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="High">High</mat-option>
+          <mat-option value="Medium">Medium</mat-option>
+          <mat-option value="Low">Low</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Tech</mat-label>
+        <mat-select [value]="tech()" (selectionChange)="tech.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option *ngFor="let t of techList()" [value]="t">{{ t }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field q">
+        <mat-label>Search</mat-label>
+        <input matInput [value]="q()" (input)="q.set($any($event.target).value)" placeholder="subject, asset, #ID, customer" />
+      </mat-form-field>
+
+      <button mat-stroked-button color="primary" (click)="refresh()">Refresh</button>
+      <button mat-stroked-button color="primary" (click)="exportCsv()">Export CSV</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid-12">
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Active WOs"
+      [value]="activeStr()"
+      [delta]="0"
+      icon="build_circle"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Done ({{ timeframe() }})"
+      [value]="doneStr()"
+      [delta]="0"
+      icon="task_alt"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Waiting Parts"
+      [value]="waitingStr()"
+      [delta]="0"
+      icon="inventory_2"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Scheduled"
+      [value]="schedStr()"
+      [delta]="0"
+      icon="event_available"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="High Backlog"
+      [value]="highBackStr()"
+      [delta]="0"
+      icon="priority_high"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Tech Utilization"
+      [value]="utilisStr()"
+      [delta]="0"
+      icon="speed"></hog-stat-card>
+  </div>
+
+  <!-- Active WOs FIRST -->
+  <mat-card class="light-card mat-elevation-z1">
+    <mat-card-header>
+      <mat-card-title>Active Work Orders ({{ wo().length }})</mat-card-title>
+      <mat-card-subtitle class="muted">Respecting filters above</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Title</th><th>Asset</th><th>Severity</th><th>Status</th><th>Tech</th><th>Opened</th><th>ETA</th><th>Customer</th><th class="right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let w of wo()">
+              <td>#{{ w.id }}</td>
+              <td class="muted">{{ w.title }}</td>
+              <td>{{ w.asset }}</td>
+              <td>
+                <span class="chip"
+                  [class.red]="w.severity==='High'"
+                  [class.orange]="w.severity==='Medium'"
+                  [class.green]="w.severity==='Low'">{{ w.severity }}</span>
+              </td>
+              <td>{{ w.status }}</td>
+              <td class="muted">{{ w.tech }}</td>
+              <td class="muted">{{ w.openedAgo }}</td>
+              <td>
+                <span class="chip slate">{{ w.eta }}</span>
+              </td>
+              <td class="muted">{{ w.customer }}</td>
+              <td class="right">
+                <button class="serviceActions" mat-stroked-button (click)="assign(w)">Assign</button>
+                <button class="serviceActions" mat-stroked-button (click)="start(w)">Start</button>
+                <button class="serviceActions" mat-stroked-button (click)="complete(w)">Complete</button>
+                <button class="serviceActions" mat-stroked-button (click)="orderPart(w)">Order Part</button>
+                <button class="serviceActions" mat-stroked-button (click)="addNote(w)">Add Note</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Charts row -->
+  <div class="grid-12">
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Ticket Flow (12w)</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="ticketFlowChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>By Severity</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="bySeverityChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Tech Load</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="techUtilChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Parts Usage (Top SKUs)</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="partsChart()"></div></mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Schedule -->
+  <mat-card class="light-card mat-elevation-z1">
+    <mat-card-header>
+      <mat-card-title>Service Schedule</mat-card-title>
+      <mat-card-subtitle class="muted">Day/Week viewport (demo)</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="cal">
+        <div class="cell" *ngFor="let day of scheduleWeek()">
+          <h5>{{ day.label }}</h5>
+          <span class="pill" *ngFor="let it of day.items">
+            {{ it.time }} • {{ it.asset }} • {{ it.tech }}
+          </span>
+        </div>
+      </div>
+    </mat-card-content>
+    <mat-card-actions class="inline-links">
+      <a mat-stroked-button color="primary" (click)="openCalendar()">Open Calendar</a>
+      <a mat-stroked-button color="primary" (click)="openReports()">Open Reports</a>
+    </mat-card-actions>
+  </mat-card>
+</section>

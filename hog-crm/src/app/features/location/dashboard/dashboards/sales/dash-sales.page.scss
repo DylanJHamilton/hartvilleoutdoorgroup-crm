@@ -1,0 +1,86 @@
+:host { display:block; }
+.page { display:flex; flex-direction:column; gap:16px; padding:16px; background:#f6f7fb; }
+.header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+
+.breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+.title { font:600 22px/1.2 system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; margin:4px 0; }
+.subtitle { color:rgba(0,0,0,.60); font-size:13px; }
+
+/* Filters – portal light skin */
+.filters {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:#ffffff; border:1px solid #e5e7eb; border-radius:12px;
+  padding:8px 12px; box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.filters .mat-mdc-form-field { --field-min: 200px; min-width: var(--field-min); flex: 1 1 200px; }
+.filters .q { min-width:280px; flex: 2 1 280px; }
+
+/* Grid */
+.grid-12 { display:grid; gap:16px; grid-template-columns:repeat(12,1fr); }
+.kpi { grid-column: span 2; }
+.half { grid-column: span 6; }
+.third { grid-column: span 4; }
+.two-thirds { grid-column: span 8; }
+.full { grid-column: 1 / -1; }
+
+@media (max-width: 1200px) {
+  .kpi { grid-column: span 4; }
+  .half, .two-thirds, .third { grid-column: span 12; }
+}
+@media (max-width: 900px) {
+  .kpi { grid-column: span 6; }
+}
+
+/* Cards & chips */
+.light-card { background:#fff; border-radius:12px; }
+.muted { color:rgba(0,0,0,.54); }
+.inline-links a { text-decoration:none; }
+
+.chip { display:inline-flex; align-items:center; gap:6px; padding:2px 8px; border-radius:999px; font-size:12px; }
+.chip.slate   { background:#e2e8f0; color:#0f172a; }
+.chip.blue    { background:#dbeafe; color:#1e40af; }
+.chip.amber   { background:#fef3c7; color:#92400e; }
+.chip.emerald { background:#d1fae5; color:#065f46; }
+.chip.green   { background:#dcfce7; color:#166534; }
+.chip.red     { background:#fee2e2; color:#991b1b; }
+.chip.doc     { background:#eef2ff; color:#3730a3; }
+
+/* Table */
+.table-wrap { overflow:auto; -webkit-overflow-scrolling:touch; }
+table { width:100%; border-spacing:0; background:#fff; }
+thead th { position:sticky; top:0; background:#fff; z-index:1; text-align:left; padding:10px 12px; border-bottom:1px solid #f1f5f9; font-weight:600; }
+tbody td { padding:10px 12px; border-bottom:1px solid #f1f5f9; }
+.right { text-align:right; }
+
+/* Lists */
+.list { margin:0; padding-left:18px; }
+.list li { margin:6px 0; display:flex; gap:8px; align-items:center; }
+.rightish { margin-left:auto; }
+
+/* Goals */
+.goals { list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+.goals li { border:1px solid #e5e7eb; background:#f8fafc; padding:10px 12px; border-radius:10px; }
+.goal-title { font-weight:600; }
+.why { font-size:12px; color:#1f2937; }
+
+/* CRM mini-table (inventory) */
+.crm-table { display:grid; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+.crm-row { display:grid; grid-template-columns: 120px 1fr 120px 140px 140px; }
+.crm-row > div { padding:10px 12px; border-bottom:1px solid #f1f5f9; }
+.crm-head { background:#f8fafc; font-weight:600; }
+.crm-row:last-child > div { border-bottom:none; }
+
+@media (max-width: 1200px) {
+  .crm-table { display:block; overflow:auto; -webkit-overflow-scrolling:touch; }
+  .crm-row { display:grid; grid-template-columns: 120px 380px 120px 140px 140px; min-width: 900px; }
+}
+
+/* Media card bits */
+.row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.price { font-weight:600; }
+
+/* Small devices */
+@media (max-width: 600px) {
+  .page { padding:12px; gap:12px; }
+  .title { font-size:20px; }
+}

@@ -1,0 +1,223 @@
+<section class="page hog-cs-dashboard">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Location / {{ storeName() }} / Customer Service</div>
+      <h1 class="title">Customer Service — {{ storeName() }}</h1>
+      <div class="subtitle">Active operations & customer outcomes • {{ timeframe() }}</div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters bare">
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Timeframe</mat-label>
+        <mat-select [value]="timeframe()" (selectionChange)="onTimeframe($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="MTD">MTD</mat-option>
+          <mat-option value="WTD">WTD</mat-option>
+          <mat-option value="DTD">Daily</mat-option>
+          <mat-option value="QTD">Quarter</mat-option>
+          <mat-option value="YTD">YTD</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Priority</mat-label>
+        <mat-select [value]="priority()" (selectionChange)="priority.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="High">High</mat-option>
+          <mat-option value="Medium">Medium</mat-option>
+          <mat-option value="Low">Low</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [value]="status()" (selectionChange)="status.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="Open">Open</mat-option>
+          <mat-option value="In Progress">In Progress</mat-option>
+          <mat-option value="Waiting">Waiting</mat-option>
+          <mat-option value="Resolved">Resolved</mat-option>
+          <mat-option value="Closed">Closed</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Channel</mat-label>
+        <mat-select [value]="channel()" (selectionChange)="channel.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="Phone">Phone</mat-option>
+          <mat-option value="Email">Email</mat-option>
+          <mat-option value="Chat">Chat</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field q">
+        <mat-label>Search</mat-label>
+        <input matInput [value]="q()" (input)="q.set($any($event.target).value)" placeholder="Subject, customer, #ID" />
+      </mat-form-field>
+
+      <button mat-stroked-button color="primary" (click)="refresh()">Refresh</button>
+      <button mat-stroked-button color="primary" (click)="exportCsv()">Export CSV</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid-12">
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Active Tickets"
+      [value]="activeStr()"
+      [delta]="0"
+      icon="support_agent"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Resolved ({{ timeframe() }})"
+      [value]="resolvedStr()"
+      [delta]="0"
+      icon="task_alt"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="SLA Breaches"
+      [value]="breachStr()"
+      [delta]="0"
+      icon="priority_high"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="First Response (avg)"
+      [value]="frtStr()"
+      [delta]="0"
+      icon="schedule"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="CSAT"
+      [value]="csatStr()"
+      [delta]="0"
+      icon="star_rate"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Reopen Rate"
+      [value]="reopenStr()"
+      [delta]="0"
+      icon="refresh"></hog-stat-card>
+  </div>
+
+  <!-- Active Tickets FIRST -->
+  <mat-card class="light-card mat-elevation-z1">
+    <mat-card-header>
+      <mat-card-title>Active Tickets ({{ tickets().length }})</mat-card-title>
+      <mat-card-subtitle class="muted">Respecting filters above</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Subject</th><th>Customer</th><th>Priority</th><th>Status</th><th>Assignee</th><th>Updated</th><th>SLA</th><th>Channel</th><th class="right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of tickets()">
+              <td>#{{ t.id }}</td>
+              <td class="muted">{{ t.subject }}</td>
+              <td>{{ t.customer }}</td>
+              <td>
+                <span class="chip"
+                  [class.red]="t.priority==='High'"
+                  [class.orange]="t.priority==='Medium'"
+                  [class.green]="t.priority==='Low'">{{ t.priority }}</span>
+              </td>
+              <td>{{ t.status }}</td>
+              <td class="muted">{{ t.assignee }}</td>
+              <td class="muted">{{ t.updated }}</td>
+              <td>
+                <span class="chip" [class.red]="t.slaDue==='breached'" [class.slate]="t.slaDue!=='breached'">
+                  {{ t.slaDue }}
+                </span>
+              </td>
+              <td class="muted">{{ t.channel }}</td>
+              <td class="right">
+                <button class="csAction" mat-stroked-button (click)="assign(t)">Assign</button>
+                <button class="csAction" mat-stroked-button (click)="escalate(t)">Escalate</button>
+                <button class="csAction" mat-stroked-button (click)="resolve(t)">Resolve</button>
+                <button class="csAction" mat-stroked-button (click)="addNote(t)">Add Note</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Charts row -->
+  <div class="grid-12">
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Ticket Volume Trend</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="ticketsTrendChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Response Time Trend</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="responseTrendChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Priority Distribution</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="priorityChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Channel Mix</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="channelChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="full light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Agent Load</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="agentLoadChart()"></div></mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Reviews & Live issues -->
+  <div class="grid-12">
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Recent Reviews</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <ul class="reviews">
+          <li *ngFor="let r of reviews()">
+            <span class="stars" [attr.data-s]="r.rating"></span>
+            <span>{{ r.text }}</span>
+            <span class="muted by">— {{ r.by }}</span>
+            <span class="muted when">{{ r.when }}</span>
+          </li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Company-Wide CS Notices</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <ul class="issues">
+          <li *ngFor="let i of liveIssues()">
+            <span class="chip" [class.red]="i.sev==='High'" [class.orange]="i.sev==='Medium'" [class.green]="i.sev==='Low'">{{ i.sev }}</span>
+            <span class="issue-title">{{ i.title }}</span>
+            <span class="muted status">{{ i.status }}</span>
+            <span class="muted scope">{{ i.scope }}</span>
+          </li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Quick Links -->
+  <mat-card class="light-card mat-elevation-z1">
+    <mat-card-header><mat-card-title>CS Links</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <div class="links">
+        <a mat-stroked-button color="primary" (click)="openTickets()">Open Tickets</a>
+        <a mat-stroked-button color="primary" (click)="openKB()">Knowledge Base</a>
+        <a mat-stroked-button color="primary" (click)="openMacros()">Macros</a>
+        <a mat-stroked-button color="primary" (click)="openReports()">Reports</a>
+      </div>
+      <div class="muted" style="margin-top:8px">Links open in read-only demo mode.</div>
+    </mat-card-content>
+  </mat-card>
+</section>

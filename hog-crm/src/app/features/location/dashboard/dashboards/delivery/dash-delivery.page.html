@@ -1,0 +1,195 @@
+<section class="page hog-delivery-dashboard">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Location / {{ storeName() }} / Delivery</div>
+      <h1 class="title">Delivery — {{ storeName() }}</h1>
+      <div class="subtitle">Active routes, on-time performance, and vehicle mix • {{ timeframe() }}</div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters bare">
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Timeframe</mat-label>
+        <mat-select [value]="timeframe()" (selectionChange)="onTimeframe($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="MTD">MTD</mat-option>
+          <mat-option value="WTD">WTD</mat-option>
+          <mat-option value="DTD">Daily</mat-option>
+          <mat-option value="QTD">Quarter</mat-option>
+          <mat-option value="YTD">YTD</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [value]="status()" (selectionChange)="status.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="Queued">Queued</mat-option>
+          <mat-option value="En-route">En-route</mat-option>
+          <mat-option value="Delivered">Delivered</mat-option>
+          <mat-option value="Exception">Exception</mat-option>
+          <mat-option value="Cancelled">Cancelled</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Vehicle</mat-label>
+        <mat-select [value]="vehicle()" (selectionChange)="vehicle.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="Truck">Truck</mat-option>
+          <mat-option value="Trailer">Trailer</mat-option>
+          <mat-option value="Van">Van</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Driver</mat-label>
+        <mat-select [value]="driver()" (selectionChange)="driver.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option *ngFor="let d of driverOptions()" [value]="d">{{ d }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field q">
+        <mat-label>Search</mat-label>
+        <input matInput [value]="q()" (input)="q.set($any($event.target).value)" placeholder="customer, product, #ID" />
+      </mat-form-field>
+
+      <button mat-stroked-button color="primary" (click)="refresh()">Refresh</button>
+      <button mat-stroked-button color="primary" (click)="exportCsv()">Export CSV</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid-12">
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="In Transit"
+      [value]="inTransitStr()"
+      [delta]="0"
+      icon="local_shipping"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Queued"
+      [value]="queuedStr()"
+      [delta]="0"
+      icon="schedule_send"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Delivered ({{ timeframe() }})"
+      [value]="deliveredStr()"
+      [delta]="0"
+      icon="check_circle"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="On-Time %"
+      [value]="onTimeStr()"
+      [delta]="0"
+      icon="schedule"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Avg Route (mi)"
+      [value]="avgMilesStr()"
+      [delta]="0"
+      icon="route"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Exceptions"
+      [value]="exceptionsStr()"
+      [delta]="0"
+      icon="report"></hog-stat-card>
+  </div>
+
+  <!-- Active Routes FIRST -->
+  <mat-card class="light-card mat-elevation-z1">
+    <mat-card-header>
+      <mat-card-title>Active & Recent Deliveries ({{ stops().length }})</mat-card-title>
+      <mat-card-subtitle class="muted">Respecting filters above</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Day</th><th>Time</th><th>Driver</th><th>Vehicle</th><th>Status</th><th>Customer</th><th>Product</th><th class="right">Miles</th><th>Window</th><th class="right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of stops()">
+              <td>#{{ s.id }}</td>
+              <td class="muted">{{ s.day }}</td>
+              <td class="muted">{{ s.time }}</td>
+              <td>{{ s.driver }}</td>
+              <td>{{ s.vehicle }}</td>
+              <td>
+                <span class="chip"
+                  [class.blue]="s.status==='En-route'"
+                  [class.green]="s.status==='Delivered'"
+                  [class.orange]="s.status==='Queued'"
+                  [class.red]="s.status==='Exception'">{{ s.status }}</span>
+              </td>
+              <td class="muted">{{ s.customer }}</td>
+              <td class="muted">{{ s.product }}</td>
+              <td class="right">{{ s.miles }}</td>
+              <td class="muted">{{ s.window }}</td>
+              <td class="right">
+                <button class="deliveryAction" mat-stroked-button (click)="startRoute(s)">Start</button>
+                <button class="deliveryAction" mat-stroked-button (click)="endRoute(s)">End</button>
+                <button class="deliveryAction" mat-stroked-button (click)="reassign(s)">Reassign</button>
+                <button class="deliveryAction" mat-stroked-button (click)="addNote(s)">Add Note</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Charts row -->
+  <div class="grid-12">
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Daily Drops (2w)</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="dropsTrendChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>On-Time % Trend</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="onTimeTrendChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Vehicle Mix</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="vehicleMixChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Status Mix</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="statusMixChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="full light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Driver Load</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="driverLoadChart()"></div></mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Schedule -->
+  <mat-card class="light-card mat-elevation-z1">
+    <mat-card-header>
+      <mat-card-title>Weekly Schedule</mat-card-title>
+      <mat-card-subtitle class="muted">Day/Week viewport (demo)</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="cal">
+        <div class="cell" *ngFor="let day of scheduleWeek()">
+          <h5>{{ day.label }}</h5>
+          <span class="pill" *ngFor="let it of day.items">
+            {{ it.time }} • {{ it.driver }} • {{ it.vehicle }} • {{ it.product }}
+          </span>
+        </div>
+      </div>
+    </mat-card-content>
+    <mat-card-actions class="inline-links">
+      <a mat-stroked-button color="primary" (click)="openSchedule()">Open Schedule</a>
+      <a mat-stroked-button color="primary" (click)="openReports()">Open Reports</a>
+    </mat-card-actions>
+  </mat-card>
+</section>

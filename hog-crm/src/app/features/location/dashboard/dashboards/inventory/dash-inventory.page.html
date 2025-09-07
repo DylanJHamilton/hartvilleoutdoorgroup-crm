@@ -1,0 +1,181 @@
+<section class="page hog-inventory-dashboard">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Location / {{ storeName() }} / Inventory</div>
+      <h1 class="title">Inventory — {{ storeName() }}</h1>
+      <div class="subtitle">Stock, low-risk, turns & receipts • {{ timeframe() }}</div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters bare">
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Timeframe</mat-label>
+        <mat-select [value]="timeframe()" (selectionChange)="onTimeframe($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="MTD">MTD</mat-option>
+          <mat-option value="WTD">WTD</mat-option>
+          <mat-option value="DTD">Daily</mat-option>
+          <mat-option value="QTD">Quarter</mat-option>
+          <mat-option value="YTD">YTD</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Category</mat-label>
+        <mat-select [value]="cat()" (selectionChange)="cat.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option *ngFor="let c of catOptions()" [value]="c">{{ c }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [value]="status()" (selectionChange)="status.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="All">All</mat-option>
+          <mat-option value="OK">OK</mat-option>
+          <mat-option value="Low">Low</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" color="primary" class="filter-field q">
+        <mat-label>Search</mat-label>
+        <input matInput [value]="q()" (input)="q.set($any($event.target).value)" placeholder="sku, name, category" />
+      </mat-form-field>
+
+      <button mat-stroked-button color="primary" (click)="refresh()">Refresh</button>
+      <button mat-stroked-button color="primary" (click)="exportCsv()">Export CSV</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid-12">
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="On-hand Units"
+      [value]="onHandStr()"
+      [delta]="0"
+      icon="inventory_2"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Low-stock Items"
+      [value]="lowStr()"
+      [delta]="0"
+      icon="warning"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Avg Turns"
+      [value]="turnsStr()"
+      [delta]="0"
+      icon="sync_alt"></hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Receipts ({{ timeframe() }})"
+      [value]="recStr()"
+      [delta]="0"
+      icon="download_done"></hog-stat-card>
+  </div>
+
+  <!-- ===== CHARTS (each full-width, above Low-Stock Focus) ===== -->
+  <div class="grid-12">
+    <mat-card class="full light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Stock by Category</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="byCatChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="full light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Low-Stock Risk</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="lowRiskChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="full light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Turns Trend</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="turnsTrendChart()"></div></mat-card-content>
+    </mat-card>
+
+    <mat-card class="full light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Receipts (by day)</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="receiptsHistChart()"></div></mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Low Stock Focus (now BELOW the charts) -->
+  <mat-card class="light-card mat-elevation-z1" *ngIf="lowRows().length">
+    <mat-card-header>
+      <mat-card-title>Low-Stock Focus ({{ lowRows().length }})</mat-card-title>
+      <mat-card-subtitle class="muted">Prioritized by turns & lead time</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>SKU</th><th>Name</th><th>Category</th><th class="right">On-hand</th>
+              <th class="right">Low @</th><th class="right">Reserved</th><th class="right">Turns</th>
+              <th class="right">Lead (d)</th><th class="right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of lowRows()">
+              <td>{{ r.sku }}</td>
+              <td class="muted">{{ r.name }}</td>
+              <td>{{ r.category }}</td>
+              <td class="right">{{ r.onHand }}</td>
+              <td class="right">{{ r.lowAt }}</td>
+              <td class="right">{{ r.reserved }}</td>
+              <td class="right">{{ r.turns }}</td>
+              <td class="right">{{ r.leadDays }}</td>
+              <td class="right">
+                <button mat-stroked-button color="primary" (click)="reorder(r)">Reorder</button>
+                <button mat-stroked-button (click)="count(r)">Count</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Main Inventory Grid -->
+  <div class="grid-12">
+    <mat-card class="full light-card mat-elevation-z1">
+      <mat-card-header>
+        <mat-card-title>Inventory ({{ rows().length }})</mat-card-title>
+        <mat-card-subtitle class="muted">Respecting filters above</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Category</th><th>Sub</th><th>SKU</th><th>Name</th>
+                <th class="right">On-hand</th><th class="right">Low @</th>
+                <th class="right">Reserved</th><th>Status</th>
+                <th class="right">Turns</th><th class="right">Lead (d)</th><th class="right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of rows()">
+                <td>{{ r.category }}</td>
+                <td class="muted">{{ r.sub }}</td>
+                <td>{{ r.sku }}</td>
+                <td class="muted">{{ r.name }}</td>
+                <td class="right">{{ r.onHand }}</td>
+                <td class="right">{{ r.lowAt }}</td>
+                <td class="right">{{ r.reserved }}</td>
+                <td>
+                  <span class="chip" [class.red]="r.status==='Low'" [class.green]="r.status==='OK'">{{ r.status }}</span>
+                </td>
+                <td class="right">{{ r.turns }}</td>
+                <td class="right">{{ r.leadDays }}</td>
+                <td class="right">
+                  <button mat-stroked-button color="primary" [disabled]="r.status!=='Low'" (click)="reorder(r)">Reorder</button>
+                  <button mat-stroked-button (click)="receive(r)">Receive</button>
+                  <button mat-stroked-button (click)="adjust(r)">Adjust</button>
+                  <button mat-stroked-button (click)="count(r)">Count</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>
