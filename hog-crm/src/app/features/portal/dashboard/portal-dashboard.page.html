@@ -1,15 +1,16 @@
-<section class="page hog-portal-dashboard">
-  <!-- Header -->
+<section class="portal-dashboard">
   <div class="header">
-    <div>
-      <div class="breadcrumb">Portal / Dashboard</div>
-      <h1 class="title">Main Dashboard</h1>
-      <div class="subtitle" *ngIf="privileged(); else nonPrivNote">
-        {{ canAll() ? 'Owners/Admins can view all stores or drill into one.' : 'Managers are scoped to their store(s).' }}
-      </div>
+    <div class="titles">
+      <h2>Portal Dashboard</h2>
+
+      <!-- Define the else template FIRST to avoid scope errors -->
       <ng-template #nonPrivNote>
         <div class="subtitle" *ngIf="hybrid()">Hybrid employees: use Stores to open your dashboards.</div>
       </ng-template>
+
+      <div class="subtitle" *ngIf="privileged(); else nonPrivNote">
+        {{ canAll() ? 'Owners/Admins can view all stores or drill into one.' : 'Managers are scoped to their store(s).' }}
+      </div>
     </div>
 
     <!-- Filters (privileged only). Owners/Admins: '' = company-wide -->
@@ -83,29 +84,33 @@
       <mat-card-content>
         <!-- Compare mode (admins) -->
         <div class="compare-row" *ngIf="compareMode(); else singleSneak">
-          <mat-card class="light-card mat-elevation-z1" *ngFor="let s of allStoresCompare()">
+          <mat-card class="light-card mat-elevation-z1" *ngFor="let s of compareStores()">
             <mat-card-header>
               <mat-card-title>{{ s.name }}</mat-card-title>
             </mat-card-header>
             <mat-card-content>
-              <div [hogChart]="compareSalesChart(s.id)"></div>
+              <div
+                [hogChart]="{
+                  chart: { type:'bar', height:150, toolbar:{ show:false } },
+                  series: [{ name:'Sales', data: compareSeriesFor(s.id) }],
+                  xaxis: { categories: ['Prev','Current'] },
+                  dataLabels: { enabled:false },
+                  grid: { borderColor:'#eee' },
+                  plotOptions: { bar: { borderRadius: 4 } }
+                }">
+              </div>
               <div class="row" style="margin-top:8px">
-                <span class="chip">Sales: {{ compareSales(s.id) | currency:'USD' }}</span>
-                <span class="chip">Orders: {{ compareOrders(s.id) }}</span>
+                <span class="chip">Sales: {{ (compareSeriesFor(s.id)[1] || 0) | currency:'USD' }}</span>
+                <span class="chip">Orders: {{ (compareOrdersFor(s.id)[1] || 0) }}</span>
               </div>
             </mat-card-content>
-             <!-- inside the Stores grid -->
             <mat-card-actions class="quick-actions">
-                <a mat-stroked-button disableRipple class="hog-link-btn"
-                    [routerLink]="['/location', s.id, 'dashboard']">Dashboard</a>
-                <a mat-stroked-button disableRipple class="hog-link-btn"
-                    [routerLink]="['/location', s.id, 'sales']">Sales</a>
-                <a mat-stroked-button disableRipple class="hog-link-btn"
-                    [routerLink]="['/location', s.id, 'tickets']">Tickets</a>
-                <a mat-stroked-button disableRipple class="hog-link-btn"
-                    [routerLink]="['/location', s.id, 'inventory']">Inventory</a>
-                </mat-card-actions>
-            </mat-card>
+              <a mat-stroked-button disableRipple class="hog-link-btn" [routerLink]="['/location', s.id, 'dashboard']">Dashboard</a>
+              <a mat-stroked-button disableRipple class="hog-link-btn" [routerLink]="['/location', s.id, 'sales']">Sales</a>
+              <a mat-stroked-button disableRipple class="hog-link-btn" [routerLink]="['/location', s.id, 'tickets']">Tickets</a>
+              <a mat-stroked-button disableRipple class="hog-link-btn" [routerLink]="['/location', s.id, 'inventory']">Inventory</a>
+            </mat-card-actions>
+          </mat-card>
         </div>
 
         <!-- Single sneak -->

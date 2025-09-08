@@ -23,85 +23,38 @@
     </div>
   </div>
 
-  <!-- Sneak Preview (single store) -->
-  <mat-card class="light-card">
-    <mat-card-header>
-      <mat-card-title>Store Sneak Preview</mat-card-title>
-      <mat-card-subtitle class="muted">{{ storeName() }} • Store • {{ timeframe() }}</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="sneak">
-        <div class="sneak-left">
-          <!-- Sneak KPI -->
-          <mat-card class="light-card mat-elevation-z1 sneak-kpi">
-            <mat-card-content>
-              <div class="sneak-kpi-row">
-                <div class="sneak-kpi-label">Total Sales ({{ timeframe() }})</div>
-                <div class="sneak-kpi-val">
-                  {{ ((totalSales() ?? 0) | currency:'USD':'symbol') ?? '' }}
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
+  <!-- Top row: Sales Snapshot + Top Seller (no "Sneak Preview") -->
+  <div class="grid-12">
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header>
+        <mat-card-title>Sales Snapshot ({{ timeframe() }})</mat-card-title>
+        <mat-card-subtitle>Store</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div [hogChart]="salesChart()"></div>
+      </mat-card-content>
+      <mat-card-actions>
+        <a mat-stroked-button color="primary" [routerLink]="salesLink()">Go to Sales</a>
+      </mat-card-actions>
+    </mat-card>
 
-          <mat-card class="light-card mat-elevation-z1">
-            <mat-card-header>
-              <mat-card-title>Sales Snapshot ({{ timeframe() }})</mat-card-title>
-              <mat-card-subtitle>Store</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <div [hogChart]="salesChart()"></div>
-            </mat-card-content>
-            <mat-card-actions>
-              <a mat-stroked-button color="primary" [routerLink]="salesLink()">Go to Sales</a>
-            </mat-card-actions>
-          </mat-card>
-
-          <mat-card class="light-card mat-elevation-z1" style="margin-top:16px">
-            <mat-card-header>
-              <mat-card-title>Sales Pipeline</mat-card-title>
-              <mat-card-subtitle>Store</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <div [hogChart]="pipelineChart()"></div>
-            </mat-card-content>
-            <mat-card-actions>
-              <a mat-stroked-button color="primary" [routerLink]="salesLink()">Open Pipeline</a>
-            </mat-card-actions>
-          </mat-card>
+    <mat-card class="half light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Top Seller</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="media" *ngIf="topSeller() as t">
+          <img [ngSrc]="t.img" width="64" height="64" alt="top-seller" (error)="imgFallback($event)">
+          <div class="meta">
+            <div>{{ t.name }}</div>
+            <div class="price">{{ (t.price | currency:'USD':'symbol') ?? '' }}</div>
+            <div class="muted">Sold: {{ t.count }}</div>
+          </div>
         </div>
-
-        <div class="sneak-right">
-          <mat-card class="light-card mat-elevation-z1">
-            <mat-card-header><mat-card-title>Top Seller Highlight</mat-card-title></mat-card-header>
-            <mat-card-content>
-              <div class="media" *ngIf="topSeller() as t">
-                <img [ngSrc]="t.img" width="64" height="64" alt="top-seller" (error)="imgFallback($event)">
-                <div class="meta">
-                  <div>{{ t.name }}</div>
-                  <div class="price">{{ (t.price | currency:'USD':'symbol') ?? '' }}</div>
-                  <div class="muted">Sold: {{ t.count }}</div>
-                </div>
-              </div>
-            </mat-card-content>
-            <mat-card-actions>
-              <a mat-stroked-button color="primary" [routerLink]="inventoryLink()">View Inventory</a>
-            </mat-card-actions>
-          </mat-card>
-
-          <mat-card class="light-card mat-elevation-z1" style="margin-top:16px">
-            <mat-card-header><mat-card-title>Trend Pulse</mat-card-title></mat-card-header>
-            <mat-card-content>
-              <div [hogChart]="trendChart()"></div>
-            </mat-card-content>
-            <mat-card-actions>
-              <a mat-stroked-button color="primary" [routerLink]="reportsLink()">View Reports</a>
-            </mat-card-actions>
-          </mat-card>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+      </mat-card-content>
+      <mat-card-actions>
+        <a mat-stroked-button color="primary" [routerLink]="inventoryLink()">View Inventory</a>
+      </mat-card-actions>
+    </mat-card>
+  </div>
 
   <!-- KPIs row -->
   <div class="grid-12">
@@ -304,59 +257,6 @@
       </mat-card-content>
       <mat-card-actions class="inline-links">
         <a mat-stroked-button color="primary" [routerLink]="inventoryLink()">Open Inventory</a>
-      </mat-card-actions>
-    </mat-card>
-
-    <!-- Employee Performance -->
-    <mat-card class="half light-card mat-elevation-z1">
-      <mat-card-header><mat-card-title>Employee Performance</mat-card-title></mat-card-header>
-      <mat-card-content>
-        <div class="perf-block">
-          <div>Top Sales: {{ perf().topSales }}</div>
-          <div class="bar"><span [style.--w.%]="perfBars().sales"></span></div>
-          <div class="muted">{{ perfReasons().sales }}</div>
-          <div class="why">{{ perfWhyStats().sales }}</div>
-        </div>
-        <div class="perf-block">
-          <div>Trending Salesperson: {{ perf().trending }}</div>
-          <div class="bar"><span [style.--w.%]="perfBars().trending"></span></div>
-          <div class="muted">{{ perfReasons().trending }}</div>
-          <div class="why">{{ perfWhyStats().trending }}</div>
-        </div>
-        <div class="perf-block">
-          <div>Top Support: {{ perf().topSupport }}</div>
-          <div class="bar"><span [style.--w.%]="perfBars().support"></span></div>
-          <div class="muted">{{ perfReasons().support }}</div>
-          <div class="why">{{ perfWhyStats().support }}</div>
-        </div>
-        <div class="perf-block">
-          <div>Most Efficient Delivery: {{ perf().topDelivery }}</div>
-          <div class="bar"><span [style.--w.%]="perfBars().delivery"></span></div>
-          <div class="muted">{{ perfReasons().delivery }}</div>
-          <div class="why">{{ perfWhyStats().delivery }}</div>
-        </div>
-        <div class="perf-block">
-          <div>Most Efficient Tech: {{ perf().topTech }}</div>
-          <div class="bar"><span [style.--w.%]="perfBars().tech"></span></div>
-          <div class="muted">{{ perfReasons().tech }}</div>
-          <div class="why">{{ perfWhyStats().tech }}</div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="row perf-dollars">
-          <div class="card-mini">
-            <div class="mini-label">Service time saved (est.)</div>
-            <div class="mini-val">{{ (perfDollars().serviceSavings | currency:'USD':'symbol') ?? '' }}</div>
-          </div>
-          <div class="card-mini">
-            <div class="mini-label">Sales effectiveness lift</div>
-            <div class="mini-val">{{ (perfDollars().salesLift | currency:'USD':'symbol') ?? '' }}</div>
-          </div>
-        </div>
-      </mat-card-content>
-      <mat-card-actions class="inline-links">
-        <a mat-stroked-button color="primary" [routerLink]="reportsLink()">Compare in Reports</a>
       </mat-card-actions>
     </mat-card>
 

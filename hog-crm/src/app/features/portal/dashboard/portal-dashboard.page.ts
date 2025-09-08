@@ -8,20 +8,22 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatOptionModule } from '@angular/material/core';
+import { HogChartDirective } from '../../../shared/ui/chart/hog-chart.directive';
 
 import { AuthService } from '../../../core/auth/auth.service';
 import type { User } from '../../../types/user.types';
 import type { Role } from '../../../types/role.types';
 import { mockStores, type LocationRef } from '../../../mock/locations.mock';
-
 import {
   isPrivilegedGlobal, isHybrid, canSeeAllLocations,
   userLocationIds, rolesForLocation
 } from '../../../core/auth/roles.util';
 
-import { HogChartDirective } from '../../../shared/ui/chart/hog-chart.directive';
+// NEW: deterministic profiles + seed utils
+import { storeProfiles, profileFor } from '../../../mock/store-profiles.mock';
+import { makeSeed, tfScale, seasonalityFactor, TF } from '../../../shared/demo/seed.util';
 
-type TF = 'MTD'|'WTD'|'DTD'|'YTD'|'QTD';
+type Kpi = { total:number; prev:number; orders:number; ordersPrev:number; aov:number; aovPrev:number; refund:number };
 
 @Component({
   standalone: true,
@@ -52,7 +54,7 @@ export class PortalDashboardPage {
   compareMode = signal<boolean>(false);
   toggleCompare() { this.compareMode.set(!this.compareMode()); }
 
-  // Store visibility
+  // Stores visibility based on auth
   private allStores = mockStores;
   private assignedIds = computed<string[]>(() => userLocationIds(this.user()));
   visibleStores = computed<LocationRef[]>(() => {
@@ -65,6 +67,7 @@ export class PortalDashboardPage {
   // Filters
   activeStoreId = signal<string>(''); // '' = company-wide for OWNER/ADMIN
   onStore(id: string) { this.activeStoreId.set(id ?? ''); this.compareMode.set(false); }
+
   storeFilterList = () => this.visibleStores();
 
   timeframe = signal<TF>('MTD');
@@ -110,31 +113,68 @@ export class PortalDashboardPage {
   rentalsLink()    { const id = this.activeOrFirstStoreId(); return id ? ['/location', id, 'rentals'] : ['/portal/reports']; }
   reportsLink()    { return ['/portal/reports']; }
 
-  // ========= DEMO DATA (timeframe-reactive) =========
-  // KPI baselines per timeframe (company vs typical-store)
-  private KPI_COMPANY: Record<TF, any> = {
-    DTD: { total:  7200, prev:  6400, aov: 4200, aovPrev: 4000, orders:  7, ordersPrev: 6, refund: 1.4 },
-    WTD: { total: 38400, prev: 35600, aov: 4150, aovPrev: 3980, orders:  9, ordersPrev: 8, refund: 1.6 },
-    MTD: { total:182400, prev:168900, aov: 4100, aovPrev: 3950, orders: 43, ordersPrev:38, refund: 1.8 },
-    QTD: { total:502300, prev:471900, aov: 4050, aovPrev: 3920, orders:121, ordersPrev:112, refund: 1.7 },
-    YTD: { total:991800, prev:934200, aov: 4020, aovPrev: 3890, orders:247, ordersPrev:233, refund: 1.9 },
-  };
-  private KPI_STORE: Record<TF, any> = {
-    DTD: { total: 1900, prev: 1600, aov: 3950, aovPrev: 3820, orders:  2, ordersPrev: 2, refund: 1.2 },
-    WTD: { total:  9600, prev:  8200, aov: 3920, aovPrev: 3800, orders:  3, ordersPrev: 2, refund: 1.3 },
-    MTD: { total: 55200, prev: 49800, aov: 3900, aovPrev: 3720, orders: 12, ordersPrev:10, refund: 1.5 },
-    QTD: { total:152600, prev:141200, aov: 3880, aovPrev: 3710, orders: 39, ordersPrev:35, refund: 1.5 },
-    YTD: { total:297400, prev:279100, aov: 3860, aovPrev: 3700, orders: 77, ordersPrev:72, refund: 1.6 },
-  };
+  // ========= PROFILES & DETERMINISTIC KPIs =========
 
-  // pick KPI block by scope/timeframe
-  private kpi = computed(() => {
+  // Map mockStores (ids like "1","2","3"?) to profile ids ("s1","s2","s3")
+  private toProfileId(id: string | null): string | null {
+    if (!id) return null;
+    return id.startsWith('s') ? id : `s${id}`; // tolerate both forms
+  }
+
+  private kpisByStore = computed<Record<string, Kpi>>(() => {
     const tf = this.timeframe();
-    const block = this.isCompanyWide() ? this.KPI_COMPANY[tf] : this.KPI_STORE[tf];
-    return block;
+    const month = new Date().getMonth();
+    const out: Record<string, Kpi> = {};
+    // Only include visible stores for this user (auth-aware)
+    for (const s of this.visibleStores()) {
+      const pid = this.toProfileId(s.id)!;
+      const p = profileFor(pid);
+      const r = makeSeed(`${pid}|${tf}|KPI`);
+      const baseOrders = 12;
+      const orders = Math.max(1, Math.round(baseOrders * tfScale(tf) * p.demandIndex * (0.9 + r()*0.3)));
+      const aov = Math.round(3600 + (r()*600) * (p.mix.carts*1.1 + p.mix.sheds*0.9 + p.mix.parts*0.6));
+      const total = Math.round(orders * aov * seasonalityFactor(month, p.seasonality));
+      const prev  = Math.round(total * (0.90 + r()*0.10));
+      const ordersPrev = Math.max(1, Math.round(orders * (0.85 + r()*0.20)));
+      const aovPrev = aov - 120;
+      const refund = +(1.2 + r()*0.8).toFixed(1);
+      out[s.id] = { total, prev, orders, ordersPrev, aov, aovPrev, refund };
+    }
+    return out;
   });
 
-  // KPI signals
+  private companyKpi = computed<Kpi>(() => {
+    // Aggregate across visible stores
+    const all = Object.values(this.kpisByStore());
+    const sum = (k: keyof Kpi) => all.reduce((acc, v) => acc + (v[k] as number), 0);
+    if (!all.length) return { total:0, prev:0, orders:0, ordersPrev:0, aov:0, aovPrev:0, refund:1.2 };
+    // AOV/AOVPrev as weighted by orders
+    const orders = sum('orders');
+    const aov = Math.round(orders ? all.reduce((acc, v) => acc + v.aov * v.orders, 0) / orders : 0);
+    const ordersPrev = sum('ordersPrev');
+    const aovPrev = Math.round(ordersPrev ? all.reduce((acc, v) => acc + v.aovPrev * v.ordersPrev, 0) / ordersPrev : 0);
+    return {
+      total: sum('total'),
+      prev:  sum('prev'),
+      orders,
+      ordersPrev,
+      aov,
+      aovPrev,
+      refund: +(all.reduce((a,v)=>a+v.refund,0)/all.length).toFixed(1),
+    };
+  });
+
+  private storeKpi = computed<Kpi>(() => {
+    const id = this.currentStoreId();
+    if (!id) return this.companyKpi(); // fallback if no store in scope
+    const m = this.kpisByStore()[id];
+    return m ?? { total:0, prev:0, orders:0, ordersPrev:0, aov:0, aovPrev:0, refund:1.2 };
+  });
+
+  // pick KPI block by scope/timeframe
+  private kpi = computed(() => this.isCompanyWide() ? this.companyKpi() : this.storeKpi());
+
+  // KPI signals (hero stats)
   totalSales     = computed(() => this.kpi().total);
   prevTotalSales = computed(() => this.kpi().prev);
   salesDelta     = computed(() => this.deltaPct(this.prevTotalSales(), this.totalSales()));
@@ -145,88 +185,146 @@ export class PortalDashboardPage {
   ordersDelta    = computed(() => this.deltaPct(this.prevOrders(), this.orders()));
   refundRate     = computed(() => this.kpi().refund.toFixed(1));
 
-  // Pipeline baselines (counts shrink by timeframe granularity)
-  private pipelineData = computed(() => {
-    const isCo = this.isCompanyWide();
+  // ========= STORE HEALTH HEATMAP (HQ only) =========
+  // Rows: one per visible store; Cols: Sales Δ, AOV Δ, On-time Δ, SLA Δ
+  // On-time/SLA are seeded, but scaled by deliveryCapacity/serviceComplexity.
+  storeHealthRows = computed(() => {
     const tf = this.timeframe();
-    const base = isCo
-      ? { leads: 360, q: 240, quoted: 165, verbal: 98, closed: 52 }
-      : { leads: 120, q:  82, quoted:  55, verbal: 30, closed: 18 };
-    const scale = ({ DTD: 0.15, WTD: 0.45, MTD: 1, QTD: 2.1, YTD: 3.8 } as Record<TF, number>)[tf];
-    const round = (n:number) => Math.max(1, Math.round(n * scale));
+    const rows: Array<{
+      id: string; name: string;
+      salesDelta: number; aovDelta: number; onTimeDelta: number; slaDelta: number;
+    }> = [];
+    for (const s of this.visibleStores()) {
+      const pid = this.toProfileId(s.id)!;
+      const p = profileFor(pid);
+      const k = this.kpisByStore()[s.id];
+      const r = makeSeed(`${pid}|${tf}|HEALTH`);
+      const salesDelta = this.deltaPct(k?.prev ?? 0, k?.total ?? 0);
+      const aovDelta   = this.deltaPct(k?.aovPrev ?? 0, k?.aov ?? 0);
+      // Base deltas ± scaled by capacity/complexity (bounded)
+      const onTimeDelta = Math.round(((r()*10)-5) * p.deliveryCapacity * 1.2);
+      const slaDelta    = Math.round(((r()*10)-5) * (2 - p.serviceComplexity) * 1.1);
+      rows.push({ id: s.id, name: s.name, salesDelta, aovDelta, onTimeDelta, slaDelta });
+    }
+    return rows;
+  });
+
+  // ========= COMPARE STRIP (Prev vs Current, per store) =========
+  // Provide mini-series for small bar/line charts
+  compareStores = () => this.visibleStores();
+  compareSeriesFor = (id: string) => {
+    const k = this.kpisByStore()[id];
+    const prev = Math.max(1, Math.round((k?.prev ?? 0)));
+    const cur  = Math.max(1, Math.round((k?.total ?? 0)));
+    return [prev, cur];
+  };
+  compareOrdersFor = (id: string) => {
+    const k = this.kpisByStore()[id];
+    return [k?.ordersPrev ?? 0, k?.orders ?? 0];
+    // (bind to two tiny bars or a line in your template)
+  };
+
+  // ========= PIPELINE / TICKETS / OTHER (retain your existing layout) =========
+  // These now scale deterministically from KPIs instead of hardcoded blocks.
+  private pipelineData = computed(() => {
+    const k = this.kpi();
+    // simple shape: more orders => more pipeline; timeframe already baked into orders via tfScale
+    const base = Math.max(1, k.orders);
+    const leads   = Math.max(1, Math.round(base * 30 / 7));
+    const q       = Math.max(1, Math.round(leads * 0.66));
+    const quoted  = Math.max(1, Math.round(q * 0.68));
+    const verbal  = Math.max(1, Math.round(quoted * 0.60));
+    const closed  = Math.max(1, Math.round(verbal * 0.53));
+    return { leads, q, quoted, verbal, closed };
+  });
+
+  tickets = computed(() => {
+    // derive from service complexity and orders volume
+    const id = this.currentStoreId();
+    const pid = this.toProfileId(id);
+    const p = pid ? profileFor(pid) : null;
+    const volume = Math.max(1, this.kpi().orders);
+    const r = makeSeed(`${pid ?? 'co'}|${this.timeframe()}|TICKETS`);
+    const base = (mult:number) => Math.max(0, Math.round(volume * mult * (0.9 + r()*0.3)));
+    const svcMult = (p ? p.serviceComplexity : 1);
     return {
-      leads:  round(base.leads),
-      q:      round(base.q),
-      quoted: round(base.quoted),
-      verbal: round(base.verbal),
-      closed: round(base.closed),
+      high: base(0.12 * svcMult),
+      med:  base(0.28 * svcMult),
+      low:  base(0.36 * svcMult),
+      slaBreaches: Math.max(0, Math.round(base(0.04) * (p ? (0.9 + (svcMult-1)) : 1)))
     };
   });
 
-  // Ticket counts
-  tickets = computed(() => {
-    const isCo = this.isCompanyWide();
-    const tf = this.timeframe();
-    const base = isCo ? { h: 8, m: 22, l: 31, sla: 2 } : { h: 3, m: 9, l: 12, sla: 1 };
-    const mul  = ({ DTD: 0.8, WTD: 1, MTD: 1.4, QTD: 2.6, YTD: 4.5 } as Record<TF, number>)[tf];
-    const r = (n:number) => Math.max(0, Math.round(n*mul));
-    return { high: r(base.h), med: r(base.m), low: r(base.l), slaBreaches: r(base.sla) };
-  });
-
-  // Trends: meaningful to HOG mix
+  // Category trends (kept compact; could be expanded)
   private trendsSeries = computed(() => {
-    const tf = this.timeframe();
-    // Build 6 points for simplicity across any tf
-    const sheds   = this.isCompanyWide() ? [52, 58, 64, 61, 67, 70] : [15, 18, 20, 19, 22, 24];
-    const carts   = this.isCompanyWide() ? [40, 44, 49, 55, 63, 68] : [12, 14, 16, 18, 21, 24];
-    const play    = this.isCompanyWide() ? [28, 30, 29, 33, 37, 40] : [9, 10, 10, 12, 13, 14];
-    const cabins  = this.isCompanyWide() ? [14, 16, 18, 19, 21, 22] : [4, 5, 6, 6, 7, 7];
-    const cats = ({
-      DTD: ['Mon','Tue','Wed','Thu','Fri','Sat'],
-      WTD: ['W1','W2','W3','W4','W5','W6'],
-      MTD: ['W1','W2','W3','W4','W5','W6'],
-      QTD: ['M1','M2','M3','M4','M5','M6'],
-      YTD: ['Q1','Q2','Q3','Q4','Q5','Q6'],
-    } as Record<TF,string[]>)[tf];
-    return { sheds, carts, play, cabins, cats };
+    const id = this.currentStoreId();
+    const pid = this.toProfileId(id);
+    const p = pid ? profileFor(pid) : null;
+    const mix = p?.mix ?? { carts:0.4, sheds:0.28, play:0.12, cabins:0.08, parts:0.12 };
+    const base = Math.max(6, Math.round(this.kpi().orders / 2));
+    const ds = (m:number) => [base*m*0.9, base*m, base*m*1.05, base*m*1.12, base*m*1.08, base*m*1.15].map(n=>Math.round(n));
+    const cats = ({ DTD: ['Mon','Tue','Wed','Thu','Fri','Sat'],
+                    WTD: ['W1','W2','W3','W4','W5','W6'],
+                    MTD: ['W1','W2','W3','W4','W5','W6'],
+                    QTD: ['M1','M2','M3','M4','M5','M6'],
+                    YTD: ['Q1','Q2','Q3','Q4','Q5','Q6'] } as Record<TF,string[]>)[this.timeframe()];
+    return {
+      carts: ds(mix.carts),
+      sheds: ds(mix.sheds),
+      play:  ds(mix.play),
+      cabins:ds(mix.cabins),
+      cats
+    };
   });
 
-  // Best sellers (6 cards: carts focus + shed + furniture), per-scope sample
+  // Best sellers (minor tweak: weight by mix)
   bestSellersRich = computed(() => {
+    const id = this.currentStoreId();
+    const pid = this.toProfileId(id);
+    const p = pid ? profileFor(pid) : null;
     const mult = this.isCompanyWide() ? 1 : 0.6;
+    const cartsWeight = (p?.mix.carts ?? 0.4);
+    const shedsWeight = (p?.mix.sheds ?? 0.28);
     return [
-      { name: 'Evolution D5 Maverick 4', brand: 'Evolution', img: '/assets/demo/carts/evolution-d5.jpg',         price: 9995,  count: Math.round(12*mult) },
-      { name: 'Evolution Forester 6',    brand: 'Evolution', img: '/assets/demo/carts/evolution-forester-6.jpg', price: 12995, count: Math.round(10*mult) },
-      { name: 'Denago Rover S',          brand: 'Denago',    img: '/assets/demo/carts/denago-rover.jpg',         price: 8995,  count: Math.round(9*mult)  },
-      { name: 'Dash Elite 48V',          brand: 'Dash',      img: '/assets/demo/carts/dash-elite.jpg',           price: 7995,  count: Math.round(8*mult)  },
-      { name: '12x16 Barn Shed',         brand: 'HOP',       img: '/assets/demo/sheds/12x16-barn.jpg',           price: 4899,  count: Math.round(7*mult)  },
-      { name: 'Poly Adirondack Chair',   brand: 'HOP',       img: '/assets/demo/furniture/adirondack.jpg',       price: 299,   count: Math.round(18*mult) },
+      { name: 'Evolution D5 Maverick 4', brand: 'Evolution', img: '/assets/demo/carts/evolution-d5.jpg',         price: 9995,  count: Math.round(12*mult*cartsWeight*1.2) },
+      { name: 'Evolution Forester 6',    brand: 'Evolution', img: '/assets/demo/carts/evolution-forester-6.jpg', price: 12995, count: Math.round(10*mult*cartsWeight*1.1) },
+      { name: 'Denago Rover S',          brand: 'Denago',    img: '/assets/demo/carts/denago-rover.jpg',         price: 8995,  count: Math.round(9*mult*cartsWeight) },
+      { name: 'Dash Elite 48V',          brand: 'Dash',      img: '/assets/demo/carts/dash-elite.jpg',           price: 7995,  count: Math.round(8*mult*cartsWeight)  },
+      { name: '12x16 Barn Shed',         brand: 'HOP',       img: '/assets/demo/sheds/12x16-barn.jpg',           price: 4899,  count: Math.round(7*mult*shedsWeight)  },
+      { name: 'Poly Adirondack Chair',   brand: 'HOP',       img: '/assets/demo/furniture/adirondack.jpg',       price: 299,   count: Math.round(18*mult*(p?.mix.parts ?? 0.12)) },
     ];
   });
   topSeller = computed(() => this.bestSellersRich()[0]);
 
-  // Deliveries calendar (Mon-Sun) including product name
+  // Deliveries calendar: leave simple but deterministic by store
   deliveryCalendar = computed(() => {
-    const items = (label:string, entries:any[]) => ({ label, items: entries });
-    const co = this.isCompanyWide();
+    const id = this.currentStoreId();
+    const pid = this.toProfileId(id);
+    const p = pid ? profileFor(pid) : null;
+    const cap = p?.deliveryCapacity ?? 1;
+    const slots = Math.max(1, Math.round(5 * cap));
+    const label = (d:string, n:number) => ({ label: d, items: Array.from({length: Math.min(n,3)}, (_,i)=>({
+      time: `${9+i}:00a`, truck: ['A','B','C'][i%3], driver: ['Aiden F.','Mike R.','Sara L.'][i%3],
+      product: ['Evolution D5','Poly Playset','12x16 Barn Shed','EZGO RXV'][i%4]
+    }))});
     return [
-      items('Mon', [{ time: '9:00a',  truck: 'A', driver: 'Aiden F.',  product: co ? '12x16 Barn Shed' : 'Evolution D5' }]),
-      items('Tue', [{ time: '10:00a', truck: 'B', driver: 'Mike R.',   product: co ? 'Poly Playset A3' : 'Dash Elite 48V' }]),
-      items('Wed', [{ time: '1:30p',  truck: 'C', driver: 'Sara L.',   product: 'Club Car 48V (refurb)' }]),
-      items('Thu', [{ time: '11:00a', truck: 'A', driver: 'Team',      product: 'EZGO RXV' }]),
-      items('Fri', [{ time: '2:00p',  truck: 'B', driver: 'Dispatch',  product: '12x20 Garage' }]),
-      items('Sat', [{ time: '9:00a',  truck: 'A', driver: 'Aiden F.',  product: 'Evolution Forester 6' }]),
-      items('Sun', []),
+      label('Mon', slots-2), label('Tue', slots-1), label('Wed', slots),
+      label('Thu', slots-1), label('Fri', slots), label('Sat', Math.max(0, slots-3)),
+      { label:'Sun', items: [] }
     ];
   });
 
-  // Service overview counts + list
+  // Service summary (scaled by complexity)
   service = computed(() => {
-    const isCo = this.isCompanyWide();
-    return { open: isCo ? 17 : 6, progress: isCo ? 11 : 4, parts: isCo ? 5 : 2, techs: isCo ? 9 : 3 };
+    const id = this.currentStoreId();
+    const pid = this.toProfileId(id);
+    const p = pid ? profileFor(pid) : null;
+    const mult = (p?.serviceComplexity ?? 1);
+    const co = this.isCompanyWide();
+    return { open: Math.round((co?17:6)*mult), progress: Math.round((co?11:4)*mult), parts: Math.round((co?5:2)*mult), techs: co?9:3 };
   });
+
   serviceJobs = computed(() => {
-    // CRM-style rows
     const rows = [
       { id: 4312, sev: 'High',   status: 'In Progress',    title: 'Brake adjustment', asset: 'EZGO RXV #112',      tech: 'D. Carter', eta: 'Today 4:30p' },
       { id: 4313, sev: 'Medium', status: 'Waiting Parts',  title: 'Battery check',    asset: 'Club Car 48V #77',   tech: 'L. Nguyen', eta: 'Tomorrow'    },
@@ -236,17 +334,17 @@ export class PortalDashboardPage {
     return rows.sort((a,b) => rank[a.sev]-rank[b.sev]);
   });
 
-  // Rentals summary + imagery cards
   rentals = computed(() => {
-    const isCo = this.isCompanyWide();
-    return { out: isCo ? 13 : 4, dueToday: isCo ? 3 : 1, overdue: isCo ? 1 : 0 };
+    const k = this.kpi();
+    const out = Math.max(1, Math.round(k.orders * 0.3));
+    return { out, dueToday: Math.max(0, Math.round(out*0.2)), overdue: Math.max(0, Math.round(out*0.08)) };
   });
   rentalsRich = computed(() => [
     { name: 'D5 Maverick 4', brand: 'Evolution', img: '/assets/demo/rentals/evolution-d5.jpg', due: 'Today 4:00p' },
     { name: 'E-Bike City 1', brand: 'Denago',    img: '/assets/demo/rentals/denago-city.jpg',   due: 'Tomorrow'   },
   ]);
 
-  // Inventory: CRM low-stock table
+  // Inventory scope title (unchanged)
   invScopeTitle = computed(() => {
     const id = this.currentStoreId();
     if (!id && this.canAll()) return 'Selected Scope (All Stores)';
@@ -254,26 +352,28 @@ export class PortalDashboardPage {
     return store ? `${store.name} Inventory` : 'Inventory';
   });
 
+  // Inventory rows: shape by mix; carts+parts heavy for s3 (Mentor)
   invRows = computed(() => {
     const id = this.currentStoreId();
-    // Mentor store id '3' only carts + parts
-    if (id === '3') {
+    const pid = this.toProfileId(id);
+    const p = pid ? profileFor(pid) : null;
+    if (pid === 's3') {
       return [
         { category: 'Golf Carts',            sub: 'Evolution / Denago / Dash', count: 42,  lowAt: 35 },
         { category: 'Parts & Accessories',   sub: 'Batteries / Tires',         count: 120, lowAt: 90 },
       ].map(r => ({ ...r, low: r.count <= r.lowAt }));
     }
-    // Others: broader lines
+    // mix-weighted demo
     return [
-      { category: 'Sheds & Garages',        sub: '10x12 / 12x16 / 10x20',      count: 68,  lowAt: 30 },
-      { category: 'Playsets & Trampolines', sub: 'A3 / B2 / 12ft',             count: 54,  lowAt: 25 },
-      { category: 'Golf Carts',             sub: 'Evolution / Denago / Dash',  count: 35,  lowAt: 30 },
-      { category: 'Cabins & Structures',    sub: '12x24 / 14x28',              count: 22,  lowAt: 18 },
-      { category: 'Parts & Accessories',    sub: 'Common SKUs',                count: 210, lowAt: 160 },
+      { category: 'Sheds & Garages',        sub: '10x12 / 12x16 / 10x20',      count: Math.round(40*(p?.mix.sheds ?? 0.28) + 40),  lowAt: 30 },
+      { category: 'Playsets & Trampolines', sub: 'A3 / B2 / 12ft',             count: Math.round(35*(p?.mix.play  ?? 0.12) + 20),  lowAt: 25 },
+      { category: 'Golf Carts',             sub: 'Evolution / Denago / Dash',  count: Math.round(30*(p?.mix.carts ?? 0.40) + 20),  lowAt: 30 },
+      { category: 'Cabins & Structures',    sub: '12x24 / 14x28',              count: Math.round(20*(p?.mix.cabins?? 0.08) + 10),  lowAt: 18 },
+      { category: 'Parts & Accessories',    sub: 'Common SKUs',                count: Math.round(80*(p?.mix.parts ?? 0.12) + 120), lowAt: 160 },
     ].map(r => ({ ...r, low: r.count <= r.lowAt }));
   });
 
-  // Employee performance extras ($ impacts + why)
+  // Employee performance (unchanged text; now consistent with KPIs)
   perf = computed(() => ({
     topSales: 'S. Harper',
     trending: 'J. Kim',
@@ -297,14 +397,12 @@ export class PortalDashboardPage {
   }));
   perfBars = computed(() => ({ sales: 92, trending: 78, support: 88, delivery: 85, tech: 90 }));
   perfDollars = computed(() => {
-    // Rough $$ impact demo: service time saved (hours * $85/hr), sales effectiveness (delta AOV * orders)
-    const svcHoursSaved = this.isCompanyWide() ? 46 : 14;
-    const serviceSavings = svcHoursSaved * 85;
+    const serviceSavings = 85 * (this.isCompanyWide() ? 46 : 14);
     const salesLift = Math.max(0, (this.aov() - this.prevAov())) * this.orders();
     return { serviceSavings, salesLift };
   });
 
-  // ========= CHART CONFIGS (computed so timeframe/scope updates re-render) =========
+  // ========= CHART CONFIGS (unchanged bindings, seeded data) =========
   salesChart = computed(() => ({
     chart: { type: 'line', height: 260, toolbar: { show: false } },
     series: [{ name: 'Sales', data: this.seriesFromKpi() }],
@@ -340,7 +438,6 @@ export class PortalDashboardPage {
   });
 
   opportunityChart = computed(() => {
-    // potential $ ~ pipeline weighted by AOV
     const p = this.pipelineData();
     const pot = [p.leads*0.1, p.q*0.2, p.quoted*0.4, p.verbal*0.7, p.closed*1.0].map(v => Math.round(v * (this.aov()/1000)));
     return {
@@ -358,10 +455,10 @@ export class PortalDashboardPage {
     return {
       chart: { type: 'area', height: 220, toolbar: { show: false } },
       series: [
-        { name: 'Sheds index',       data: t.sheds },
         { name: 'Golf carts index',  data: t.carts },
-        { name: 'Playsets index',    data: t.play },
-        { name: 'Cabins index',      data: t.cabins },
+        { name: 'Sheds index',       data: t.sheds },
+        { name: 'Playsets index',    data: t.play  },
+        { name: 'Cabins index',      data: t.cabins},
       ],
       xaxis: { categories: t.cats },
       dataLabels: { enabled: false },
@@ -380,26 +477,6 @@ export class PortalDashboardPage {
     };
   });
 
-  // Compare row cards (per store)
-  allStoresCompare = () => this.allStores;
-  compareSales = (id: string) => {
-    const base = this.KPI_STORE[this.timeframe()].total;
-    const mult = (parseInt(id,10) || 1) * 0.6; // deterministic
-    return Math.round(base * mult / 1.8);
-  };
-  compareOrders = (id: string) => {
-    const base = this.KPI_STORE[this.timeframe()].orders;
-    const mult = (parseInt(id,10) || 1);
-    return Math.max(1, Math.round(base * (0.7 + 0.1*mult)));
-  };
-  compareSalesChart = (id: string) => ({
-    chart: { type: 'bar', height: 150, toolbar: { show: false } },
-    series: [{ name: 'Sales', data: [Math.round(this.compareSales(id)*0.8), this.compareSales(id)] }],
-    xaxis: { categories: ['Prev', 'Current'] },
-    dataLabels: { enabled: false },
-    grid: { borderColor: '#eee' },
-  });
-
   // ========= helpers =========
   private deltaPct(prev: number, cur: number) {
     if (!prev) return 0;
@@ -408,24 +485,23 @@ export class PortalDashboardPage {
   private axisFromTF(): string[] {
     const tf = this.timeframe();
     switch (tf) {
-      case 'DTD': return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']; // 7 days
-      case 'WTD': return ['Week 1','Week 2','Week 3','Week 4'];       // 4 weeks
-      case 'QTD': return ['Month 1','Month 2','Month 3','Month 4'];   // 4 months
-      case 'YTD': return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; // 12 months
+      case 'DTD': return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      case 'WTD': return ['Week 1','Week 2','Week 3','Week 4'];
+      case 'QTD': return ['Month 1','Month 2','Month 3','Month 4'];
+      case 'YTD': return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       case 'MTD':
-      default:    return ['W1','W2','W3','W4','W5'];                   // ~5 week buckets in month
+      default:    return ['W1','W2','W3','W4','W5'];
     }
   }
   private seriesFromKpi(): number[] {
-    // Build series length to match axis length
     const axis = this.axisFromTF();
     const n = axis.length;
     const total = this.totalSales();
-    const base = total / n;
     const wobble = { DTD: 0.18, WTD: 0.15, MTD: 0.12, QTD: 0.10, YTD: 0.08 }[this.timeframe()];
+    const r = makeSeed(`CO|${this.currentStoreId() ?? 'ALL'}|${this.timeframe()}|SERIES`);
     const out:number[] = [];
     for (let i=0;i<n;i++) {
-      const v = base * (1 + Math.sin(i/1.7) * wobble);
+      const v = (total / n) * (0.85 + r()*0.3) * (1 + Math.sin(i/1.7) * wobble);
       out.push(Math.round(v));
     }
     return out;
