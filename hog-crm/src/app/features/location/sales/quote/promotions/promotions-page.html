@@ -1,0 +1,136 @@
+<section class="page">
+  <div class="header">
+    <div>
+      <div class="breadcrumb">
+        <a [routerLink]="['../quote']" class="text-blue-700 hover:underline">Sales / Quotes</a> / Promotions
+      </div>
+      <h1 class="title">Promotions</h1>
+      <p class="subtitle">Realtime promotions to reference while quoting. (Managed in Sales Settings)</p>
+    </div>
+  </div>
+
+  <!-- Filters (one row) -->
+  <form class="card filterbar" [formGroup]="filterForm">
+    <mat-form-field appearance="outline" class="col">
+      <mat-label>Search</mat-label>
+      <input matInput formControlName="search" placeholder="Name / Code / SKU / Category" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="col col-160">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="All">All</mat-option>
+        <mat-option value="Active">Active</mat-option>
+        <mat-option value="Scheduled">Scheduled</mat-option>
+        <mat-option value="Expired">Expired</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="col col-200">
+      <mat-label>Category</mat-label>
+      <mat-select formControlName="category">
+        <mat-option value="">All</mat-option>
+        <mat-option *ngFor="let c of categories" [value]="c">{{ c }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="col col-160">
+      <mat-label>As of date</mat-label>
+      <input matInput [matDatepicker]="asof" formControlName="date" />
+      <mat-datepicker-toggle matSuffix [for]="asof"></mat-datepicker-toggle>
+      <mat-datepicker #asof></mat-datepicker>
+    </mat-form-field>
+
+    <mat-checkbox class="col col-fit" formControlName="stackableOnly">Stackable only</mat-checkbox>
+    <mat-checkbox class="col col-fit" formControlName="approvalOnly">Approval required</mat-checkbox>
+
+    <div class="col col-actions">
+      <button mat-stroked-button type="button" (click)="clearFilters()">Reset</button>
+    </div>
+  </form>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table mat-table [dataSource]="filtered()" matSort class="opps-table">
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+        <td mat-cell *matCellDef="let p">
+          <div class="cell-main">
+            <span class="primary">{{ p.name }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
+        <td mat-cell *matCellDef="let p">
+          <button mat-stroked-button class="action-btn" (click)="copyCode(p)">
+            <mat-icon>content_copy</mat-icon><span class="btn-label">{{ p.code }}</span>
+          </button>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="discount">
+        <th mat-header-cell *matHeaderCellDef>Discount</th>
+        <td mat-cell *matCellDef="let p">
+          <span *ngIf="p.discountType === 'Percent'">{{ p.discountValue }}%</span>
+          <span *ngIf="p.discountType === 'Amount'">${{ p.discountValue | number:'1.0-0' }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="dates">
+        <th mat-header-cell *matHeaderCellDef>Dates</th>
+        <td mat-cell *matCellDef="let p">{{ p.startDate | date:'MMM d' }} – {{ p.endDate | date:'MMM d, y' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let p">
+          <mat-chip-set class="chips">
+            <mat-chip [color]="statusChip(p).color" selected>{{ statusChip(p).label }}</mat-chip>
+          </mat-chip-set>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="categories">
+        <th mat-header-cell *matHeaderCellDef>Categories</th>
+        <td mat-cell *matCellDef="let p">
+          <div class="chips">
+            <span class="chip" *ngFor="let c of p.categories">{{ c }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="eligible">
+        <th mat-header-cell *matHeaderCellDef>Eligible SKUs</th>
+        <td mat-cell *matCellDef="let p">
+          <div class="skus">{{ p.eligibleSkus.slice(0,4).join(', ') }}<span *ngIf="p.eligibleSkus.length > 4">…</span></div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="flags">
+        <th mat-header-cell *matHeaderCellDef>Flags</th>
+        <td mat-cell *matCellDef="let p">
+          <div class="chips">
+            <span class="chip" *ngIf="p.stackable">Stackable</span>
+            <span class="chip warn" *ngIf="p.approvalRequired">Needs Approval</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="mat-column-actions"></th>
+        <td mat-cell *matCellDef="let p" class="mat-column-actions">
+          <button mat-stroked-button (click)="viewDetails(p)">
+            <mat-icon>visibility</mat-icon><span class="btn-label">Details</span>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+    </table>
+  </div>
+</section>

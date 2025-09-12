@@ -1,0 +1,345 @@
+<section class="page">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Sales / Prospect Opportunities</div>
+      <h1 class="title">Prospect Opportunities</h1>
+      <p class="subtitle">Prospecting & lead intake. Promote qualified records into your Pipeline.</p>
+    </div>
+    <div class="actions">
+      <button mat-flat-button color="primary" (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      <button mat-flat-button color="primary" (click)="fileInput.click()">
+        <mat-icon>file_upload</mat-icon>
+        Import CSV
+      </button>
+      <input #fileInput type="file" accept=".csv" hidden (change)="onCsvChange($event)" />
+      <!-- now uses dialog -->
+      <button mat-raised-button color="primary" (click)="openAddDialog()">
+        <mat-icon>person_add</mat-icon>
+        Add Prospect
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filterbar card">
+    <mat-form-field class="q grow" appearance="outline">
+      <mat-label>Search</mat-label>
+      <input matInput placeholder="Name, title, source…" [formControl]="filters.controls.query">
+    </mat-form-field>
+
+    <mat-form-field class="q" appearance="outline">
+      <mat-label>Timeframe</mat-label>
+      <mat-select [formControl]="filters.controls.timeframe">
+        <mat-option value="Last 7 days">Last 7 days</mat-option>
+        <mat-option value="Last 30 days">Last 30 days</mat-option>
+        <mat-option value="Last 90 days">Last 90 days</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="q" appearance="outline">
+      <mat-label>Owner</mat-label>
+      <mat-select [formControl]="filters.controls.owner">
+        <mat-option value=""></mat-option>
+        <mat-option *ngFor="let o of owners()" [value]="o">{{ o }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="q" appearance="outline">
+      <mat-label>Pipeline</mat-label>
+      <mat-select [formControl]="filters.controls.pipeline">
+        <mat-option value=""></mat-option>
+        <mat-option *ngFor="let p of pipelines()" [value]="p">{{ p }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="q" appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select [formControl]="filters.controls.status">
+        <mat-option value=""></mat-option>
+        <mat-option *ngFor="let s of statuses()" [value]="s">{{ s }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis grid">
+    <hog-stat-card label="New" [value]="kpiNew()"></hog-stat-card>
+    <hog-stat-card label="Unassigned" [value]="kpiUnassigned()"></hog-stat-card>
+    <hog-stat-card label="Contactable" [value]="kpiContactable()"></hog-stat-card>
+    <hog-stat-card label="Aged (14+ d)" [value]="kpiAged()"></hog-stat-card>
+    <hog-stat-card label="Duplicates" [value]="kpiDuplicates()"></hog-stat-card>
+  </div>
+
+  <!-- Prospect Lists -->
+  <mat-card class="lists-card">
+    <div class="lists-header">
+      <div>
+        <h2>Prospect Lists</h2>
+        <p class="muted">Upload and manage prospecting batches (imports, campaigns, tradeshows).</p>
+      </div>
+      <button mat-raised-button color="primary" (click)="newProspectList()">
+        <mat-icon>add</mat-icon>
+        New List
+      </button>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Hidden input for "Import Into" a specific list -->
+    <input #listImportInput type="file" accept=".csv" class="hidden-file" (change)="onListCsvChange($event)" />
+
+    <div class="lists">
+      <div class="list-item" *ngFor="let l of prospectLists()">
+        <div class="list-main">
+          <div class="list-title">
+            <mat-icon class="list-icon" aria-hidden="true">list_alt</mat-icon>
+            <span class="name">{{ l.name }}</span>
+            <span class="chip" *ngIf="!l.owner">Unassigned</span>
+          </div>
+          <div class="list-meta">
+            <span><strong>Source:</strong> {{ l.source }}</span>
+            <span><strong>Count:</strong> {{ l.count | number }}</span>
+            <span><strong>Owner:</strong> {{ l.owner || '—' }}</span>
+            <span><strong>Updated:</strong> {{ l.updatedAt | date:'MMM d, y' }}</span>
+          </div>
+        </div>
+
+        <div class="list-actions">
+          <button mat-stroked-button color="primary" (click)="viewProspectList(l)">
+            <mat-icon>visibility</mat-icon>
+            View
+          </button>
+          <button mat-stroked-button (click)="triggerListImport(l, listImportInput)">
+            <mat-icon>file_upload</mat-icon>
+            Import Into
+          </button>
+        </div>
+      </div>
+    </div>
+  </mat-card>
+
+  <!-- Add Prospect bar (full width, above table) -->
+  <div class="add-bar">
+    <button mat-raised-button color="primary" (click)="openAddDialog()">
+      <mat-icon>person_add</mat-icon>
+      Add Prospect
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap card">
+    <table mat-table [dataSource]="filtered()" class="opps-table">
+
+      <!-- Select -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox class="cb-blue" color="primary" [checked]="isAllVisibleSelected()" (change)="toggleAllVisible()"></mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox class="cb-blue" color="primary" *ngIf="!isDraft(row.id)"
+                        (click)="$event.stopPropagation()"
+                        (change)="$event ? selection.toggle(row) : null"
+                        [checked]="selection.isSelected(row)">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- Customer -->
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef> Customer </th>
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngIf="!isDraft(row.id); else customerDraft">
+            <div class="cell-main">
+              <div class="primary">{{ row.customer }}</div>
+              <div class="chips">
+                <mat-chip *ngIf="!row.owner" color="primary" selected>Unassigned</mat-chip>
+                <mat-chip *ngIf="row.duplicate" color="warn" selected>Duplicate</mat-chip>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #customerDraft>
+            <mat-form-field class="cell-input" appearance="outline">
+              <mat-label>Customer name</mat-label>
+              <input matInput [value]="row.customer"
+                     (input)="updateDraft(row, 'customer', $any($event.target).value)">
+            </mat-form-field>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Title -->
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef> Title </th>
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngIf="!isDraft(row.id); else titleDraft">
+            <span class="truncate">{{ row.title }}</span>
+          </ng-container>
+          <ng-template #titleDraft>
+            <mat-form-field class="cell-input" appearance="outline">
+              <mat-label>What are they after?</mat-label>
+              <input matInput [value]="row.title"
+                     (input)="updateDraft(row, 'title', $any($event.target).value)">
+            </mat-form-field>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Pipeline -->
+      <ng-container matColumnDef="pipeline">
+        <th mat-header-cell *matHeaderCellDef> Pipeline </th>
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngIf="!isDraft(row.id); else pipelineDraft">
+            {{ row.pipeline }}
+          </ng-container>
+          <ng-template #pipelineDraft>
+            <mat-form-field class="cell-select condensed" appearance="outline">
+              <mat-label>Pipeline</mat-label>
+              <mat-select [value]="row.pipeline"
+                          (selectionChange)="updateDraft(row, 'pipeline', $event.value)">
+                <mat-option *ngFor="let p of pipelines()" [value]="p">{{ p }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Status -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngIf="!isDraft(row.id); else statusDraft">
+            <mat-form-field appearance="outline" class="cell-select condensed">
+              <mat-select [value]="row.status"
+                          (selectionChange)="updateStatus(row, $event.value)">
+                <mat-option *ngFor="let s of statuses()" [value]="s">{{ s }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </ng-container>
+          <ng-template #statusDraft>
+            <mat-form-field appearance="outline" class="cell-select condensed">
+              <mat-label>Status</mat-label>
+              <mat-select [value]="row.status"
+                          (selectionChange)="updateDraft(row, 'status', $event.value)">
+                <mat-option *ngFor="let s of statuses()" [value]="s">{{ s }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Owner -->
+      <ng-container matColumnDef="owner">
+        <th mat-header-cell *matHeaderCellDef> Owner </th>
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngIf="!isDraft(row.id); else ownerDraft">
+            <mat-form-field appearance="outline" class="cell-select condensed">
+              <mat-select [value]="row.owner ?? null"
+                          (selectionChange)="updateOwner(row, $event.value)">
+                <mat-option [value]="null">Unassigned</mat-option>
+                <mat-option *ngFor="let o of owners()" [value]="o">{{ o }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </ng-container>
+          <ng-template #ownerDraft>
+            <mat-form-field appearance="outline" class="cell-select condensed">
+              <mat-label>Owner</mat-label>
+              <mat-select [value]="row.owner ?? null"
+                          (selectionChange)="updateDraft(row, 'owner', $event.value)">
+                <mat-option [value]="null">Unassigned</mat-option>
+                <mat-option *ngFor="let o of owners()" [value]="o">{{ o }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Value -->
+      <ng-container matColumnDef="value">
+        <th mat-header-cell *matHeaderCellDef> Value </th>
+        <td mat-cell *matCellDef="let row">
+        <ng-container *ngIf="!isDraft(row.id); else valueDraft">
+            ${{ row.value | number:'1.0-0' }}
+          </ng-container>
+          <ng-template #valueDraft>
+            <mat-form-field class="cell-input narrow" appearance="outline">
+              <mat-label>Value</mat-label>
+              <input matInput type="number" min="0" [value]="row.value"
+                     (input)="updateDraft(row, 'value', +$any($event.target).value)">
+            </mat-form-field>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Age -->
+      <ng-container matColumnDef="ageDays">
+        <th mat-header-cell *matHeaderCellDef> Age </th>
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngIf="!isDraft(row.id); else ageDraft">
+            {{ row.ageDays }}d
+          </ng-container>
+          <ng-template #ageDraft>
+            <mat-form-field class="cell-input narrow" appearance="outline">
+              <mat-label>Age (d)</mat-label>
+              <input matInput type="number" min="0" [value]="row.ageDays"
+                     (input)="updateDraft(row, 'ageDays', +$any($event.target).value)">
+            </mat-form-field>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Source -->
+      <ng-container matColumnDef="source">
+        <th mat-header-cell *matHeaderCellDef> Source </th>
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngIf="!isDraft(row.id); else sourceDraft">
+            {{ row.source }}
+          </ng-container>
+          <ng-template #sourceDraft>
+            <mat-form-field class="cell-input" appearance="outline">
+              <mat-label>Source</mat-label>
+              <input matInput [value]="row.source"
+                     (input)="updateDraft(row, 'source', $any($event.target).value)">
+            </mat-form-field>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="right"> Actions </th>
+        <td mat-cell *matCellDef="let row" class="right">
+          <ng-container *ngIf="!isDraft(row.id); else draftActions">
+            <button mat-stroked-button color="primary" class="action-btn" (click)="promoteToPipeline(row)">
+              <mat-icon>north_east</mat-icon>
+              <span class="btn-label">Create Pipeline Deal</span>
+            </button>
+            <!-- NEW: Edit action opens dialog -->
+            <button mat-icon-button matTooltip="Edit" (click)="openEditDialog(row)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </ng-container>
+          <ng-template #draftActions>
+            <div class="draft-actions">
+              <button mat-flat-button color="primary" (click)="saveDraft(row)">
+                <mat-icon>check</mat-icon> Save
+              </button>
+              <button mat-stroked-button color="warn" (click)="cancelDraft(row)">
+                <mat-icon>close</mat-icon> Cancel
+              </button>
+            </div>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <!-- header & data rows -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div class="empty" *ngIf="filtered().length === 0">No opportunities match your filters.</div>
+  </div>
+</section>

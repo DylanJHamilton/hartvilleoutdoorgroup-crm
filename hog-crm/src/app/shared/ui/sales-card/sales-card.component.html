@@ -1,0 +1,82 @@
+<!-- Header strip -->
+<div class="head">
+  <div class="avatar">{{ initials() }}</div>
+  <div class="head-meta">
+    <div class="title">{{ vm().title }}</div>
+    <div class="sub">
+      <span class="customer">{{ vm().customer }}</span>
+      <span class="dot">•</span>
+      <span class="id">#{{ vm().id }}</span>
+    </div>
+  </div>
+
+  <div class="head-right">
+    <div class="amount">{{ (vm().value | currency:'USD':'symbol') ?? '' }}</div>
+    <div class="chips">
+      <span class="chip" [class.pipeline-carts]="vm().pipeline==='Golf Carts'"
+                        [class.pipeline-sheds]="vm().pipeline==='Sheds'">
+        {{ vm().pipeline }}
+      </span>
+      <span class="chip"
+        [class.stage-lead]="vm().stage==='Lead'"
+        [class.stage-qualified]="vm().stage==='Qualified'"
+        [class.stage-quoted]="vm().stage==='Quoted'"
+        [class.stage-won]="vm().stage==='Won'"
+        [class.stage-lost]="vm().stage==='Lost'">
+        {{ vm().stage }}
+      </span>
+      <span class="chip ghost">Age {{ vm().age }}d</span>
+    </div>
+  </div>
+</div>
+
+<!-- Body content -->
+<div class="content">
+  <div class="grid">
+    <div class="item">
+      <div class="label">Owner</div>
+      <div class="value">{{ vm().owner }}</div>
+    </div>
+    <div class="item">
+      <div class="label">Phone</div>
+      <div class="value mono">{{ phone() }}</div>
+    </div>
+    <div class="item">
+      <div class="label">Email</div>
+      <div class="value mono">{{ email() }}</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="hint">
+    This card centralizes quick actions. Opening the full record will show activity, notes, quotes, and timeline.
+  </div>
+</div>
+
+<!-- Actions -->
+<div class="actions">
+  <div class="left">
+    <button mat-stroked-button (click)="call()">
+      <mat-icon>call</mat-icon>&nbsp;Call
+    </button>
+    <button mat-stroked-button (click)="text()">
+      <mat-icon>sms</mat-icon>&nbsp;Text
+    </button>
+    <button mat-stroked-button (click)="emailC()">
+      <mat-icon>mail</mat-icon>&nbsp;Email
+    </button>
+  </div>
+
+  <div class="right">
+    <button mat-stroked-button (click)="openRecord()">
+      <mat-icon>open_in_new</mat-icon>&nbsp;Open Record
+    </button>
+    <button  mat-stroked-button (click)="moveStage()">
+      <mat-icon>arrow_forward</mat-icon>&nbsp;Move Stage
+    </button>
+    <button mat-stroked-button (click)="close()">
+      <mat-icon>close</mat-icon>&nbsp;Close
+    </button>
+  </div>
+</div>

@@ -1,0 +1,176 @@
+:host { display:block; }
+.page { display:flex; flex-direction:column; gap:12px; padding:8px; }
+
+.header .breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+.header .title { margin:4px 0 0; font:600 22px/1.2 system-ui, -apple-system, Segoe UI, Roboto; }
+
+/* Filters row: same white + blue theme */
+.filters-row {
+  display:flex; align-items:center; gap:12px; flex-wrap:nowrap; overflow-x:auto;
+  background:#fff; border:1px solid #e5e7eb; padding:8px; border-radius:12px;
+  .filter-field { width:200px; }
+  .filter-field.grow { flex:1 1 auto; min-width:420px; }
+}
+.filters-row .mat-mdc-form-field-appearance-outline .mat-mdc-text-field-wrapper { background:#fff!important; }
+.filters-row .mat-mdc-floating-label { color:#1e40af!important; }
+.filters-row .mat-mdc-select-arrow svg { fill:#1e40af!important; }
+.filters-row .mat-mdc-input-element,
+.filters-row .mat-mdc-select-value,
+.filters-row .mat-mdc-select-min-line { color:#0f172a!important; }
+
+/* KPI strip */
+.grid-12.kpi-strip {
+  display:grid; grid-template-columns:repeat(12,1fr); gap:12px;
+}
+.kpi { grid-column:span 3; }
+.light-card { background:#fff; color:#111; }
+
+/* Table */
+.table-wrap {
+  background:#fff; border:1px solid #eee; border-radius:12px; overflow:auto;
+}
+table { width:100%; }
+th.mat-mdc-header-cell { font-weight:600; }
+td.mat-mdc-cell, th.mat-mdc-header-cell { padding:12px 16px; }
+
+tr.dupe { background: #fff7ed; } /* light amber for duplicates */
+
+.name { font-weight:600; }
+.muted { color:#6b7280; font-size:12px; }
+.contact button { margin-right:4px; }
+
+.inline-select .mat-mdc-select-min-line { line-height: 20px; }
+.inline-select .mat-mdc-select-trigger { padding: 0 4px; }
+
+.chip-dupe { background:#fde68a !important; color:#7c2d12 !important; }
+.chip-unassigned { background:#e5e7eb !important; color:#111827 !important; }
+
+/* Bulk bar */
+.bulk-bar {
+  display:flex; align-items:center; gap:10px; padding:10px; margin-top:10px;
+  background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px;
+  .spacer { flex:1; }
+  .assign { width:220px; }
+}
+
+/* File input hidden */
+.hidden-file { display:none; }
+
+/* ---- Page shell (kept) ---- */
+:host { display:block; }
+.page { display:flex; flex-direction:column; gap:12px; padding:8px; }
+
+.header .breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+.header .title { margin:4px 0 0; font:600 22px/1.2 system-ui, -apple-system, Segoe UI, Roboto; }
+
+/* ---- Filters row: match Pipeline (white + blue) ---- */
+.filters-row {
+  display:flex; align-items:center; gap:12px; flex-wrap:nowrap; overflow-x:auto;
+  background:#fff; border:1px solid #e5e7eb; padding:8px; border-radius:12px;
+  .filter-field { width:200px; }
+  .filter-field.grow { flex:1 1 auto; min-width:420px; }
+}
+.filters-row .mat-mdc-form-field-appearance-outline .mat-mdc-text-field-wrapper { background:#fff!important; }
+.filters-row .mat-mdc-floating-label { color:#1e40af!important; }
+.filters-row .mat-mdc-select-arrow svg { fill:#1e40af!important; }
+.filters-row .mat-mdc-input-element,
+.filters-row .mat-mdc-select-value,
+.filters-row .mat-mdc-select-min-line { color:#0f172a!important; }
+
+/* ---- KPI strip ---- */
+.grid-12.kpi-strip { display:grid; grid-template-columns:repeat(12,1fr); gap:12px; }
+.kpi { grid-column:span 3; }
+.light-card { background:#fff; color:#111; }
+
+/* ---- Table colors & density (white theme, strong contrast) ---- */
+.table-wrap {
+  background:#fff; border:1px solid #e5e7eb; border-radius:12px; overflow:auto;
+}
+
+table { width:100%; border-collapse:separate; border-spacing:0; }
+
+/* Sticky header with light gray bg */
+th.mat-mdc-header-cell {
+  position: sticky; top: 0; z-index: 2;
+  background:#f8fafc;
+  color:#0f172a;
+  font-weight:600;
+  border-bottom:1px solid #e5e7eb;
+}
+
+/* Row base */
+td.mat-mdc-cell, th.mat-mdc-header-cell { padding:12px 14px; }
+td.mat-mdc-cell { color:#111827; background:#fff; border-bottom:1px solid #f1f5f9; }
+
+/* Zebra striping for readability */
+tr.mat-mdc-row:nth-child(even) td.mat-mdc-cell { background:#fcfdff; }
+
+/* Hover */
+tr.mat-mdc-row:hover td.mat-mdc-cell { background:#f3f6ff; }
+
+/* Selection checkbox column spacing */
+th.mat-mdc-header-cell:first-child, td.mat-mdc-cell:first-child { width:42px; }
+
+/* Action column alignment */
+td.actions { text-align:right; }
+
+/* Chips */
+.chip-dupe { background:#fde68a !important; color:#7c2d12 !important; }
+.chip-unassigned { background:#e5e7eb !important; color:#111827 !important; }
+
+/* Name/Title stack */
+.name { font-weight:600; color:#0f172a; }
+.muted { color:#64748b; font-size:12px; }
+
+/* Contact icons (blue) */
+.contact button .mat-icon { color:#1e40af; }
+
+/* Inline status select density */
+.inline-select .mat-mdc-select-min-line { line-height:20px; }
+.inline-select .mat-mdc-select-trigger { padding:0 4px; }
+
+/* Duplicate row hint */
+tr.dupe td { background:#fff8e6 !important; }
+
+/* Bulk bar (light) */
+.bulk-bar {
+  display:flex; align-items:center; gap:10px; padding:10px; margin-top:10px;
+  background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px;
+  .spacer { flex:1; }
+  .assign { width:220px; }
+}
+
+/* Hide file input */
+.hidden-file { display:none; }
+
+/* ---- Force checkboxes to blue theme ---- */
+.mat-mdc-checkbox.mat-accent {
+  --mdc-checkbox-selected-checkmark-color: #1e40af;
+  --mdc-checkbox-selected-icon-color: #1e40af;
+  --mdc-checkbox-selected-focus-icon-color: #1e40af;
+  --mdc-checkbox-selected-hover-icon-color: #1e40af;
+  --mdc-checkbox-selected-pressed-icon-color: #1e40af;
+  --mdc-checkbox-unselected-pressed-icon-color: #1e40af33; /* subtle ripple */
+}
+
+/* Force unchecked checkboxes to have a blue border */
+:host ::ng-deep .cb-blue.mat-mdc-checkbox .mdc-checkbox__background {
+  border-color: #1e40af !important;   /* ✅ border line */
+}
+
+/* Keep ripple/focus blue */
+:host ::ng-deep .cb-blue.mat-mdc-checkbox .mat-ripple-element {
+  background-color: #1e40af33 !important;
+}
+
+/* Checked state still solid blue fill with white tick */
+:host ::ng-deep .cb-blue.mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
+  background-color: #1e40af !important;
+  border-color: #1e40af !important;
+}
+:host ::ng-deep .cb-blue.mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__checkmark-path {
+  stroke: #fff !important;
+}
+.mat-mdc-select{
+    color: #1e40af !important;
+}

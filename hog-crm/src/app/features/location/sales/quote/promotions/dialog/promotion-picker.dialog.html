@@ -1,0 +1,47 @@
+<div class="dlg-wrap">
+  <h2 class="dlg-title">Apply Promotion</h2>
+
+  <mat-dialog-content class="dlg-content">
+    <form class="filters" [formGroup]="form">
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>Search</mat-label>
+        <input matInput formControlName="search" placeholder="Name / Code / SKU" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-48">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          <mat-option value="">All</mat-option>
+          <mat-option *ngFor="let c of categories" [value]="c">{{ c }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-44">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option value="Active">Active</mat-option>
+          <mat-option value="Scheduled">Scheduled</mat-option>
+          <mat-option value="Expired">Expired</mat-option>
+          <mat-option value="All">All</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+
+    <div class="list">
+      <button class="row" *ngFor="let p of list()" (click)="choose(p)" type="button">
+        <div class="name">
+          <div class="primary">{{ p.name }}</div>
+          <div class="muted">Code: <strong>{{ p.code }}</strong></div>
+        </div>
+        <div class="meta">
+          <div class="chip">{{ p.discountType === 'Percent' ? (p.discountValue + '%') : ('$' + (p.discountValue | number:'1.0-0')) }}</div>
+          <div class="chip">{{ p.startDate | date:'MMM d' }} – {{ p.endDate | date:'MMM d, y' }}</div>
+        </div>
+      </button>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dlg-actions">
+    <button mat-stroked-button mat-dialog-close>Cancel</button>
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,143 @@
+<section class="page hog-sales-settings">
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Sales / Settings</div>
+      <h1 class="title">Sales Settings</h1>
+      <div class="subtitle">Manager & Admin controls for the Sales experience</div>
+    </div>
+
+    <div class="actions">
+      <button mat-stroked-button color="primary" (click)="reset()" [disabled]="!canEdit">Reset to Defaults</button>
+      <button mat-flat-button color="primary" (click)="save()" [disabled]="!canEdit || !isDirty()">Save</button>
+    </div>
+  </div>
+
+  <div class="flash" *ngIf="savedFlash()">Saved ✓</div>
+  <div class="muted warn" *ngIf="!canEdit">Read-only: you need Manager/Admin to edit</div>
+
+  <div class="grid-12">
+    <!-- Rep Experience -->
+    <mat-card class="third light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Rep Experience</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <mat-slide-toggle color="primary"
+          [disabled]="!canEdit"
+          [checked]="settings().repTabs.myPerformance"
+          (change)="toggleRepTab('myPerformance', $event.checked)">Show “My Performance” tab</mat-slide-toggle>
+
+        <mat-slide-toggle color="primary"
+          [disabled]="!canEdit"
+          [checked]="settings().repTabs.forecast"
+          (change)="toggleRepTab('forecast', $event.checked)">Show “Forecast (My Goal)” tab</mat-slide-toggle>
+
+        <mat-slide-toggle color="primary"
+          [disabled]="!canEdit"
+          [checked]="settings().repTabs.topSellers"
+          (change)="toggleRepTab('topSellers', $event.checked)">Show “Top Sellers” tab</mat-slide-toggle>
+
+        <mat-slide-toggle color="primary"
+          [disabled]="!canEdit"
+          [checked]="settings().repTabs.selfReports"
+          (change)="toggleRepTab('selfReports', $event.checked)">Show “Self Reports” tab</mat-slide-toggle>
+
+        <mat-form-field appearance="outline" color="primary" class="field">
+          <mat-label>Self Reports scope</mat-label>
+          <mat-select [disabled]="!canEdit" [value]="settings().selfReports.scope"
+                      (selectionChange)="setSelfReportScope($any($event).value)">
+            <mat-option *ngFor="let o of scopeList" [value]="o.value">{{ o.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-slide-toggle color="primary"
+          [disabled]="!canEdit"
+          [checked]="settings().selfReports.allowExport"
+          (change)="setAllowExport($event.checked)">Allow CSV/PNG Export</mat-slide-toggle>
+
+        <mat-slide-toggle color="primary"
+          [disabled]="!canEdit"
+          [checked]="settings().privacy.maskRevenue"
+          (change)="setMaskRevenue($event.checked)">Mask revenue for reps</mat-slide-toggle>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Forecast Defaults -->
+    <mat-card class="third light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Forecast Defaults</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <mat-slide-toggle color="primary"
+          [disabled]="!canEdit"
+          [checked]="settings().forecast.seasonalityDefault"
+          (change)="setSeasonality($event.checked)">Seasonality on by default</mat-slide-toggle>
+
+        <mat-form-field appearance="outline" color="primary" class="field">
+          <mat-label>Avg deal ($)</mat-label>
+          <input matInput type="number" min="0" [disabled]="!canEdit" [value]="settings().forecast.avgDeal"
+                 (input)="setAvgDeal(+$any($event.target).value)">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" color="primary" class="field">
+          <mat-label>Default rep goal ($)</mat-label>
+          <input matInput type="number" min="0" [disabled]="!canEdit" [value]="settings().forecast.defaultGoalPerRep"
+                 (input)="setDefaultGoalPerRep(+$any($event.target).value)">
+        </mat-form-field>
+
+        <div class="grid-3">
+          <mat-form-field appearance="outline" color="primary">
+            <mat-label>Call→Appt</mat-label>
+            <input matInput type="number" step="0.01" min="0" max="1" [disabled]="!canEdit"
+                   [value]="settings().forecast.rates.callToAppt"
+                   (input)="setRate('callToAppt', +$any($event.target).value)">
+            <span matTextSuffix>rate</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" color="primary">
+            <mat-label>Appt→Quote</mat-label>
+            <input matInput type="number" step="0.01" min="0" max="1" [disabled]="!canEdit"
+                   [value]="settings().forecast.rates.apptToQuote"
+                   (input)="setRate('apptToQuote', +$any($event.target).value)">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" color="primary">
+            <mat-label>Quote→Win</mat-label>
+            <input matInput type="number" step="0.01" min="0" max="1" [disabled]="!canEdit"
+                   [value]="settings().forecast.rates.quoteToWin"
+                   (input)="setRate('quoteToWin', +$any($event.target).value)">
+          </mat-form-field>
+        </div>
+        <div class="muted small">Rates are expressed as 0–1 (e.g., 0.25 = 25%).</div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Defaults & KPIs -->
+    <mat-card class="third light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Defaults & KPIs</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <mat-form-field appearance="outline" color="primary" class="field">
+          <mat-label>Default timeframe</mat-label>
+          <mat-select [disabled]="!canEdit" [value]="settings().defaults.timeframe"
+                      (selectionChange)="setDefaultTimeframe($any($event).value)">
+            <mat-option *ngFor="let t of timeframeList" [value]="t">{{ t }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-slide-toggle color="primary"
+          [disabled]="!canEdit"
+          [checked]="settings().kpis.showCloseRatio"
+          (change)="setKpiCloseRatio($event.checked)">
+          Show Close Ratio to reps
+        </mat-slide-toggle>
+
+        <mat-slide-toggle color="primary"
+          [disabled]="!canEdit"
+          [checked]="settings().kpis.showAvgDeal"
+          (change)="setKpiAvgDeal($event.checked)">
+          Show Avg Deal Size to reps
+        </mat-slide-toggle>
+
+        <div class="muted small" style="margin-top:8px">
+          These affect KPI rows in Sales → Reports and the Salesperson dashboard.
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>

@@ -1,0 +1,264 @@
+@use 'sass:color';
+
+:host { display:block; }
+
+/* ---------- THEME ---------- */
+$bg: #f6f7fb;
+$card-bg: #ffffff;
+$text: #0f172a;
+$text-muted: #475569;       /* slightly darker for readability */
+$border: #e5e7eb;
+$accent-600: #2563eb;       /* blue-600 */
+$accent-700: #1d4ed8;       /* blue-700 */
+$accent-soft: #eef2ff;
+$success: #16a34a;
+$warn: #dc2626;
+
+/* ---------- PAGE ---------- */
+.page {
+  background:$bg; color:$text; padding:16px;
+  display:flex; flex-direction:column; gap:16px;
+}
+.header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.breadcrumb { font-size:12px; color:$text-muted; }
+.title { margin:4px 0; font:700 22px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+.subtitle { font-size:13px; color:$text-muted; }
+.actions { display:flex; gap:8px; align-items:center; }
+
+/* ---------- CARDS ---------- */
+.card, .lists-card, .table-wrap {
+  background:$card-bg; border:1px solid $border; border-radius:12px;
+  box-shadow:0 1px 2px rgba(15,23,42,.04);
+}
+
+/* ---------- FILTER BAR (GRID) ---------- */
+.filterbar {
+  padding:12px;
+  display:grid;
+  grid-template-columns: 1fr 220px 220px 220px 220px; /* search grows, others fixed */
+  gap:12px;
+}
+@media (max-width: 1100px) { .filterbar { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px)  { .filterbar { grid-template-columns: 1fr; } }
+
+/* Material inputs: readable + compact */
+.mat-mdc-form-field .mdc-text-field {
+  background:#fff; color:$text; border-radius:10px; height:44px;
+}
+.mdc-text-field__input { color:$text !important; }
+.mat-mdc-select-value, .mat-mdc-select-arrow { color:$text !important; }
+.mat-mdc-option .mdc-list-item__primary-text { color:$text !important; }
+.mat-mdc-form-field-subscript-wrapper { display:none; }
+
+/* ---------- KPIs ---------- */
+.kpis.grid {
+  display:grid; gap:12px;
+  grid-template-columns: repeat(5, minmax(160px, 1fr));
+}
+@media (max-width: 1200px){ .kpis.grid{ grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px){  .kpis.grid{ grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px){  .kpis.grid{ grid-template-columns: 1fr; } }
+
+/* ---------- PROSPECT LISTS ---------- */
+.lists-card { padding:12px; }
+.lists-header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.lists-header h2 { margin:0; font-size:18px; }
+.muted { color:$text-muted; margin:2px 0 0; }
+.lists { margin-top:8px; }
+.list-title { display:flex; align-items:center; gap:8px; font-weight:600; color:$text; }
+.list-meta { display:flex; gap:16px; color:$text-muted; font-size:13px; flex-wrap:wrap; }
+.list-actions { margin-left:auto; display:flex; gap:8px; }
+.chip {
+  font-size:11px; background:$accent-soft; color:$accent-700;
+  border:1px solid #{color.adjust($accent-soft, $lightness: 8%)};
+  padding:2px 6px; border-radius:12px;
+}
+
+/* Table overhaul */
+.table-wrap {
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.opps-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+
+  th {
+    position: sticky; top: 0; z-index: 2;
+    background: #f1f5f9;
+    color: #111827;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  th, td {
+    padding: 12px 16px;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    color: #111827;
+  }
+
+  tr:nth-child(even) td {
+    background: #fafbfc;
+  }
+  tr:hover td {
+    background: #f0f9ff;
+  }
+}
+
+/* Inputs in table */
+.opps-table .mat-mdc-form-field .mdc-text-field {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  height: 38px;
+}
+.opps-table .mdc-text-field__input {
+  color: #111827 !important;
+  font-size: 14px;
+}
+.opps-table .mat-mdc-form-field.mat-focused .mdc-text-field {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
+}
+
+/* Actions column */
+.mat-column-actions {
+  text-align: right;
+  button {
+    font-size: 13px;
+    padding: 4px 10px;
+  }
+}
+
+
+/* Column widths using MatTable auto classes */
+.mat-column-select   { width:48px;  padding-left:12px !important; }
+.mat-column-customer { min-width:240px; }
+.mat-column-title    { min-width:220px; }
+.mat-column-pipeline,
+.mat-column-status,
+.mat-column-owner    { width:180px; }
+.mat-column-value    { width:120px; text-align:right; }
+.mat-column-ageDays  { width:90px;  text-align:right; }
+.mat-column-source   { width:160px; }
+
+/* Inline content */
+.cell-main { display:flex; align-items:center; gap:8px; min-width:220px; }
+.cell-main .primary { font-weight:600; }
+.chips { display:flex; gap:6px; }
+
+/* Inline form fields in cells */
+.cell-select, .cell-input { width:100%; max-width:180px; }
+.cell-input.narrow { max-width:120px; }
+/* Make mat-form-field in table truly compact */
+.cell-select .mdc-text-field, .cell-input .mdc-text-field { height:40px; }
+.cell-select .mat-mdc-form-field-infix, .cell-input .mat-mdc-form-field-infix { padding-top:8px; padding-bottom:8px; }
+
+/* Draft actions */
+.draft-actions { display:flex; gap:8px; justify-content:flex-end; }
+.draft-actions .mat-mdc-unelevated-button.mat-primary { --mdc-filled-button-container-color:#{$success}; }
+.draft-actions .mat-mdc-stroked-button.mat-warn { --mdc-outlined-button-outline-color:#{$warn}; }
+
+/* Footer add */
+.footer-add {
+  display:flex; justify-content:center; padding:12px 16px;
+  background:#f8fafc; border-top:1px solid $border; border-bottom-left-radius:12px; border-bottom-right-radius:12px;
+}
+
+/* Empty state */
+.empty { padding:24px; text-align:center; color:$text-muted; }
+
+/* Hide file input */
+.hidden-file { display:none; }
+
+/* ---- Force checkboxes to blue theme ---- */
+.mat-mdc-checkbox.mat-accent {
+  --mdc-checkbox-selected-checkmark-color: #1e40af;
+  --mdc-checkbox-selected-icon-color: #1e40af;
+  --mdc-checkbox-selected-focus-icon-color: #1e40af;
+  --mdc-checkbox-selected-hover-icon-color: #1e40af;
+  --mdc-checkbox-selected-pressed-icon-color: #1e40af;
+  --mdc-checkbox-unselected-pressed-icon-color: #1e40af33; /* subtle ripple */
+}
+
+/* Force unchecked checkboxes to have a blue border */
+:host ::ng-deep .cb-blue.mat-mdc-checkbox .mdc-checkbox__background {
+  border-color: #1e40af !important;   /* ✅ border line */
+}
+
+/* Keep ripple/focus blue */
+:host ::ng-deep .cb-blue.mat-mdc-checkbox .mat-ripple-element {
+  background-color: #1e40af33 !important;
+}
+
+/* Checked state still solid blue fill with white tick */
+:host ::ng-deep .cb-blue.mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
+  background-color: #1e40af !important;
+  border-color: #1e40af !important;
+}
+:host ::ng-deep .cb-blue.mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__checkmark-path {
+  stroke: #fff !important;
+}
+.mat-mdc-select{
+    color: #1e40af !important;
+}
+
+/* Keep horizontal scroll available and give a little right breathing room */
+.table-wrap { overflow-x: auto; padding-right: 8px; }
+
+/* Ensure the table has enough min width so columns don't crush */
+.opps-table { min-width: 1180px; }
+
+/* Sticky Actions column on the right */
+.opps-table .mat-column-actions,
+.opps-table th.mat-column-actions {
+  position: sticky;
+  right: 0;
+  background: #f8fafc; /* same as header/hover family */
+  z-index: 3;          /* above regular cells */
+  box-shadow: -6px 0 8px -6px rgba(0,0,0,.08); /* subtle separation on scroll */
+}
+
+/* Size & behavior of actions column */
+.mat-column-actions { width: 220px; text-align: right; }
+.mat-column-actions .action-btn {
+  white-space: nowrap;
+  padding: 4px 10px;
+  line-height: 1.2;
+}
+
+/* On narrower widths: shrink some columns and collapse the action label */
+@media (max-width: 1400px) {
+  .mat-column-pipeline,
+  .mat-column-status,
+  .mat-column-owner   { width: 160px; }
+  .mat-column-source  { width: 140px; }
+  .mat-column-title   { min-width: 180px; }
+  .mat-column-actions { width: 170px; }
+
+  .mat-column-actions .action-btn .btn-label {
+    display: none; /* show icon only */
+  }
+  .mat-column-actions .action-btn .mat-icon {
+    margin-right: 0;
+  }
+}
+.lists { display: flex; flex-direction: column; gap: 8px; padding: 8px 0; }
+.list-item {
+  display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center;
+  padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fff;
+}
+.list-item:hover { background: #f8fafc; }
+.list-title { display: flex; align-items: center; gap: 8px; font-weight: 600; color: #0f172a; }
+.list-icon { color: #2563eb; }
+.list-meta { display: flex; flex-wrap: wrap; gap: 16px; color: #475569; font-size: 13px; margin-top: 4px; }
+.list-actions { display: flex; gap: 8px; }
+

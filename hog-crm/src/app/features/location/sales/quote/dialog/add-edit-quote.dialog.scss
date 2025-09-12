@@ -1,0 +1,23 @@
+/* White, readable dialog that matches our theme */
+.hog-dialog .mat-mdc-dialog-surface { background:#fff !important; color:#0f172a !important; }
+.hog-dialog .mat-mdc-dialog-container { --mdc-dialog-container-color:#fff; }
+.hog-dialog .mdc-text-field__input,
+.hog-dialog .mat-mdc-select-value,
+.hog-dialog .mat-mdc-select-value-text,
+.hog-dialog .mat-mdc-select-arrow { color:#0f172a !important; }
+.hog-dialog .mdc-floating-label, .hog-dialog .mdc-floating-label--float-above { color:#334155 !important; }
+
+.dlg-wrap { position:relative; }
+.dlg-title { margin:0 0 8px; font:700 22px/1.2 system-ui; color:#0f172a; }
+.dlg-close { position:absolute; top:6px; right:6px; color:#475569; }
+.dlg-content { background:#fff; color:#0f172a; padding-top:4px; }
+
+.grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+.full { grid-column: 1 / -1; }
+@media (max-width:640px){ .grid{ grid-template-columns:1fr; } }
+
+.mat-mdc-form-field .mdc-text-field { background:#fff; border-radius:10px; height:44px; }
+.mat-mdc-form-field-infix { padding-top:10px; padding-bottom:10px; }
+.mat-mdc-form-field-subscript-wrapper { display:none; }
+
+.dlg-actions { padding-top:4px; }

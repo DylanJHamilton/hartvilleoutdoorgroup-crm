@@ -1,0 +1,63 @@
+:host { display:block; }
+
+/* Page */
+.page { display:flex; flex-direction:column; gap:16px; padding:16px; background:#f6f7fb; }
+.header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+.title { font:600 22px/1.2 system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; margin:4px 0; }
+.subtitle { color:rgba(0,0,0,.60); font-size:13px; }
+
+.filters { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.filter-field { min-width: 180px; }
+
+/* Grid */
+.grid-12 { display:grid; grid-template-columns:repeat(12, 1fr); gap:16px; }
+.kpi { grid-column: span 3; }
+.half { grid-column: span 6; }
+.third { grid-column: span 4; }
+.two-thirds { grid-column: span 8; }
+.full { grid-column: 1 / -1; }
+
+@media (max-width: 1200px) {
+  .kpi, .half, .third, .two-thirds { grid-column: 1 / -1; }
+}
+
+/* Cards — light theme */
+.light-card { background:#fff; color:#0f172a; border-radius:12px; }
+.mat-mdc-card-header .mat-mdc-card-title { font-weight:600; }
+
+/* Tabs — blue underline active, dark text inactive */
+.hog-tabs .mdc-tab__text-label { color:#0f172a; }
+.hog-tabs .mdc-tab--active .mdc-tab__text-label { color:#1d4ed8; }
+.hog-tabs .mdc-tab-indicator__content--underline { border-color:#2563eb !important; }
+.tabs-wrap { padding:8px; }
+.tab-pad { padding:8px; }
+
+/* KPI visuals */
+.kpi .kpi-val { font-size:24px; font-weight:700; }
+
+/* Simple table */
+.crm-table { display:grid; }
+.crm-row { display:grid; grid-template-columns: 1.2fr 1fr 2fr 1fr 1fr; gap:8px; padding:8px 0; border-bottom:1px solid rgba(0,0,0,.06); }
+.crm-row.crm-head { font-weight:600; color:#0f172a; border-bottom:1px solid rgba(0,0,0,.12); }
+.right { text-align:right; }
+.muted { color:rgba(0,0,0,.56); }
+
+/* Placeholder charts */
+.placeholder-chart {
+  height: 220px; border:1px dashed rgba(37,99,235,.3);
+  display:flex; align-items:center; justify-content:center;
+  border-radius:10px; color:#2563eb;
+}
+
+/* Rep progress ring (visual stub) */
+.progress-ring {
+  width: 140px; height: 140px; border-radius: 50%;
+  border: 12px solid rgba(37,99,235,.2);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; color:#1d4ed8;
+}
+
+/* Goals list */
+.goals { margin:0; padding-left:18px; }
+.goals li { margin:6px 0; }

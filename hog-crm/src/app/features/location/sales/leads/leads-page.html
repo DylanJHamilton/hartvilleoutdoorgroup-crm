@@ -1,0 +1,189 @@
+<section class="page">
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Location / {{ storeName() }} / Sales / Leads</div>
+      <h1 class="title">Leads — {{ storeName() }}</h1>
+    </div>
+  </div>
+
+  <!-- Filters toolbar (one row, white + blue like pipeline) -->
+  <div class="filters-row light nowrap">
+    <mat-form-field appearance="outline" class="filter-field" floatLabel="always">
+      <mat-label>Timeframe</mat-label>
+      <mat-select [value]="timeframe()" (selectionChange)="setTF($event.value)">
+        <mat-option *ngFor="let tf of timeframes" [value]="tf">{{ tf }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field grow" floatLabel="always">
+      <mat-label>Search</mat-label>
+      <input
+        matInput
+        placeholder="Name, pipeline, owner, phone, email"
+        [value]="q()"
+        (input)="q.set($any($event.target).value)"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" floatLabel="always">
+      <mat-label>Pipeline</mat-label>
+      <mat-select [value]="pipe()" (selectionChange)="pipe.set($event.value)">
+        <mat-option *ngFor="let p of pipelines()" [value]="p">{{ p }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" floatLabel="always">
+      <mat-label>Status</mat-label>
+      <mat-select [value]="status()" (selectionChange)="status.set($event.value)">
+        <mat-option *ngFor="let s of statuses" [value]="s">{{ s }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Import (safe handler) -->
+    <input
+      type="file"
+      accept=".csv"
+      class="hidden-file"
+      #f
+      (change)="onFileChange(f)"
+    />
+    <button mat-stroked-button color="primary" (click)="f.click()">
+      <mat-icon>file_upload</mat-icon>&nbsp;Import
+    </button>
+
+    <button mat-stroked-button color="primary" (click)="refresh()">
+      <mat-icon>refresh</mat-icon>&nbsp;Refresh
+    </button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid-12 kpi-strip">
+    <hog-stat-card class="kpi light-card mat-elevation-z1" label="New" [value]="kpiNew()" icon="fiber_new"></hog-stat-card>
+    <hog-stat-card class="kpi light-card mat-elevation-z1" label="Unassigned" [value]="kpiUnassigned()" icon="person_off"></hog-stat-card>
+    <hog-stat-card class="kpi light-card mat-elevation-z1" label="Contactable" [value]="kpiContactable()" icon="call"></hog-stat-card>
+    <hog-stat-card class="kpi light-card mat-elevation-z1" label="Aged ≥7d" [value]="kpiAged()" icon="timelapse"></hog-stat-card>
+    <hog-stat-card class="kpi light-card mat-elevation-z1" label="Duplicates" [value]="kpiDupes()" icon="content_copy"></hog-stat-card>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table mat-table [dataSource]="filtered()" matSort>
+      <!-- Select -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox class="cb-blue" color="primary" [checked]="isAllSelected()" (change)="toggleAll($event.checked!)"></mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let l">
+          <mat-checkbox class="cb-blue" color="primary" [checked]="selection().has(l.id)" (change)="toggleRow(l.id)"></mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- Name / Title -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+        <td mat-cell *matCellDef="let l">
+          <div class="name">{{ l.name }}</div>
+          <div class="muted">{{ l.title }}</div>
+          <div class="chips">
+            <mat-chip-set>
+              <mat-chip *ngIf="l.duplicateOf" class="chip-dupe" matTooltip="Duplicate of {{ l.duplicateOf }}">Duplicate</mat-chip>
+              <mat-chip *ngIf="!l.owner" class="chip-unassigned">Unassigned</mat-chip>
+            </mat-chip-set>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Pipeline -->
+      <ng-container matColumnDef="pipeline">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Pipeline</th>
+        <td mat-cell *matCellDef="let l">{{ l.pipeline }}</td>
+      </ng-container>
+
+      <!-- Status -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+        <td mat-cell *matCellDef="let l">
+          <mat-select
+            [value]="l.status"
+            (selectionChange)="setRowStatus(l, $event.value)"
+            class="inline-select"
+          >
+            <mat-option value="New">New</mat-option>
+            <mat-option value="Working">Working</mat-option>
+            <mat-option value="Qualified">Qualified</mat-option>
+            <mat-option value="Quoted">Quoted</mat-option>
+            <mat-option value="Won">Won</mat-option>
+            <mat-option value="Lost">Lost</mat-option>
+          </mat-select>
+        </td>
+      </ng-container>
+
+      <!-- Owner -->
+      <ng-container matColumnDef="owner">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Owner</th>
+        <td mat-cell *matCellDef="let l">{{ l.owner || '—' }}</td>
+      </ng-container>
+
+      <!-- Value -->
+      <ng-container matColumnDef="value">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Value</th>
+        <td mat-cell *matCellDef="let l">{{ (l.value ?? 0) | currency:'USD':'symbol' }}</td>
+      </ng-container>
+
+      <!-- Age -->
+      <ng-container matColumnDef="age">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Age</th>
+        <td mat-cell *matCellDef="let l">{{ l.age }}d</td>
+      </ng-container>
+
+      <!-- Contact -->
+      <ng-container matColumnDef="contact">
+        <th mat-header-cell *matHeaderCellDef>Contact</th>
+        <td mat-cell *matCellDef="let l" class="contact">
+          <button mat-icon-button [disabled]="!l.phone" matTooltip="Call" (click)="call(l)"><mat-icon>call</mat-icon></button>
+          <button mat-icon-button [disabled]="!l.phone" matTooltip="Text" (click)="sms(l)"><mat-icon>sms</mat-icon></button>
+          <button mat-icon-button [disabled]="!l.email" matTooltip="Email" (click)="email(l)"><mat-icon>mail</mat-icon></button>
+        </td>
+      </ng-container>
+
+      <!-- Source -->
+      <ng-container matColumnDef="source">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Source</th>
+        <td mat-cell *matCellDef="let l">{{ l.source }}</td>
+      </ng-container>
+
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let l" class="actions">
+          <button mat-stroked-button color="primary" (click)="open(l)">
+            <mat-icon>open_in_new</mat-icon>&nbsp;Open
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Header / Rows -->
+      <tr mat-header-row *matHeaderRowDef="displayed()"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayed();" [class.dupe]="row.duplicateOf"></tr>
+    </table>
+  </div>
+
+  <!-- Bulk actions bar -->
+  <div class="bulk-bar" *ngIf="selection().size">
+    <div>{{ selection().size }} selected</div>
+    <div class="spacer"></div>
+
+    <mat-form-field appearance="outline" class="assign">
+      <mat-label>Assign to</mat-label>
+      <mat-select (selectionChange)="assignSelected($event.value)">
+        <mat-option *ngFor="let o of ownersNoAll()" [value]="o">{{ o }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-stroked-button (click)="setStatus(selection(), 'Working')">Mark Working</button>
+    <button mat-stroked-button (click)="setStatus(selection(), 'Qualified')">Mark Qualified</button>
+    <button mat-stroked-button (click)="setStatus(selection(), 'Quoted')">Mark Quoted</button>
+    <button mat-stroked-button (click)="setStatus(selection(), 'Won')">Mark Won</button>
+    <button mat-stroked-button (click)="setStatus(selection(), 'Lost')">Mark Lost</button>
+  </div>
+</section>

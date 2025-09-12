@@ -1,0 +1,59 @@
+<!-- add-edit-appointment.dialog.html -->
+<div class="dlg-wrap">
+  <h2 class="dlg-title"> {{ data.mode === 'edit' ? 'Edit Appointment' : 'New Appointment' }} </h2>
+  <button mat-icon-button mat-dialog-close class="dlg-close" aria-label="Close">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <mat-dialog-content class="dlg-content">
+    <form class="grid" [formGroup]="form">
+      <mat-form-field appearance="outline">
+        <mat-label>Customer</mat-label>
+        <input matInput formControlName="customer" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Subject</mat-label>
+        <input matInput formControlName="subject" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="type">
+          <mat-option *ngFor="let t of types" [value]="t">{{ t }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Owner</mat-label>
+        <mat-select formControlName="ownerId">
+          <mat-option *ngFor="let o of owners" [value]="o.id">{{ o.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Date</mat-label>
+        <input matInput [matDatepicker]="dp" formControlName="datetime" />
+        <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+        <mat-datepicker #dp></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option *ngFor="let s of statuses" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Notes</mat-label>
+        <textarea matInput rows="3" formControlName="notes"></textarea>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dlg-actions" align="end">
+    <button mat-stroked-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" (click)="save()">Save</button>
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,37 @@
+<div class="dlg-wrap">
+  <h2 class="dlg-title">Edit Financing</h2>
+  <button mat-icon-button mat-dialog-close class="dlg-close" aria-label="Close">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <mat-dialog-content>
+    <form [formGroup]="form" class="grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Provider</mat-label>
+        <input matInput formControlName="provider" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Application #</mat-label>
+        <input matInput formControlName="applicationNumber" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option *ngFor="let s of statuses" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Notes</mat-label>
+        <textarea matInput rows="3" formControlName="notes"></textarea>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" (click)="save()">Save</button>
+  </mat-dialog-actions>
+</div>

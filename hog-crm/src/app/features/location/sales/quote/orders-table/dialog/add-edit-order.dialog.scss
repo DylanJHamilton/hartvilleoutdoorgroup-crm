@@ -1,0 +1,13 @@
+/* Light, readable dialog */
+.hog-dialog .mat-mdc-dialog-surface { background:#fff !important; color:#0f172a !important; }
+.dlg-wrap { position: relative; }
+.dlg-title { margin: 0 0 8px; font:700 22px/1.2 system-ui; color:#0f172a; }
+.dlg-close { position:absolute; top:6px; right:6px; color:#475569; }
+
+.mat-mdc-form-field .mdc-text-field { background:#fff; border-radius:10px; height:44px; }
+.mdc-text-field__input { color:#0f172a !important; }
+.mat-mdc-select-value, .mat-mdc-select-value-text, .mat-mdc-select-arrow { color:#0f172a !important; }
+.mat-mdc-form-field-subscript-wrapper { display:none; }
+.mat-mdc-form-field-infix { padding-top:10px; padding-bottom:10px; }
+
+mat-dialog-actions { padding-top: 4px; }

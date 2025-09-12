@@ -22,7 +22,8 @@
     "ngx-logger": "^5.0.12",
     "ngx-mask": "^20.0.3",
     "ngx-skeleton-loader": "^11.2.1",
-    "ngx-toastr": "^19.0.0"
+    "ngx-toastr": "^19.0.0",
+    "pdfmake": "^0.2.20"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",

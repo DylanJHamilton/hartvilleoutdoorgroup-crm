@@ -1,0 +1,57 @@
+<!-- Call the signal: quote() -->
+<section class="page" *ngIf="quote() as q; else notFound">
+  <div class="header">
+    <div class="left">
+      <div class="breadcrumb">
+        <a [routerLink]="['..']" class="text-blue-700 hover:underline">Sales / Quotes</a>
+        / {{ q.quoteNumber || q.id }}
+      </div>
+      <h1 class="title">{{ q.customer }}</h1>
+      <p class="subtitle">
+        Owner: <strong>{{ q.ownerName }}</strong> •
+        Status: <strong>{{ q.status }}</strong> •
+        Total: <strong>${{ (q.total ?? 0) | number:'1.0-0' }}</strong>
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button mat-stroked-button color="primary" (click)="downloadContract()">
+        <mat-icon>description</mat-icon>
+        Contract PDF
+      </button>
+
+      <button mat-icon-button matTooltip="Print Contract" (click)="printContract()">
+        <mat-icon>print</mat-icon>
+      </button>
+
+      <button mat-stroked-button [matMenuTriggerFor]="moreMenu">
+        More
+      </button>
+      <mat-menu #moreMenu="matMenu">
+        <button mat-menu-item (click)="downloadWorkOrder()">
+          <mat-icon>assignment</mat-icon>
+          <span>Work Order PDF</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <mat-tab-group class="hog-tabs">
+    <mat-tab label="Orders">
+      <hog-orders-table [quoteId]="q.id"></hog-orders-table>
+    </mat-tab>
+    <mat-tab label="Financing">
+      <hog-financing-table [quoteId]="q.id"></hog-financing-table>
+    </mat-tab>
+  </mat-tab-group>
+</section>
+
+<ng-template #notFound>
+  <section class="page">
+    <div class="card" style="padding:16px;">
+      Quote not found.
+      <a [routerLink]="['..']" class="text-blue-700 hover:underline">Back to Quotes</a>
+    </div>
+  </section>
+</ng-template>

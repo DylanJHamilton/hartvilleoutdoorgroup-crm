@@ -1,0 +1,22 @@
+<div class="dlg-wrap">
+  <h2 class="dlg-title">Edit Order</h2>
+  <button mat-icon-button mat-dialog-close class="dlg-close" aria-label="Close">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <mat-dialog-content>
+    <form [formGroup]="form">
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option *ngFor="let s of statuses" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" (click)="save()">Save</button>
+  </mat-dialog-actions>
+</div>

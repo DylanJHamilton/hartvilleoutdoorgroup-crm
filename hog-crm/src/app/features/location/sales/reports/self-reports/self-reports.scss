@@ -1,0 +1,16 @@
+.header-row {
+  display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:8px;
+}
+.filters { display:flex; gap:12px; flex-wrap:wrap; }
+.field { min-width: 180px; }
+.actions { display:flex; gap:8px; }
+
+.table-wrap { overflow:auto; border-radius: 10px; }
+table { width:100%; background:#fff; color:#0f172a; }
+th.mat-mdc-header-cell { font-weight:600; background:#f8fafc; position: sticky; top: 0; z-index: 1; }
+.mat-mdc-cell, .mat-mdc-header-cell { padding: 10px 12px; }
+.right { text-align:right; }
+.muted { color: rgba(0,0,0,.56); }
+
+.select-all { cursor:pointer; color:#2563eb; }
+.sticky { position: sticky; top: 0; }

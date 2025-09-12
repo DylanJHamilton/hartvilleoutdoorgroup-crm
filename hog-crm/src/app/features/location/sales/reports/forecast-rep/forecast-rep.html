@@ -1,0 +1,38 @@
+<div class="grid-12">
+  <mat-card class="third light-card mat-elevation-z1">
+    <mat-card-header><mat-card-title>Progress</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <div class="ring" [style.--p.%]="attainmentPct()">
+        <div class="pct">{{ attainmentPct() }}%</div>
+      </div>
+      <div class="muted center">Goal {{ myGoal() | currency:'USD':'symbol':'1.0-0' }}</div>
+      <div class="muted center">Actual {{ myActual() | currency:'USD':'symbol':'1.0-0' }}</div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="third light-card mat-elevation-z1">
+    <mat-card-header><mat-card-title>Action Levers</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <ul class="levers">
+        <li><b>Calls needed:</b> {{ levers().callsNeeded }}</li>
+        <li><b>Appointments needed:</b> {{ levers().apptsNeeded }}</li>
+        <li><b>Quotes needed:</b> {{ levers().quotesNeeded }}</li>
+        <li><b>Wins needed:</b> {{ winsNeeded() }}</li>
+      </ul>
+      <div class="muted">Assumes avg deal {{ avgDeal | currency:'USD':'symbol':'1.0-0' }} and baseline conversion.</div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="third light-card mat-elevation-z1">
+    <mat-card-header><mat-card-title>Weekly Targets</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <mat-selection-list>
+        <mat-list-option *ngFor="let item of checklist(); let i = index"
+                         [selected]="item.done"
+                         (selectedChange)="toggle(item.id, $event)">
+          {{ item.label }}
+        </mat-list-option>
+      </mat-selection-list>
+    </mat-card-content>
+  </mat-card>
+</div>

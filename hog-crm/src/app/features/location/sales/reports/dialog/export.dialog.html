@@ -1,0 +1,16 @@
+<div class="dialog">
+  <h2>Export</h2>
+  <div class="muted">Choose what you want to download.</div>
+
+  <div class="actions">
+    <button mat-stroked-button color="primary" (click)="exportCsv()">Export CSV</button>
+    <button mat-stroked-button color="primary" [disabled]="!hasChartPng()" (click)="downloadPng()">
+      Export PNG
+    </button>
+    <button mat-button (click)="close()">Close</button>
+  </div>
+
+  <div class="muted small" *ngIf="!hasChartPng()">
+    PNG is enabled when a chart provides a data URI (ApexCharts <code>dataURI()</code>).
+  </div>
+</div>

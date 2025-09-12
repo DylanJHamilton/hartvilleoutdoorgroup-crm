@@ -1,0 +1,250 @@
+<section class="page hog-sales-reports">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Location / {{ storeName() }} / Sales</div>
+      <h1 class="title">
+        {{ isManagerLike() ? ('Sales — Reports & Forecast — ' + storeName()) : 'My Sales — Reports & Forecast' }}
+      </h1>
+      <div class="subtitle">
+        Timeframe: {{ timeframe() }} <span class="muted">({{ timeframeLabel(timeframe()) }})</span>
+      </div>
+    </div>
+
+    <div class="filters bare">
+      <mat-form-field appearance="outline" color="primary" class="filter-field">
+        <mat-label>Timeframe</mat-label>
+        <mat-select [value]="timeframe()" (selectionChange)="onTimeframe($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="MTD">MTD</mat-option>
+          <mat-option value="WTD">WTD</mat-option>
+          <mat-option value="DTD">Daily</mat-option>
+          <mat-option value="QTD">Quarter</mat-option>
+          <mat-option value="YTD">YTD</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="isManagerLike()" appearance="outline" color="primary" class="filter-field">
+        <mat-label>Owner</mat-label>
+        <mat-select [value]="ownerId()" (selectionChange)="ownerId.set($event.value)" panelClass="hog-filter-panel">
+          <mat-option value="ALL">All</mat-option>
+          <mat-option value="rep-001">Rep 001</mat-option>
+          <mat-option value="rep-002">Rep 002</mat-option>
+          <mat-option value="rep-003">Rep 003</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button color="primary">Refresh</button>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="grid-12">
+    <mat-card class="kpi light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Total Revenue</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="kpi-val">{{ kpis().totalRevenueStr }}</div>
+        <div class="muted">Δ {{ kpis().revenueDeltaPct }}%</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Deals Closed</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="kpi-val">{{ kpis().dealsClosedStr }}</div>
+        <div class="muted">Δ {{ kpis().dealsDeltaPct }}%</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Avg Deal Size</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="kpi-val">{{ kpis().avgDealSizeStr }}</div>
+        <div class="muted">Close Ratio {{ kpis().closeRatioStr }}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Pipeline Value</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="kpi-val">{{ kpis().pipelineValueStr }}</div>
+        <div class="muted">Δ {{ kpis().pipelineDeltaPct }}%</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Tabs (role-scoped) -->
+  <mat-card class="light-card mat-elevation-z1 tabs-wrap">
+    <mat-tab-group class="hog-tabs">
+      <!-- Manager/Admin -->
+      <mat-tab *ngIf="isManagerLike()" label="Store Dashboard">
+        <section class="tab-pad">
+          <div class="grid-12">
+            <mat-card class="two-thirds light-card mat-elevation-z1">
+              <mat-card-header>
+                <mat-card-title>Sales Snapshot ({{ timeframe() }})</mat-card-title>
+                <mat-card-subtitle class="muted">Trend vs baseline</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="placeholder-chart">Revenue series ({{ series().revenue.length }} pts)</div>
+              </mat-card-content>
+              <mat-card-actions class="inline-links">
+                <a mat-stroked-button color="primary"  [routerLink]="['/location', storeId(), 'sales']" (click)="openPipeline()">Go to Sales</a>
+              </mat-card-actions>
+            </mat-card>
+
+            <mat-card class="third light-card mat-elevation-z1">
+              <mat-card-header><mat-card-title>Deals</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <div class="placeholder-chart">Deals series ({{ series().deals.length }} pts)</div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <mat-card class="full light-card mat-elevation-z1">
+            <mat-card-header><mat-card-title>Per-Owner Breakdown</mat-card-title></mat-card-header>
+            <mat-card-content>
+              <div class="crm-table">
+                <div class="crm-row crm-head">
+                  <div>Owner</div><div class="right">Deals</div><div class="right">Revenue</div><div class="right">AOV</div><div class="right">Close %</div>
+                </div>
+                <div class="crm-row" *ngFor="let o of ['rep-001','rep-002','rep-003']">
+                  <div>{{ o }}</div>
+                  <div class="right">{{ 10 + o.length }}</div>
+                  <div class="right">{{ kpis().totalRevenueStr }}</div>
+                  <div class="right">{{ kpis().avgDealSizeStr }}</div>
+                  <div class="right">{{ kpis().closeRatioStr }}</div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </section>
+      </mat-tab>
+
+      <mat-tab *ngIf="isManagerLike()" label="Forecast (Manager)">
+        <section class="tab-pad">
+          <div class="grid-12">
+            <mat-card class="half light-card mat-elevation-z1">
+              <mat-card-header><mat-card-title>Projected vs Actual</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <div class="placeholder-chart">Line/Column combo</div>
+              </mat-card-content>
+            </mat-card>
+            <mat-card class="half light-card mat-elevation-z1">
+              <mat-card-header><mat-card-title>Attainment</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <div class="crm-table">
+                  <div class="crm-row crm-head"><div>Owner</div><div class="right">Target</div><div class="right">Actual</div><div class="right">% Attain</div></div>
+                  <div class="crm-row" *ngFor="let o of ['rep-001','rep-002','rep-003']">
+                    <div>{{ o }}</div>
+                    <div class="right">$50,000</div>
+                    <div class="right">{{ kpis().totalRevenueStr }}</div>
+                    <div class="right">82%</div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </section>
+      </mat-tab>
+
+      <!-- Rep -->
+      <mat-tab *ngIf="isRep()" label="My Performance">
+        <section class="tab-pad">
+          <div class="grid-12">
+            <mat-card class="half light-card mat-elevation-z1">
+              <mat-card-header><mat-card-title>My Trend</mat-card-title></mat-card-header>
+              <mat-card-content><div class="placeholder-chart">Deals / Revenue trend</div></mat-card-content>
+            </mat-card>
+            <mat-card class="half light-card mat-elevation-z1">
+              <mat-card-header><mat-card-title>Motivational Callouts</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <ul class="goals">
+                  <li>You’re <b>on pace</b> for {{ kpis().totalRevenueStr }} this {{ timeframe() }}.</li>
+                  <li>Close <b>3</b> more deals to hit target.</li>
+                  <li>Book <b>5</b> more appointments to lift win rate.</li>
+                </ul>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </section>
+      </mat-tab>
+
+      <mat-tab *ngIf="isRep()" label="Forecast (My Goal)">
+        <section class="tab-pad">
+          <div class="grid-12">
+            <mat-card class="third light-card mat-elevation-z1">
+              <mat-card-header><mat-card-title>Progress</mat-card-title></mat-card-header>
+              <mat-card-content><div class="progress-ring">82%</div></mat-card-content>
+            </mat-card>
+            <mat-card class="two-thirds light-card mat-elevation-z1">
+              <mat-card-header><mat-card-title>Action Levers</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <ul class="goals">
+                  <li>Calls needed: 45</li>
+                  <li>Appointments needed: 7</li>
+                  <li>Quotes needed: 4</li>
+                </ul>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </section>
+      </mat-tab>
+
+      <!-- Shared -->
+      <mat-tab label="Self Reports">
+        <section class="tab-pad">
+          <mat-card class="full light-card mat-elevation-z1">
+            <mat-card-header><mat-card-title>Activity / Orders / Quotes</mat-card-title></mat-card-header>
+            <mat-card-content>
+              <div class="crm-table">
+                <div class="crm-row crm-head">
+                  <div>Type</div><div>Owner</div><div>Subject</div><div class="right">Date</div><div class="right">Action</div>
+                </div>
+                <div class="crm-row" *ngFor="let i of [1,2,3,4,5,6]">
+                  <div>Activity</div>
+                  <div>{{ isRep() ? userId() : 'rep-00' + i }}</div>
+                  <div class="muted">Follow-up / Quote Review</div>
+                  <div class="right">Today</div>
+                  <div class="right"><button mat-stroked-button color="primary">View</button></div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </section>
+      </mat-tab>
+
+      <mat-tab label="Top Sellers">
+        <section class="tab-pad">
+          <div class="grid-12">
+            <mat-card class="half light-card mat-elevation-z1">
+              <mat-card-header><mat-card-title>Top SKUs</mat-card-title></mat-card-header>
+              <mat-card-content><div class="placeholder-chart">Bar chart (SKUs)</div></mat-card-content>
+            </mat-card>
+            <mat-card class="half light-card mat-elevation-z1">
+              <mat-card-header><mat-card-title>Category Share</mat-card-title></mat-card-header>
+              <mat-card-content><div class="placeholder-chart">Donut (Categories)</div></mat-card-content>
+            </mat-card>
+
+            <mat-card class="full light-card mat-elevation-z1">
+              <mat-card-header><mat-card-title>Products</mat-card-title></mat-card-header>
+              <mat-card-content>
+                <div class="crm-table">
+                  <div class="crm-row crm-head">
+                    <div>SKU</div><div>Product</div><div class="right">Units</div><div class="right">Revenue</div><div class="right">Margin (est.)</div>
+                  </div>
+                  <div class="crm-row" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+                    <div>SKU-{{ i }}</div>
+                    <div class="muted">Top Seller {{ i }}</div>
+                    <div class="right">{{ 5 + i }}</div>
+                    <div class="right">{{ kpis().avgDealSizeStr }}</div>
+                    <div class="right">~{{ 20 + i }}%</div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </section>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>
+</section>

@@ -1,0 +1,150 @@
+@use 'sass:color';
+.page { background:#f6f7fb; color:#0f172a; padding:16px; display:flex; flex-direction:column; gap:16px; }
+.header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.breadcrumb { font-size:12px; color:#475569; }
+.title { margin:4px 0; font:700 22px/1.2 system-ui; }
+.subtitle { font-size:13px; color:#475569; }
+.card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; box-shadow:0 1px 2px rgba(15,23,42,.04); }
+.summary { padding:12px; }
+.summary .row { display:grid; grid-template-columns: repeat(5, 1fr); gap:12px; }
+.summary .label { font-size:12px; color:#475569; }
+.summary .value { font-weight:600; }
+/* ---- Material Tab Styling Overrides ---- */
+::ng-deep .mat-mdc-tab-group {
+  background: #f8fafc; /* light background behind tabs */
+  color: #0f172a;      /* dark text by default */
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Inactive tabs: keep dark text */
+::ng-deep .mat-mdc-tab {
+  color: #0f172a !important;
+  opacity: 1 !important;  /* remove "faded" look */
+  font-weight: 500;
+}
+
+/* Active tab: bold + blue underline */
+::ng-deep .mat-mdc-tab.mdc-tab--active {
+  color: #1d4ed8 !important;  /* blue-700 */
+  font-weight: 600;
+}
+
+::ng-deep .mat-mdc-tab-indicator .mat-mdc-tab-indicator-content {
+  border-color: #2563eb !important; /* blue-600 underline */
+}
+
+/* Optional: hover state for inactive tabs */
+::ng-deep .mat-mdc-tab:not(.mdc-tab--active):hover {
+  background: #f1f5f9; /* subtle gray hover */
+  color: #1e293b !important; /* slate-800 */
+}
+
+
+/* =========================
+   Tabs: readable inactive labels + blue active
+   ========================= */
+
+/* light background behind the tabs */
+:host ::ng-deep .mat-mdc-tab-group {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* base tab label: dark text (even when inactive) */
+:host ::ng-deep .mat-mdc-tab .mdc-tab__text-label {
+  color: #0f172a !important;    /* dark */
+  opacity: 1 !important;        /* remove material's fade */
+  font-weight: 500;
+}
+
+/* active tab label: blue + a bit bolder */
+:host ::ng-deep .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: #1d4ed8 !important;    /* blue-700 */
+  font-weight: 600;
+}
+
+/* indicator/underline: blue */
+:host ::ng-deep .mat-mdc-tab-indicator .mat-mdc-tab-indicator-content {
+  border-color: #2563eb !important; /* blue-600 underline */
+}
+
+/* optional: subtle hover on inactive tabs */
+:host ::ng-deep .mat-mdc-tab:not(.mdc-tab--active):hover {
+  background: #f1f5f9;
+  color: #1e293b !important;     /* slate-800 */
+}
+
+/* =========================
+   Table action buttons: keep dark text/icons
+   ========================= */
+
+/* Edit/Delete buttons inside our tables should use dark label/icon by default */
+:host ::ng-deep .opps-table .mat-mdc-stroked-button .mdc-button__label,
+:host ::ng-deep .opps-table .mat-mdc-stroked-button .mat-icon {
+  color: #1f2937 !important;     /* slate-800 */
+}
+
+/* keep outlined stroke subtle, brighten on hover */
+:host ::ng-deep .opps-table .mat-mdc-stroked-button {
+  --mdc-outlined-button-outline-color: #2563eb33;
+}
+:host ::ng-deep .opps-table .mat-mdc-stroked-button:hover {
+  --mdc-outlined-button-outline-color: #2563eb;
+  background: #eff6ff;
+}
+
+/* Delete button (warn) icon/label still red */
+:host ::ng-deep .opps-table .mat-mdc-stroked-button.mat-warn .mdc-button__label,
+:host ::ng-deep .opps-table .mat-mdc-stroked-button.mat-warn .mat-icon {
+  color: #dc2626 !important;     /* red-600 */
+}
+/* -------- Tabs: readable inactive labels + blue active, light bg -------- */
+:host ::ng-deep .hog-tabs .mat-mdc-tab-header {
+  background: #f8fafc;                 /* light bar behind tabs */
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Base label (inactive): solid dark text (Material usually fades it) */
+:host ::ng-deep .hog-tabs .mat-mdc-tab .mdc-tab__text-label {
+  color: #0f172a !important;            /* dark */
+  opacity: 1 !important;                /* remove faded look */
+  font-weight: 500;
+}
+
+/* Active label: blue + slightly bolder */
+:host ::ng-deep .hog-tabs .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: #1d4ed8 !important;            /* blue-700 */
+  font-weight: 600;
+}
+
+/* Active indicator/underline: blue (MDC underline element) */
+:host ::ng-deep .hog-tabs .mdc-tab-indicator__content--underline {
+  border-color: #2563eb !important;     /* blue-600 */
+}
+
+/* Optional: hover on inactive tabs */
+:host ::ng-deep .hog-tabs .mat-mdc-tab:not(.mdc-tab--active):hover {
+  background: #f1f5f9;
+}
+
+/* -------- Actions: ensure Edit button text/icon are never white -------- */
+/* Stroke buttons in our tables: force dark label + icon */
+:host ::ng-deep .opps-table td.mat-mdc-cell .mat-mdc-stroked-button .mdc-button__label,
+:host ::ng-deep .opps-table td.mat-mdc-cell .mat-mdc-stroked-button .mat-icon {
+  color: #1f2937 !important;            /* slate-800 */
+}
+
+/* Keep warn (Delete) red */
+:host ::ng-deep .opps-table td.mat-mdc-cell .mat-mdc-stroked-button.mat-warn .mdc-button__label,
+:host ::ng-deep .opps-table td.mat-mdc-cell .mat-mdc-stroked-button.mat-warn .mat-icon {
+  color: #dc2626 !important;            /* red-600 */
+}
+
+/* Subtle stroke + nicer hover on all stroked buttons */
+:host ::ng-deep .opps-table td.mat-mdc-cell .mat-mdc-stroked-button {
+  --mdc-outlined-button-outline-color: #2563eb33;
+}
+:host ::ng-deep .opps-table td.mat-mdc-cell .mat-mdc-stroked-button:hover {
+  --mdc-outlined-button-outline-color: #2563eb;
+  background: #eff6ff;
+}

@@ -1,0 +1,148 @@
+<!-- Hub content only shows when no child route is active -->
+<ng-container *ngIf="showHub()">
+  <section class="page">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <div class="breadcrumb">Location / {{ storeName() }} / Sales</div>
+        <h1 class="title">Sales — {{ storeName() }}</h1>
+        <div class="subtitle">Viewing as <b>{{ roleLabel() }}</b> • Timeframe: {{ timeframe() }}</div>
+      </div>
+
+      <div class="filters">
+        <mat-form-field appearance="outline" color="primary" class="filter-field">
+          <mat-label>Timeframe</mat-label>
+          <mat-select [value]="timeframe()" (selectionChange)="setTF($event.value)">
+            <mat-option value="MTD">MTD</mat-option>
+            <mat-option value="WTD">WTD</mat-option>
+            <mat-option value="DTD">Daily</mat-option>
+            <mat-option value="QTD">Quarter</mat-option>
+            <mat-option value="YTD">YTD</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-stroked-button color="primary" (click)="refresh()">Refresh</button>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <mat-card class="light-card mat-elevation-z1">
+      <mat-card-header>
+        <mat-card-title>Sales Tools</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="links">
+          <!-- absolute link so it works from anywhere -->
+          <a
+            mat-stroked-button
+            color="primary"
+            [routerLink]="['/location', storeId(), 'sales', 'pipeline']"
+          >
+            Pipeline
+          </a>
+          <a
+            mat-stroked-button
+            color="primary"
+            [routerLink]="['/location', storeId(), 'sales', 'leads']"
+          >
+            Leads
+          </a>
+          <a
+            mat-stroked-button
+            color="primary"
+            [routerLink]="['/location', storeId(), 'sales', 'opportunities']"
+          >
+            Prospecting Opportunities
+          </a>
+            <a
+            mat-stroked-button
+            color="primary"
+            [routerLink]="['/location', storeId(), 'sales', 'appointments']"
+          >
+            Appointments & Activities
+          </a>
+           <a
+            mat-stroked-button
+            color="primary"
+            [routerLink]="['/location', storeId(), 'sales', 'quote']"
+          >
+            Quote Builder
+          </a> 
+          <a
+            mat-stroked-button
+            color="primary"
+            [routerLink]="['/location', storeId(), 'sales', 'reports']"
+          >
+            Reports
+          </a><a
+            mat-stroked-button
+            color="primary"
+            [routerLink]="['/location', storeId(), 'sales', 'settings']"
+          >
+            Settings
+          </a>
+
+
+          <!-- placeholders until we scaffold -->
+          <button mat-stroked-button disabled>Current Deals</button>
+          <button mat-stroked-button disabled>Documents &amp; Quotes</button>
+          <button mat-stroked-button disabled>Performance</button>
+          <button mat-stroked-button disabled>Prospecting</button>
+          <button mat-stroked-button disabled>Tasks</button>
+        </div>
+        <div class="muted small">Links are scoped to {{ storeName() }}.</div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- KPIs -->
+    <div class="grid-12">
+      <hog-stat-card class="kpi light-card mat-elevation-z1"
+        label="Total Sales ({{ timeframe() }})"
+        [value]="(((totalSales() ?? 0) | currency:'USD':'symbol') ?? '')"
+        [delta]="salesDelta()"
+        icon="paid"></hog-stat-card>
+
+      <hog-stat-card class="kpi light-card mat-elevation-z1"
+        label="Average Order Value"
+        [value]="(((aov() ?? 0) | currency:'USD':'symbol') ?? '')"
+        [delta]="0"
+        icon="receipt_long"></hog-stat-card>
+
+      <hog-stat-card class="kpi light-card mat-elevation-z1"
+        label="Orders"
+        [value]="(orders())"
+        [delta]="ordersDelta()"
+        icon="shopping_cart"></hog-stat-card>
+
+      <hog-stat-card class="kpi light-card mat-elevation-z1"
+        label="Refund Rate"
+        [value]="(refundRate() + '%')"
+        [delta]="0"
+        icon="report"></hog-stat-card>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid-12">
+      <mat-card class="half light-card mat-elevation-z1">
+        <mat-card-header>
+          <mat-card-title>Sales Snapshot ({{ timeframe() }})</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div [hogChart]="salesChart()"></div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="half light-card mat-elevation-z1">
+        <mat-card-header>
+          <mat-card-title>Current Pipeline</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div [hogChart]="pipelineChart()"></div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </section>
+</ng-container>
+
+<!-- Child views (Pipeline etc.) always render here -->
+<router-outlet></router-outlet>

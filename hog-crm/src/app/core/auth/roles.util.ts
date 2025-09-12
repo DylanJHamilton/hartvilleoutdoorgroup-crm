@@ -111,3 +111,4 @@ export function landingPathForHybrid(
 export function isManagerUser(user: User | null | undefined): boolean {
   return !!user?.roles?.some(r => r === 'MANAGER');
 }
+

@@ -1,0 +1,27 @@
+<div class="hog-time-filter">
+  <mat-form-field appearance="outline" color="primary" class="field">
+    <mat-label>Timeframe</mat-label>
+    <mat-select [value]="timeframe" (selectionChange)="onTimeframe($event.value)">
+      <mat-option value="MTD">MTD</mat-option>
+      <mat-option value="WTD">WTD</mat-option>
+      <mat-option value="DTD">Daily</mat-option>
+      <mat-option value="QTD">Quarter</mat-option>
+      <mat-option value="YTD">YTD</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" color="primary" class="field">
+    <mat-label>Store</mat-label>
+    <mat-select [value]="storeId" (selectionChange)="onStore($event.value)">
+      <mat-option *ngFor="let s of stores" [value]="s">{{ s | titlecase }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" color="primary" class="field" *ngIf="!lockOwner">
+    <mat-label>Owner</mat-label>
+    <mat-select [value]="ownerId" (selectionChange)="onOwner($event.value)">
+      <mat-option value="ALL">All</mat-option>
+      <mat-option *ngFor="let o of owners" [value]="o">{{ o }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>

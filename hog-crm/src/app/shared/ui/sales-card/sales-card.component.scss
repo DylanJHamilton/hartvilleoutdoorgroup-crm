@@ -1,0 +1,121 @@
+:host {
+  display: block;
+  color: #0f172a; /* dark slate text */
+}
+
+.mat-mdc-dialog-surface {
+  background: #ffffff; /* light card */
+  color: #0f172a;
+}
+
+/* Header strip */
+.head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  background: #eff6ff;  /* blue-50 */
+  color: #1e3a8a;       /* blue-900 */
+  border: 1px solid #bfdbfe; /* blue-200 */
+}
+
+.head-meta .title {
+  font-weight: 700;
+  font-size: 18px;
+}
+.head-meta .sub {
+  color: #475569;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sub .customer { font-weight: 600; }
+
+.head-right {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+}
+.amount { font-weight: 800; font-size: 18px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+/* Stage tints */
+.stage-lead      { background:#dbeafe; color:#1e40af; border-color:#bfdbfe; } /* blue */
+.stage-qualified { background:#e0f2fe; color:#075985; border-color:#bae6fd; } /* light blue */
+.stage-quoted    { background:#fef3c7; color:#92400e; border-color:#fde68a; } /* amber */
+.stage-won       { background:#dcfce7; color:#166534; border-color:#bbf7d0; } /* green */
+.stage-lost      { background:#fee2e2; color:#991b1b; border-color:#fecaca; } /* red */
+
+.content { display: grid; gap: 12px; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(160px, 1fr)); gap: 12px; }
+
+.item .label { font-size: 12px; color: #64748b; margin-bottom: 2px; }
+.item .value { font-weight: 600; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+.divider { height: 1px; background: #e5e7eb; }
+.hint { color: #475569; font-size: 12px; }
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Buttons: all blue primary */
+:host ::ng-deep .mat-mdc-stroked-button {
+  --btn-color: #1d4ed8; /* blue-700 */
+  color: var(--btn-color);
+  border-color: var(--btn-color);
+}
+
+:host ::ng-deep .mat-mdc-raised-button,
+:host ::ng-deep .mat-mdc-unelevated-button,
+:host ::ng-deep .mat-mdc-outlined-button.mat-primary {
+  background: #1d4ed8;  /* blue-700 */
+  color: #ffffff;
+}
+
+/* Force the dialog surface to be light for SalesCard */
+:host ::ng-deep .mat-mdc-dialog-surface {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+:host ::ng-deep .mat-mdc-dialog-container {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+
+:host ::ng-deep .mat-mdc-dialog-surface .mat-mdc-button,
+:host ::ng-deep .mat-mdc-dialog-surface .mat-mdc-icon-button {
+  color: #0f172a !important;
+}

@@ -607,3 +607,254 @@ body.dark .user-settings {
     border-right: 1px solid #e5e7eb;
   }
 }
+/* Force light surface + dark text for the Sales Card dialog only */
+.cdk-overlay-container .hog-dialog-light .mdc-dialog__surface {
+  background: #ffffff !important;
+  color: #0f172a !important; /* slate-900 */
+}
+
+/* Make sure content area inherits dark text */
+.cdk-overlay-container .hog-dialog-light .mat-mdc-dialog-content,
+.cdk-overlay-container .hog-dialog-light .mat-mdc-dialog-title,
+.cdk-overlay-container .hog-dialog-light .mat-mdc-dialog-actions {
+  color: #0f172a !important;
+}
+
+/* Button theming: primary blue fills, stroked = blue outline */
+.cdk-overlay-container .hog-dialog-light .mat-mdc-stroked-button {
+  --hog-blue: #1d4ed8; /* blue-700 */
+  color: var(--hog-blue) !important;
+  border-color: var(--hog-blue) !important;
+}
+.cdk-overlay-container .hog-dialog-light .mat-mdc-raised-button,
+.cdk-overlay-container .hog-dialog-light .mat-mdc-unelevated-button,
+.cdk-overlay-container .hog-dialog-light .mat-mdc-outlined-button.mat-primary,
+.cdk-overlay-container .hog-dialog-light .mat-mdc-button-base.mat-primary {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+/* Make mat-icons readable in both stroked/filled contexts */
+.cdk-overlay-container .hog-dialog-light .mat-icon {
+  color: inherit !important;
+}
+
+/* Optional: lighten the dialog frame border to match your cards */
+.cdk-overlay-container .hog-dialog-light .mdc-dialog__surface {
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.18), 0 2px 8px rgba(2, 6, 23, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+/* Make all buttons inside the Sales Card dialog blue-filled */
+.cdk-overlay-container .hog-dialog-light .mat-mdc-button-base {
+  background: #1d4ed8 !important;   /* blue-700 */
+  color: #ffffff !important;
+  border-color: #1d4ed8 !important;
+}
+.cdk-overlay-container .hog-dialog-light .mat-mdc-button-base .mat-icon {
+  color: #ffffff !important;
+}
+
+/* Hover/focus polish (optional) */
+.cdk-overlay-container .hog-dialog-light .mat-mdc-button-base:hover {
+  filter: brightness(0.95);
+}
+.cdk-overlay-container .hog-dialog-light .mat-mdc-button-base:focus-visible {
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
+}
+
+/* Disabled state (keeps contrast) */
+.cdk-overlay-container .hog-dialog-light .mat-mdc-button-base.mat-mdc-button-disabled {
+  background: #93c5fd !important;   /* blue-300 */
+  color: #eff6ff !important;         /* blue-50 */
+  border-color: #93c5fd !important;
+}
+
+/* ===============================
+   Global override: Sales Card dialog
+   Makes the whole dialog white, all text blue, and buttons blue.
+   Requires panelClass: 'hog-light-dialog' when opening MatDialog.
+   =============================== */
+
+.hog-light-dialog {
+  /* Ensure the MDC dialog surface is white */
+  .mat-mdc-dialog-container,
+  .mdc-dialog__surface {
+    background: #ffffff !important;
+    color: #1e40af !important; /* blue text */
+  }
+
+  /* Scope the content component */
+  hog-sales-card,
+  hog-sales-card * {
+    color: #1e40af !important; /* force all text/icons blue */
+  }
+
+  /* Kill any internal dark card sections */
+  hog-sales-card,
+  hog-sales-card .head,
+  hog-sales-card .content,
+  hog-sales-card .actions {
+    background: #ffffff !important;
+  }
+
+  /* If the component adds its own "dark-on-light" class, neutralize it */
+  hog-sales-card.dark-on-light {
+    background: #ffffff !important;
+    color: #1e40af !important;
+  }
+
+  /* Chips (plain spans in your template) */
+  hog-sales-card .chip {
+    background: #e0ebff !important;
+    color: #1e40af !important;
+    border: 1px solid #1e40af !important;
+  }
+  hog-sales-card .chip.ghost {
+    background: #f5f9ff !important;
+  }
+
+  /* Divider line in the card body */
+  hog-sales-card .divider {
+    border-top: 1px solid #cfe0ff !important;
+  }
+
+  /* ---- Angular Material buttons in the dialog ---- */
+
+  /* Default text color for all buttons */
+  .mat-mdc-button-base {
+    color: #1e40af !important;
+  }
+
+  /* Stroked / Outlined borders */
+  .mat-mdc-stroked-button,
+  .mat-mdc-outlined-button {
+    border-color: #1e40af !important;
+  }
+
+  /* Filled (flat/raised/unelevated) primary buttons */
+  .mat-mdc-flat-button.mat-primary,
+  .mat-mdc-raised-button.mat-primary,
+  .mat-mdc-unelevated-button.mat-primary {
+    background: #1e40af !important;
+    color: #ffffff !important;
+  }
+  .mat-mdc-flat-button.mat-primary .mat-icon,
+  .mat-mdc-raised-button.mat-primary .mat-icon,
+  .mat-mdc-unelevated-button.mat-primary .mat-icon {
+    color: #ffffff !important;
+  }
+}
+
+/* ===============================
+   Sales Card dialog spacing overrides
+   =============================== */
+.hog-light-dialog {
+  /* Dialog surface sizing */
+  .mat-mdc-dialog-container,
+  .mdc-dialog__surface {
+    padding: 24px !important;       /* more breathing room */
+    min-height: 600px !important;   /* taller dialog */
+    max-height: 90vh !important;    /* cap so it never exceeds screen */
+    border-radius: 12px !important; /* softer corners if you want */
+  }
+
+  /* Inside the card */
+  hog-sales-card {
+    display: block;
+    padding: 24px !important; /* inner padding */
+  }
+
+  /* Make header/body/actions breathe more */
+  hog-sales-card .head,
+  hog-sales-card .content,
+  hog-sales-card .actions {
+    padding: 16px 0 !important;
+  }
+
+  /* Space between action buttons */
+  hog-sales-card .actions button {
+    margin-right: 8px;
+  }
+}
+
+/* Force light dialog surface for our sales dialogs */
+.hog-dialog .mat-mdc-dialog-surface {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Also set MDC token used by Material v16+ */
+.hog-dialog .mat-mdc-dialog-container {
+  --mdc-dialog-container-color: #ffffff;
+}
+
+/* GLOBAL styles.scss — applies to dialogs opened with { panelClass: 'hog-dialog' } */
+
+/* Light surface + tokens */
+.hog-dialog .mat-mdc-dialog-surface { background:#fff !important; color:#0f172a !important; }
+.hog-dialog .mat-mdc-dialog-container { --mdc-dialog-container-color:#fff; }
+
+/* Ensure inputs + selects are dark text in ALL states (focused/selected) */
+.hog-dialog .mdc-text-field__input,
+.hog-dialog .mdc-text-field--focused .mdc-text-field__input,
+.hog-dialog .mat-mdc-select-value,
+.hog-dialog .mat-mdc-select-value-text,
+.hog-dialog .mat-mdc-select-arrow { color:#0f172a !important; }
+
+/* Floating labels and focused label */
+.hog-dialog .mdc-floating-label,
+.hog-dialog .mdc-floating-label--float-above { color:#334155 !important; }
+
+/* Options panel text (including selected) */
+.hog-dialog .mat-mdc-select-panel .mat-mdc-option .mdc-list-item__primary-text { color:#0f172a !important; }
+.hog-dialog .mat-mdc-select-panel .mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text { color:#0f172a !important; }
+
+/* Autofill fix (Chrome) */
+.hog-dialog input:-webkit-autofill {
+  -webkit-text-fill-color:#0f172a !important;
+  box-shadow: 0 0 0px 1000px #fff inset;
+}
+
+/* Form fields look/spacing */
+.hog-dialog .mat-mdc-form-field .mdc-text-field { background:#fff; border-radius:10px; height:44px; }
+.hog-dialog .mat-mdc-form-field-infix { padding-top:10px; padding-bottom:10px; }
+.hog-dialog .mat-mdc-form-field-subscript-wrapper { display:none; }
+
+/* Dialog layout */
+.hog-dialog .dlg-wrap { position:relative; }
+.hog-dialog .dlg-title { margin:0 0 8px; font:700 22px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+.hog-dialog .dlg-close { position:absolute; top:6px; right:6px; color:#475569; }
+.hog-dialog .dlg-content { padding-top:4px; }
+.hog-dialog .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.hog-dialog .full { grid-column:1 / -1; }
+@media (max-width:640px){ .hog-dialog .grid { grid-template-columns:1fr; } }
+
+/* Buttons */
+.hog-dialog .dlg-actions { padding-top:4px; }
+.hog-dialog .mat-mdc-raised-button.mat-primary,
+.hog-dialog .mat-mdc-unelevated-button.mat-primary {
+  --mdc-filled-button-container-color:#2563eb;
+  --mdc-filled-button-label-text-color:#fff;
+}
+.hog-dialog .mat-mdc-raised-button.mat-primary:hover,
+.hog-dialog .mat-mdc-unelevated-button.mat-primary:hover {
+  --mdc-filled-button-container-color:#1d4ed8;
+}
+.hog-dialog .mat-mdc-stroked-button {
+  --mdc-outlined-button-outline-color:#2563eb33;
+  --mdc-outlined-button-label-text-color:#1f2937;
+}
+.hog-dialog .mat-mdc-stroked-button:hover {
+  --mdc-outlined-button-outline-color:#2563eb;
+  background:#eff6ff;
+}
+/* styles.scss (global) */
+.hog-dialog .mat-mdc-dialog-surface { background:#fff !important; color:#0f172a !important; }
+.hog-dialog .mat-mdc-dialog-container { --mdc-dialog-container-color:#fff; }
+.hog-dialog .mdc-text-field__input,
+.hog-dialog .mat-mdc-select-value,
+.hog-dialog .mat-mdc-select-value-text,
+.hog-dialog .mat-mdc-select-arrow { color:#0f172a !important; }
+.hog-dialog .mdc-floating-label,
+.hog-dialog .mdc-floating-label--float-above { color:#334155 !important; }

@@ -1,0 +1,15 @@
+.hog-dialog .mat-mdc-dialog-surface { background:#fff !important; color:#0f172a !important; }
+.dlg-title { margin:0 0 8px; font:700 20px/1.2 system-ui; }
+.filters { display:flex; gap:12px; align-items:end; margin-bottom:8px; }
+.grow { flex:1 1 auto; }
+.w-48 { width:12rem; } .w-44 { width:11rem; }
+.list { display:flex; flex-direction:column; gap:8px; max-height:50vh; overflow:auto; }
+.row {
+  display:flex; justify-content:space-between; gap:12px; align-items:center;
+  border:1px solid #e5e7eb; border-radius:10px; padding:12px 14px; background:#fff;
+}
+.row:hover { background:#f8fafc; }
+.primary { font-weight:600; }
+.muted { color:#475569; font-size:13px; }
+.meta { display:flex; gap:8px; flex-wrap:wrap; }
+.chip { font-size:11px; background:#eef2ff; color:#1d4ed8; border:1px solid #e0e7ff; padding:2px 8px; border-radius:12px; }

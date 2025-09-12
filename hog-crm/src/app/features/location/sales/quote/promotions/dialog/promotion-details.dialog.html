@@ -1,0 +1,39 @@
+<div class="dlg-wrap">
+  <h2 class="dlg-title">{{ data.name }}</h2>
+
+  <mat-dialog-content class="dlg-content">
+    <div class="grid">
+      <div><div class="label">Code</div><div class="value mono">{{ data.code }}</div></div>
+      <div><div class="label">Discount</div>
+        <div class="value">
+          <ng-container *ngIf="data.discountType === 'Percent'">{{ data.discountValue }}%</ng-container>
+          <ng-container *ngIf="data.discountType === 'Amount'">${{ data.discountValue | number:'1.0-0' }}</ng-container>
+        </div>
+      </div>
+      <div><div class="label">Dates</div><div class="value">{{ data.startDate | date:'MMM d' }} – {{ data.endDate | date:'MMM d, y' }}</div></div>
+      <div><div class="label">Stackable</div><div class="value">{{ data.stackable ? 'Yes' : 'No' }}</div></div>
+      <div><div class="label">Approval Required</div><div class="value">{{ data.approvalRequired ? 'Yes' : 'No' }}</div></div>
+
+      <div class="full">
+        <div class="label">Categories</div>
+        <div class="chips">
+          <span class="chip" *ngFor="let c of data.categories">{{ c }}</span>
+        </div>
+      </div>
+
+      <div class="full">
+        <div class="label">Eligible SKUs</div>
+        <div class="mono">{{ data.eligibleSkus.join(', ') }}</div>
+      </div>
+
+      <div class="full" *ngIf="data.notes">
+        <div class="label">Notes</div>
+        <div class="value">{{ data.notes }}</div>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dlg-actions">
+    <button mat-stroked-button mat-dialog-close>Close</button>
+  </mat-dialog-actions>
+</div>

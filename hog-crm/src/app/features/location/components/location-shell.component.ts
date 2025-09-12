@@ -1,4 +1,3 @@
-// src/app/features/location/components/location-shell.component.ts
 import { Component, computed, inject, ViewEncapsulation, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterOutlet, ActivatedRouteSnapshot } from '@angular/router';
@@ -67,10 +66,7 @@ export class LocationShellComponent {
 
   // Reactive storeId from URL (updates on every navigation)
   private readonly urlStoreId = toSignal(
-    this.router.events.pipe(
-      startWith(0),
-      map(() => storeIdFromUrl(this.router.url))
-    ),
+    this.router.events.pipe(startWith(0), map(() => storeIdFromUrl(this.router.url))),
     { initialValue: storeIdFromUrl(this.router.url) }
   );
 
@@ -84,7 +80,7 @@ export class LocationShellComponent {
   orgBrand      = computed(() => ORG_NAME);
   storeSubtitle = computed(() => `${this.locationShort()} (Location)`);
 
-  // Blue bar title from the active child route's *routeConfig.title* (fallback "Dashboard")
+  // Blue bar title
   pageTitle = toSignal(
     this.router.events.pipe(
       startWith(0),
@@ -103,13 +99,9 @@ export class LocationShellComponent {
   });
 
   settingsLink = computed<any[]>(() => ['/location', this.locationId(), 'settings']);
+  signOut() { try { (this.auth as any)?.signOut?.(); } catch {} this.router.navigateByUrl('/auth/login'); }
 
-  signOut() {
-    try { (this.auth as any)?.signOut?.(); } catch {}
-    this.router.navigateByUrl('/auth/login'); // adjust if needed
-  }
-
-  // ---- role-aware nav (unchanged) ----
+  // ---- role-aware nav
   private readonly user         = computed(() => this.auth.getUser() ?? null);
   private readonly isAdminOwner = computed(() => !!this.user() && isOwnerOrAdminUser(this.user()!));
   private readonly roles        = computed<Set<string>>(() => {
@@ -117,34 +109,50 @@ export class LocationShellComponent {
     return new Set(rs.map(r => String(r).toUpperCase()));
   });
 
-  private readonly navBase: NavItem[] = [
-    { label: 'Dashboard',  icon: 'dashboard',       link: ['dashboard']  },
-    { label: 'Sales',      icon: 'sell',            link: ['sales']      },
-    { label: 'Inventory',  icon: 'inventory_2',     link: ['inventory']  },
-    { label: 'Service',    icon: 'build',           link: ['service']    },
-    { label: 'Delivery',   icon: 'local_shipping',  link: ['delivery']   },
-    { label: 'Rentals',    icon: 'two_wheeler',     link: ['rentals']    },
-    { label: 'Support',    icon: 'support_agent',   link: ['support']    },
-    { label: 'Reports',    icon: 'analytics',       link: ['reports']    },
-    { label: 'Settings',   icon: 'settings',        link: ['settings']   },
-  ];
+  /** Shared Sales entries (used as group children for mgrs, and flattened for reps) */
+  private salesChildren(): any[] {
+    return [
+      { id:'dash',           label:'Sales Dashboard',                 icon:'dashboard',      link:['dashboard'] },
+      { id:'sales-leads',    label: 'Leads',                    icon: 'person_add',    link: ['sales','leads'] },
+      { id:'sales-pipeline', label: 'Pipeline',                 icon: 'account_tree',  link: ['sales','pipeline'] },
+      { id:'sales-opps',     label: 'Prospect Opportunities',   icon: 'lightbulb',     link: ['sales','opportunities'] },
+      { id:'sales-cal',      label: 'Appointments & Events',    icon: 'event',         link: ['sales','appointments'] },
+      { id:'sales-quote',    label: 'Quote Builder',            icon: 'request_quote', link: ['sales','quote'] },
+      { id:'sales-reports',  label: 'Reports & My Performance', icon: 'analytics',     link: ['sales','reports'] },
+    ];
+  }
 
-  private canSeeSegment = (seg: string): boolean => {
-    const roles = this.roles(); const admin = this.isAdminOwner();
-    if (seg === 'dashboard' || seg === 'reports') return true;
-    switch (seg) {
-      case 'sales':     return admin || roles.has('MANAGER') || roles.has('SALES');
-      case 'inventory': return admin || roles.has('MANAGER') || roles.has('INVENTORY');
-      case 'service':   return admin || roles.has('MANAGER') || roles.has('SERVICE');
-      case 'delivery':  return admin || roles.has('MANAGER') || roles.has('DELIVERY');
-      case 'rentals':   return admin || roles.has('MANAGER') || roles.has('RENTALS');
-      case 'support':   return admin || roles.has('MANAGER') || roles.has('SUPPORT') || roles.has('CS');
-      case 'settings':  return admin || roles.has('MANAGER');
-      default:          return false;
-    }
-  };
+  /** Nav for Owner/Admin/Manager = Sales group + other top-level areas */
+  private readonly navForManagers = computed<any[]>(() => ([
+    { id:'dash',   label: 'Dashboard', icon: 'dashboard',      link: ['dashboard'] },
+    {
+      id:'sales',  label: 'Sales',     icon: 'sell',
+      children: this.salesChildren()
+    },
+    { id:'inv',    label: 'Inventory', icon: 'inventory_2',    link: ['inventory'] },
+    { id:'svc',    label: 'Service',   icon: 'build',          link: ['service'] },
+    { id:'del',    label: 'Delivery',  icon: 'local_shipping', link: ['delivery'] },
+    { id:'rent',   label: 'Rentals',   icon: 'two_wheeler',    link: ['rentals'] },
+    { id:'sup',    label: 'Support',   icon: 'support_agent',  link: ['support'] },
+    { id:'set',    label: 'Settings',  icon: 'settings',       link: ['settings'] },
+  ]));
 
-  readonly navFiltered = computed<NavItem[]>(() =>
-    this.navBase.filter(n => this.canSeeSegment(String(Array.isArray(n.link) ? n.link[0] : n.link)))
-  );
+  /** Nav for Sales Reps = all Sales items as main-level entries (requested order) + Settings */
+  private readonly navForReps = computed<any[]>(() => ([
+    ...this.salesChildren(),
+    { id:'set', label:'Settings', icon:'settings', link:['settings'] },
+  ]));
+
+  /** Final nav exposed to the side-nav component */
+  readonly navFiltered = computed<any[]>(() => {
+    const admin = this.isAdminOwner();
+    const r = this.roles();
+    if (admin || r.has('MANAGER')) return this.navForManagers();
+    if (r.has('SALES')) return this.navForReps();
+    // Fallback: minimal
+    return [
+      { id:'dash', label:'Dashboard', icon:'dashboard', link:['dashboard'] },
+      { id:'set',  label:'Settings',  icon:'settings',  link:['settings'] },
+    ];
+  });
 }

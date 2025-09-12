@@ -1,0 +1,81 @@
+<div class="controls">
+  <mat-form-field appearance="outline" color="primary" class="field">
+    <mat-label>Horizon</mat-label>
+    <mat-select [value]="horizon()" (selectionChange)="horizon.set($event.value)">
+      <mat-option value="Weeks">Weeks</mat-option>
+      <mat-option value="Months">Months</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" color="primary" class="field">
+    <mat-label>{{ horizon() === 'Weeks' ? 'Weeks' : 'Months' }}</mat-label>
+    <input matInput type="number" [value]="horizonSize()" (input)="horizonSize.set(+$any($event.target).value)" min="1" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" color="primary" class="field wide">
+    <mat-label>Team Goal ($)</mat-label>
+    <input matInput type="number" [value]="teamGoal()" (input)="teamGoal.set(+$any($event.target).value)" min="0" />
+  </mat-form-field>
+
+  <mat-slide-toggle color="primary" [checked]="seasonalityOn()" (change)="seasonalityOn.set($event.checked)">
+    Seasonality
+  </mat-slide-toggle>
+</div>
+
+<div class="grid-12">
+  <mat-card class="two-thirds light-card mat-elevation-z1">
+    <mat-card-header>
+      <mat-card-title>Projected vs Actual</mat-card-title>
+      <mat-card-subtitle class="muted">{{ timeframe }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <!-- Replace with NgApexCharts when ready -->
+      <div class="chart">
+        <div class="legend">
+          <span class="dot proj"></span> Projected
+          <span class="dot act"></span> Actual
+        </div>
+        <div class="series">
+          <div class="bar" *ngFor="let v of projectedSeries(); let i = index" [style.height.%]="(v / (teamGoal()/horizonSize()) * 80)"></div>
+          <div class="line">
+            <span class="pt" *ngFor="let v of actualSeries(); let i = index" [style.bottom.%]="(v / (teamGoal()/horizonSize()) * 80)"></span>
+          </div>
+        </div>
+        <div class="cats">
+          <span *ngFor="let c of categories()">{{ c }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="third light-card mat-elevation-z1">
+    <mat-card-header><mat-card-title>Summary</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <div class="summary">
+        <div><span class="muted">Projected:</span> <b>{{ currency(cumulative().proj.at(-1) ?? 0) }}</b></div>
+        <div><span class="muted">Actual:</span> <b>{{ currency(cumulative().act.at(-1) ?? 0) }}</b></div>
+        <div><span class="muted">Gap:</span> <b>{{ currency((cumulative().proj.at(-1) ?? 0) - (cumulative().act.at(-1) ?? 0)) }}</b></div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="full light-card mat-elevation-z1">
+    <mat-card-header><mat-card-title>Attainment by Owner</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <div class="crm-table">
+        <div class="crm-row crm-head">
+          <div>Owner</div><div class="right">Target</div><div class="right">Actual</div><div class="right">% Attain</div>
+        </div>
+        <div class="crm-row" *ngFor="let r of attainment()">
+          <div>{{ r.owner }}</div>
+          <div class="right">{{ currency(r.target) }}</div>
+          <div class="right">{{ currency(r.actual) }}</div>
+          <div class="right">
+            <span class="pct">{{ r.pct }}%</span>
+            <span class="bar"><i [style.width.%]="r.pct"></i></span>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

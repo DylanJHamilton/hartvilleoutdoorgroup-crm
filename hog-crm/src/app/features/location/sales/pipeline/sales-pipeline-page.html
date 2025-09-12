@@ -1,0 +1,136 @@
+<section class="page">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="breadcrumb">Location / {{ storeName() }} / Sales / Pipeline</div>
+      <h1 class="title">Pipeline — {{ storeName() }}</h1>
+    </div>
+  </div>
+
+  <!-- Filters row: one line, no wrap -->
+  <div class="filters-row nowrap light">
+    <!-- Timeframe -->
+  <mat-form-field appearance="outline" color="primary" class="filter-field"
+                  floatLabel="always" subscriptSizing="dynamic">
+    <mat-label>Timeframe</mat-label>
+    <mat-select [value]="timeframe()" (selectionChange)="setTF($event.value)">
+      <mat-option *ngFor="let tf of timeframes" [value]="tf">{{ tf }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- Search -->
+  <mat-form-field appearance="outline" color="primary" class="filter-field grow"
+                  floatLabel="always" subscriptSizing="dynamic">
+    <mat-label>Search</mat-label>
+    <input matInput placeholder="Customer, title, pipeline, value"
+          [value]="q()" (input)="q.set($any($event.target).value)">
+  </mat-form-field>
+
+  <!-- Pipeline -->
+  <mat-form-field appearance="outline" color="primary" class="filter-field"
+                  floatLabel="always" subscriptSizing="dynamic">
+    <mat-label>Pipeline</mat-label>
+    <mat-select [value]="pipe()" (selectionChange)="pipe.set($event.value)">
+      <mat-option *ngFor="let p of pipes()" [value]="p">{{ p }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <!-- Stage -->
+  <mat-form-field appearance="outline" color="primary" class="filter-field"
+                  floatLabel="always" subscriptSizing="dynamic">
+    <mat-label>Stage</mat-label>
+    <mat-select [value]="stage()" (selectionChange)="stage.set($event.value)">
+      <mat-option *ngFor="let s of stagesAll" [value]="s">{{ s }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+    <button mat-stroked-button color="primary" class="refresh-btn" (click)="refresh()">
+      <mat-icon>refresh</mat-icon>&nbsp;Refresh
+    </button>
+  </div>
+
+  <!-- Kanban board: SINGLE ROW, 5 columns (no wrap). Horizontal scroll if needed. -->
+  <div class="board one-row" cdkDropListGroup>
+    <div
+      class="col"
+      *ngFor="let col of filteredByStage()"
+      cdkDropList
+      [id]="stageIds[col.stage]"
+      [cdkDropListData]="col.cards"
+      [cdkDropListConnectedTo]="connectedIds"
+      (cdkDropListDropped)="drop($event, col.stage)"
+    >
+      <div class="col-head">
+        <span class="title">{{ col.stage }}</span>
+        <span class="count">{{ col.cards.length }}</span>
+      </div>
+
+      <div
+        class="card"
+        *ngFor="let c of col.cards"
+        cdkDrag
+        (dblclick)="openCard(c)"
+      >
+        <div class="row">
+          <div class="title">{{ c.title }}</div>
+          <span class="value">{{ (c.value | currency:'USD':'symbol') ?? '' }}</span>
+        </div>
+        <div class="muted">{{ c.customer }}</div>
+        <div class="meta">
+          <span class="chip" [class.blue]="c.pipeline==='Golf Carts'"
+                [class.green]="c.pipeline==='Sheds'">{{ c.pipeline }}</span>
+          <span class="chip gray">{{ c.owner }}</span>
+          <span class="age">{{ c.age }}d</span>
+        </div>
+
+        <!-- Manager/Admin -->
+        <div class="actions" *ngIf="!isSales(); else repActions">
+          <button mat-stroked-button (click)="reassign(c)">Reassign</button>
+          <mat-form-field appearance="outline" class="move">
+            <mat-select [value]="c.stage" (selectionChange)="moveStage(c, $event.value)">
+              <mat-option *ngFor="let s of stagesNoAll" [value]="s">{{ s }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <span class="spacer"></span>
+          <button mat-stroked-button color="primary" (click)="openCard(c)">Open</button>
+        </div>
+
+        <!-- Sales -->
+        <ng-template #repActions>
+          <div class="actions">
+            <button mat-stroked-button color="primary" (click)="callLead(c)">Call</button>
+            <button mat-stroked-button (click)="quoteLead(c)">Quote</button>
+            <span class="spacer"></span>
+            <button mat-stroked-button color="primary" (click)="openCard(c)">Open</button>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI row (below board) -->
+  <div class="grid-12 kpi-strip">
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Total Sales ({{ timeframe() }})"
+      [value]="(((wonTotal() ?? 0) | currency:'USD':'symbol') ?? '')"
+      [delta]="0" icon="paid">
+    </hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="Orders"
+      [value]="(orders())"
+      [delta]="0" icon="shopping_cart">
+    </hog-stat-card>
+
+    <hog-stat-card class="kpi light-card mat-elevation-z1"
+      label="AOV"
+      [value]="(((aov() ?? 0) | currency:'USD':'symbol') ?? '')"
+      [delta]="0" icon="receipt_long">
+    </hog-stat-card>
+
+    <mat-card class="kpi light-card mat-elevation-z1">
+      <mat-card-header><mat-card-title>Forecast</mat-card-title></mat-card-header>
+      <mat-card-content><div [hogChart]="forecastChart()"></div></mat-card-content>
+    </mat-card>
+  </div>
+</section>

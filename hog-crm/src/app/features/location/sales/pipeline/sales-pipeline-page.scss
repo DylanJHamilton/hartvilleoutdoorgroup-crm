@@ -1,0 +1,196 @@
+:host { display:block; }
+
+.page { display:flex; flex-direction:column; gap:12px; padding: 8px; }
+.header .breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+.header .title { margin:4px 0 0; font: 600 22px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+
+/* ===== Filters: single line, no wrap ===== */
+.filters-row {
+  display:flex; align-items:center; gap:12px;
+  &.nowrap { flex-wrap: nowrap; overflow-x: auto; }
+  .filter-field { width: 200px; }
+  .filter-field.grow { flex: 1 1 auto; min-width: 320px; }
+  .refresh-btn mat-icon { font-size:18px; width:18px; height:18px; }
+}
+
+/* ===== Board: SINGLE ROW (no wrapping), fixed to 5 columns ===== */
+.board.one-row {
+  display:flex;
+  gap:12px;
+  overflow-x:auto;           /* scroll horizontally if viewport too narrow */
+  padding-bottom: 4px;
+}
+
+/* Exactly 5 columns wide across the viewport.
+   Each column takes 1/5 minus total gaps (4 gaps * 12px).
+   On narrow screens, horizontal scroll kicks in. */
+.board.one-row .col {
+  flex: 0 0 calc((100% - 48px) / 5); /* 48 = 12*4 gaps between 5 cols */
+  min-width: 320px;                  /* keeps column readable on narrow screens */
+  background:#fff; border:1px solid #eee; border-radius:12px;
+}
+
+/* Column header */
+.col-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; border-bottom:1px solid #f0f0f0; font-weight:600;
+}
+.col-head .count { font-size:12px; color:#666; background:#f6f7fb; border:1px solid #e8eaf3; padding:2px 8px; border-radius:999px; }
+
+/* Cards */
+.card {
+  margin:10px; padding:12px; border:1px solid #ececec; border-radius:12px; background:#fff;
+  display:flex; flex-direction:column; gap:8px; cursor:default;
+}
+.card .row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.card .row .title { font:600 14px/1.2 system-ui; }
+.card .row .value { font:700 14px/1 system-ui; }
+.card .muted { color:#666; font-size:12px; }
+.card .meta { display:flex; align-items:center; gap:8px; }
+.card .chip { padding:2px 8px; border-radius:999px; font-size:11px; border:1px solid #e2e8ff; background:#eef3ff; }
+.card .chip.gray { background:#f3f3f3; border-color:#e5e5e5; }
+.card .chip.blue { background:#eef5ff; border-color:#d6e4ff; }
+.card .chip.green { background:#eefaf1; border-color:#d9f0df; }
+.card .age { margin-left:auto; font-size:11px; color:#777; }
+.card .actions { display:flex; align-items:center; gap:10px; margin-top:4px; }
+.card .actions .spacer { flex:1; }
+.card .actions .move { width: 168px; }
+
+/* KPI strip */
+.grid-12.kpi-strip {
+  display:grid; grid-template-columns: repeat(12, 1fr); gap:12px; margin-top:4px;
+}
+.kpi { grid-column: span 3; }
+.kpi.wide { grid-column: span 6; }
+.light-card { background:#fff; color:#111; }
+
+/* Disable previous responsive column collapsing:
+   keep one-row, let horizontal scroll handle small screens. */
+
+/* ---- Fix: Material outline labels clipped in nowrap/scroll row ---- */
+.filters-row.nowrap {
+  /* let floating labels render outside the wrapper */
+  .mat-mdc-text-field-wrapper { overflow: visible; }
+
+  /* ensure the notch can expand to fit the label */
+  .mdc-notched-outline__notch { max-width: 100% !important; }
+
+  /* keep a consistent control height */
+  .mat-mdc-form-field { min-height: 56px; }
+
+  /* optional: hide helper/error space to keep row tight */
+  .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
+/* ===== Filters toolbar: filled fields styled like outlined chips (component-scoped) ===== */
+:host ::ng-deep .filters-row.nowrap {
+  /* Ensure single-line toolbar */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+
+  .filter-field { width: 200px; }
+  .filter-field.grow { flex: 1 1 auto; min-width: 420px; }
+}
+
+/* Style the filled fields to look outlined + prevent any label clipping */
+:host ::ng-deep .filters-row.nowrap .mat-mdc-form-field-appearance-fill {
+  .mat-mdc-text-field-wrapper {
+    /* mimic an outlined chip */
+    background: #fff !important;
+    border: 1px solid #cfe0ff !important;
+    border-radius: 10px !important;
+
+    /* fixed compact height for toolbar */
+    height: 48px;
+  }
+
+  /* remove the default fill overlay tint */
+  .mat-mdc-form-field-focus-overlay { background: transparent !important; }
+
+  /* center content vertically and give room for the always-floating label */
+  .mat-mdc-form-field-flex { align-items: center; }
+  .mat-mdc-form-field-infix { padding: 8px 12px !important; }
+
+  /* stable, readable floating labels */
+  .mat-mdc-floating-label {
+    color: #1e40af !important;           /* blue label */
+    transform: translateY(-1.4em) scale(0.75) !important; /* explicit, no clipping */
+    transform-origin: left top !important;
+    pointer-events: none;
+  }
+
+  /* inputs/selects typography & color */
+  .mat-mdc-input-element,
+  .mat-mdc-select-min-line { color: #0f172a !important; }  /* slate-900 */
+  .mat-mdc-form-field-subscript-wrapper { display: none !important; } /* tighter row */
+}
+
+/* Make the select trigger align like inputs */
+:host ::ng-deep .filters-row.nowrap .mat-mdc-form-field-appearance-fill .mat-mdc-select {
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+/* ===== Force light theme for filters in this component only ===== */
+:host ::ng-deep .filters-row.light {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+  border-radius: 12px;
+}
+
+/* Apply light tokens to MDC filled fields (inputs + selects) */
+:host ::ng-deep .filters-row.light .mat-mdc-form-field {
+  /* Core MDC variables for filled text-field */
+  --mdc-filled-text-field-container-color: #ffffff;
+  --mdc-filled-text-field-focus-active-indicator-color: #1e40af;
+  --mdc-filled-text-field-active-indicator-color: #1e40af;
+  --mdc-filled-text-field-hover-active-indicator-color: #1e40af;
+  --mdc-filled-text-field-label-text-color: #1e40af;
+  --mdc-filled-text-field-focus-label-text-color: #1e40af;
+  --mdc-filled-text-field-input-text-color: #0f172a;
+  --mdc-filled-text-field-caret-color: #1e40af;
+  --mdc-theme-text-primary-on-background: #0f172a;
+  --mdc-theme-primary: #1e40af;
+
+  /* Mat Select token helpers */
+  --mat-select-enabled-trigger-text-color: #0f172a;
+  --mat-select-enabled-arrow-color: #1e40af;
+  --mat-select-panel-background-color: #ffffff;
+}
+
+/* Make the wrappers actually render white, not overlay-tinted */
+:host ::ng-deep .filters-row.light .mat-mdc-form-field-appearance-fill {
+  .mat-mdc-text-field-wrapper {
+    background: #ffffff !important;
+    border: 1px solid #cfe0ff !important;
+    border-radius: 10px !important;
+    height: 48px;
+  }
+  .mat-mdc-form-field-focus-overlay { background: transparent !important; }
+  .mat-mdc-form-field-infix { padding: 8px 12px !important; }
+  .mat-mdc-floating-label {
+    color: #1e40af !important;
+    transform: translateY(-1.4em) scale(0.75) !important;
+    transform-origin: left top !important;
+  }
+  .mat-mdc-input-element,
+  .mat-mdc-select-min-line { color: #0f172a !important; }
+  .mat-mdc-form-field-subscript-wrapper { display: none !important; }
+}
+
+/* Select arrow + icon colors */
+:host ::ng-deep .filters-row.light .mat-mdc-select-arrow svg { fill: #1e40af !important; }
+:host ::ng-deep .filters-row.light .mat-mdc-select-value,
+:host ::ng-deep .filters-row.light .mat-mdc-select-min-line { color: #0f172a !important; }
+
+/* Keep the single-line layout sizes */
+:host ::ng-deep .filters-row.light.nowrap {
+  display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; overflow-x: auto;
+  .filter-field { width: 200px; }
+  .filter-field.grow { flex: 1 1 auto; min-width: 420px; }
+}

@@ -1,0 +1,47 @@
+:host { display:block; }
+.page { display:flex; flex-direction:column; gap:16px; padding:16px; background:#f6f7fb; }
+.header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+
+.breadcrumb { font-size:12px; color:rgba(0,0,0,.54); }
+.title { font:600 22px/1.2 system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial; margin:4px 0; }
+.subtitle { color:rgba(0,0,0,.60); font-size:13px; }
+
+.filters {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:#ffffff; border:1px solid #e5e7eb; border-radius:12px;
+  padding:8px 12px; box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.filters .filter-field { min-width:200px; }
+
+.grid-12 { display:grid; gap:16px; grid-template-columns:repeat(12,1fr); }
+.kpi { grid-column: span 3; }
+.half { grid-column: span 6; }
+.third { grid-column: span 4; }
+.light-card { background:#fff; border-radius:12px; }
+.muted { color: rgba(0,0,0,.54); }
+.big { font-size:28px; font-weight:700; }
+
+@media (max-width: 1200px) {
+  .kpi { grid-column: span 6; }
+  .half, .third { grid-column: span 12; }
+}
+
+/* Tabs: active = blue label + blue underline; inactive = dark text */
+:host ::ng-deep .hog-tabs .mdc-tab__text-label {
+  color: #0f172a;       /* dark text for inactive tabs */
+  opacity: 1;           /* override Material's dimmed inactive label */
+  font-weight: 600;
+}
+
+:host ::ng-deep .hog-tabs .mdc-tab--active .mdc-tab__text-label {
+  color: #2563eb;       /* blue-600/700-ish for active tab text */
+}
+
+:host ::ng-deep .hog-tabs .mdc-tab-indicator__content--underline {
+  border-color: #2563eb; /* active underline in blue */
+}
+
+:host ::ng-deep .hog-tabs .mdc-tab:hover .mdc-tab__text-label {
+  color: #1d4ed8;       /* hover = slightly brighter blue */
+}
+

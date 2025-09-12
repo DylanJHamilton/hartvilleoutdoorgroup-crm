@@ -1,0 +1,17 @@
+.grid-12 { display:grid; grid-template-columns: repeat(12, 1fr); gap:16px; }
+.third { grid-column: span 4; }
+@media (max-width: 1200px) { .third { grid-column: 1 / -1; } }
+
+.light-card { background:#fff; color:#0f172a; border-radius:12px; }
+.muted { color: rgba(0,0,0,.56); }
+.center { text-align:center; }
+
+.ring {
+  width: 140px; height: 140px; margin: 0 auto 8px;
+  border-radius: 50%;
+  background:
+    conic-gradient(#2563eb calc(var(--p, 0) * 1%), #e5edff 0);
+  display:flex; align-items:center; justify-content:center;
+  --p: 70; /* fallback */
+}
+.pct { font-weight:700; color:#1d4ed8; }
