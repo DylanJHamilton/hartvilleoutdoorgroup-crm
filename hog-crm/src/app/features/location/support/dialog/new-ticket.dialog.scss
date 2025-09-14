@@ -1,0 +1,81 @@
+:host {
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --slate-900: #0f172a;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --border: #e2e8f0;
+  --surface: #ffffff;
+}
+
+/* Make the dialog surface white when opened with panelClass: 'hog-dialog-panel' */
+:host ::ng-deep .hog-dialog-panel .mat-mdc-dialog-container .mdc-dialog__surface {
+  background: var(--surface) !important;
+  color: var(--slate-900) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, .25) !important;
+}
+
+/* Layout */
+.dlg { min-width: 520px; max-width: 640px; display: flex; flex-direction: column; }
+.dlg-header { padding: 16px 20px 8px; border-bottom: 1px solid var(--border); }
+.dlg-header h2 { margin: 0; font-size: 20px; font-weight: 700; color: var(--slate-900); }
+
+.dlg-body { padding: 16px 20px; display: grid; gap: 12px; background: var(--surface); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.w-full { width: 100%; }
+
+/* Sticky footer */
+.dlg-footer {
+  position: sticky; bottom: 0;
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 12px 20px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 1;
+}
+
+/* Material fields: white, compact, readable labels */
+:host ::ng-deep .hog-dialog-panel .mat-mdc-form-field { margin: 0 !important; }
+:host ::ng-deep .hog-dialog-panel .mat-mdc-text-field-wrapper { background: var(--surface) !important; }
+:host ::ng-deep .hog-dialog-panel .mat-mdc-form-field-infix { color: var(--slate-900) !important; }
+:host ::ng-deep .hog-dialog-panel .mat-mdc-floating-label { color: var(--slate-700) !important; }
+:host ::ng-deep .hog-dialog-panel input.mat-mdc-input-element,
+:host ::ng-deep .hog-dialog-panel textarea.mat-mdc-input-element { color: var(--slate-900) !important; }
+
+:host ::ng-deep .hog-dialog-panel .mdc-notched-outline__leading,
+:host ::ng-deep .hog-dialog-panel .mdc-notched-outline__notch,
+:host ::ng-deep .hog-dialog-panel .mdc-notched-outline__trailing { border-color: var(--border) !important; }
+:host ::ng-deep .hog-dialog-panel .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+:host ::ng-deep .hog-dialog-panel .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+:host ::ng-deep .hog-dialog-panel .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing { border-color: var(--blue-600) !important; }
+
+/* Select trigger + arrow colors */
+:host ::ng-deep .hog-dialog-panel .mat-mdc-select-value { color: var(--slate-900) !important; }
+:host ::ng-deep .hog-dialog-panel .mat-mdc-select-arrow { color: var(--slate-600) !important; }
+
+/* Buttons */
+:host ::ng-deep .hog-dialog-panel .mat-mdc-button { color: var(--slate-700) !important; }
+:host ::ng-deep .hog-dialog-panel .mat-mdc-raised-button.mat-primary {
+  background: var(--blue-600) !important; color: #fff !important;
+}
+:host ::ng-deep .hog-dialog-panel .mat-mdc-raised-button.mat-primary.mat-mdc-button-disabled {
+  background: #e5e7eb !important; color: #94a3b8 !important;
+}
+
+/* Backdrop slightly lighter so white dialog pops */
+:host ::ng-deep .cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  background: rgba(15, 23, 42, .5) !important;
+}
+
+@media (max-width: 600px) {
+  .dlg { min-width: 0; width: 100%; }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+
+.btnAction.mat-mdc-button:not(:disabled){
+    color:#2563eb !important;
+}
+ 
+.dlg-header{background-color: #2563eb;}

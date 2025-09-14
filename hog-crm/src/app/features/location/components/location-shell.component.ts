@@ -122,7 +122,7 @@ export class LocationShellComponent {
     ];
   }
 
-  /** NEW: Customers group with child entries */
+  /** Customers group with child entries */
   private customersGroup() {
     return {
       id: 'customers',
@@ -131,7 +131,20 @@ export class LocationShellComponent {
       children: [
         { id:'cust-dash', label:'Dashboard', icon:'insights', link:['customers','dashboard'] },
         { id:'cust-list', label:'List',      icon:'list',     link:['customers'] },
-        { id:'cust-conv', label:'Conversations', icon:'forum',    link:['customers','conversations'] }, // <-- new
+        { id:'cust-conv', label:'Conversations', icon:'forum', link:['customers','conversations'] },
+      ]
+    };
+  }
+
+  /** 🔹 Support group with child entries (Dashboard + Tickets) */
+  private supportGroup() {
+    return {
+      id: 'support',
+      label: 'Support',
+      icon: 'support_agent',
+      children: [
+        { id:'sup-dash',    label:'Dashboard', icon:'dashboard', link:['support'] },
+        { id:'sup-tickets', label:'Tickets',   icon:'confirmation_number', link:['support','tickets'] },
       ]
     };
   }
@@ -139,7 +152,7 @@ export class LocationShellComponent {
   /** Nav for Owner/Admin/Manager = Dashboard, Customers (group), Sales group, then others */
   private readonly navForManagers = computed<any[]>(() => ([
     { id:'dash',   label:'Dashboard', icon:'dashboard', link:['dashboard'] },
-    this.customersGroup(), // <-- Customers directly after Dashboard
+    this.customersGroup(),
     {
       id:'sales',  label:'Sales',     icon:'sell',
       children: this.salesChildren()
@@ -148,14 +161,14 @@ export class LocationShellComponent {
     { id:'svc',    label:'Service',   icon:'build',          link:['service'] },
     { id:'del',    label:'Delivery',  icon:'local_shipping', link:['delivery'] },
     { id:'rent',   label:'Rentals',   icon:'two_wheeler',    link:['rentals'] },
-    { id:'sup',    label:'Support',   icon:'support_agent',  link:['support'] },
+    this.supportGroup(), // <-- Support as a grouped section
     { id:'set',    label:'Settings',  icon:'settings',       link:['settings'] },
   ]));
 
   /** Nav for Sales Reps = Dashboard, Customers (group), then Sales items + Settings */
   private readonly navForReps = computed<any[]>(() => ([
     { id:'dash',  label:'Dashboard', icon:'dashboard', link:['dashboard'] },
-    this.customersGroup(), // <-- Customers group for reps too
+    this.customersGroup(),
     ...this.salesChildren(),
     { id:'set',   label:'Settings',  icon:'settings',  link:['settings'] },
   ]));

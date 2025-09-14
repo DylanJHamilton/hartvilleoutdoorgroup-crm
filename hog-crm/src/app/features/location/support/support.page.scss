@@ -1,0 +1,145 @@
+/* support.page.scss */
+:host {
+  /* palette: blue accents, slate text, white surfaces */
+  --hog-blue-600: #2563eb;
+  --hog-blue-700: #1d4ed8;
+  --hog-slate-900: #0f172a;
+  --hog-slate-700: #334155;
+  --hog-slate-500: #64748b;
+  --hog-border:    #e2e8f0;
+  --hog-card:      #ffffff;
+
+  display: block;
+  color: var(--hog-slate-900);
+}
+
+/* ---------- KPI ROW (one row on md+, wraps on small) ---------- */
+.kpis,
+section.kpis {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 768px) {
+  .kpis,
+  section.kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.kpi {
+  background: var(--hog-card);
+  border: 1px solid var(--hog-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+.kpi.warn { border-color: #fecaca; }
+.kpi-num   { font-size: 22px; font-weight: 700; color: var(--hog-slate-900); line-height: 1; }
+.kpi-label { color: var(--hog-slate-500); font-size: 13px; margin-top: 4px; }
+
+/* ---------- TEAM PERFORMANCE CARD PADDING ---------- */
+.team-card .card-header { margin-bottom: 8px; }
+.team-card.mat-mdc-card, .team-card {
+  padding: 12px 16px !important;
+  background: var(--hog-card);
+  border: 1px solid var(--hog-border);
+  border-radius: 14px;
+}
+
+/* ---------- SEARCH FIELD (single, clean) ---------- */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.filters .w-full,
+.filters .mat-mdc-form-field { flex: 1 1 auto; }
+
+.filters .mat-mdc-form-field {
+  /* make outline field pop on white */
+  --mdc-outlined-text-field-outline-color: var(--hog-border);
+  --mdc-outlined-text-field-focus-outline-color: var(--hog-blue-600);
+  --mdc-outlined-text-field-label-text-color: var(--hog-slate-700);
+  --mdc-outlined-text-field-focus-label-text-color: var(--hog-blue-700);
+  --mdc-outlined-text-field-input-text-color: var(--hog-slate-900);
+  background: var(--hog-card);
+  border-radius: 12px;
+}
+
+/* space for the 'Clear' button to breathe */
+.filters .mat-mdc-button-base {
+  height: 40px;
+  border-color: var(--hog-blue-600);
+  color: var(--hog-blue-700);
+}
+
+/* ---------- TABLE: white surface, dark body text, primary header ---------- */
+.table-elevated {
+  background: var(--hog-card);
+  border: 1px solid var(--hog-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+
+/* header bar in primary; white text */
+.table-header th,
+.table-elevated .mat-mdc-table thead th.mat-mdc-header-cell {
+  background: var(--hog-blue-600) !important;
+  color: #fff !important;
+  font-weight: 700;
+  border-bottom: none;
+}
+
+/* body cells: DARK text, subtle row separators */
+:host ::ng-deep .mat-mdc-table .mdc-data-table__content .mdc-data-table__row .mdc-data-table__cell,
+:host ::ng-deep td.mat-mdc-cell {
+  color: var(--hog-slate-900) !important;
+  background: var(--hog-card) !important;
+  border-bottom: 1px solid var(--hog-border) !important;
+  font-size: 14px;
+}
+
+/* first column ID can be a bit bolder */
+:host ::ng-deep td.mat-mdc-cell:first-child { font-weight: 600; }
+
+/* hover state */
+:host ::ng-deep .mat-mdc-table .mdc-data-table__row:hover td {
+  background: #f8fafc !important;
+}
+
+/* link styling inside cells */
+:host ::ng-deep .mat-mdc-table a {
+  color: var(--hog-blue-700);
+  text-decoration: none;
+}
+:host ::ng-deep .mat-mdc-table a:hover { text-decoration: underline; }
+
+/* paginator bar: keep white & dark text */
+:host ::ng-deep .mat-mdc-paginator {
+  background: var(--hog-card) !important;
+  color: var(--hog-slate-900) !important;
+  border-top: 1px solid var(--hog-border);
+}
+
+/* ---------- STATUS CHIPS ---------- */
+.chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #e2e8f0;
+  color: var(--hog-slate-900);
+}
+.chip-open     { background: #dbeafe; color: #1e40af; }
+.chip-pending  { background: #fff7ed; color: #9a3412; }
+.chip-resolved { background: #dcfce7; color: #166534; }
+
+/* ---------- TYPOGRAPHY ---------- */
+h1 { color: var(--hog-slate-900); }
+.card-header h2 { margin: 0; font-size: 16px; font-weight: 700; color: var(--hog-slate-900); }
+.stat-row { color: var(--hog-slate-700); }
+.muted { color: var(--hog-slate-500); }
+
+/* ---------- SPACING UTILITIES ---------- */
+.space-y-6 > * + * { margin-top: 1.5rem; }
