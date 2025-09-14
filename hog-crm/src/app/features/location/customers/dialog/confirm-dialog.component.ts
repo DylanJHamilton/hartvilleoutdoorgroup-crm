@@ -1,4 +1,4 @@
-// src/app/features/store/customers/confirm-dialog.component.ts
+// src/app/features/location/customers/confirm-dialog.component.ts
 import { Component, Inject, Optional, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -22,11 +22,8 @@ type ConfirmData = { title?: string; message?: string };
   `
 })
 export class ConfirmDialogComponent {
-  // Works even if someone uses <hog-confirm-dialog> directly in a template
   @Input() title = 'Confirm';
   @Input() message = 'Are you sure?';
-
-  // Emits when not used via MatDialog (fallback)
   @Output() confirmed = new EventEmitter<boolean>();
 
   constructor(
@@ -39,12 +36,6 @@ export class ConfirmDialogComponent {
     }
   }
 
-  cancel() {
-    if (this.ref) this.ref.close(false);
-    else this.confirmed.emit(false);
-  }
-  ok() {
-    if (this.ref) this.ref.close(true);
-    else this.confirmed.emit(true);
-  }
+  cancel() { if (this.ref) this.ref.close(false); else this.confirmed.emit(false); }
+  ok()     { if (this.ref) this.ref.close(true);  else this.confirmed.emit(true); }
 }

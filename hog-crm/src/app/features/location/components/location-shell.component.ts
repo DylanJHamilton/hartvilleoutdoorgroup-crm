@@ -112,35 +112,52 @@ export class LocationShellComponent {
   /** Shared Sales entries (used as group children for mgrs, and flattened for reps) */
   private salesChildren(): any[] {
     return [
-      { id:'dash',           label:'Sales Dashboard',                 icon:'dashboard',      link:['dashboard'] },
-      { id:'sales-leads',    label: 'Leads',                    icon: 'person_add',    link: ['sales','leads'] },
-      { id:'sales-pipeline', label: 'Pipeline',                 icon: 'account_tree',  link: ['sales','pipeline'] },
-      { id:'sales-opps',     label: 'Prospect Opportunities',   icon: 'lightbulb',     link: ['sales','opportunities'] },
-      { id:'sales-cal',      label: 'Appointments & Events',    icon: 'event',         link: ['sales','appointments'] },
-      { id:'sales-quote',    label: 'Quote Builder',            icon: 'request_quote', link: ['sales','quote'] },
-      { id:'sales-reports',  label: 'Reports & My Performance', icon: 'analytics',     link: ['sales','reports'] },
+      { id:'dash',           label:'Sales Dashboard',           icon:'dashboard',      link:['dashboard'] },
+      { id:'sales-leads',    label:'Leads',                     icon:'person_add',     link:['sales','leads'] },
+      { id:'sales-pipeline', label:'Pipeline',                  icon:'account_tree',   link:['sales','pipeline'] },
+      { id:'sales-opps',     label:'Prospect Opportunities',    icon:'lightbulb',      link:['sales','opportunities'] },
+      { id:'sales-cal',      label:'Appointments & Events',     icon:'event',          link:['sales','appointments'] },
+      { id:'sales-quote',    label:'Quote Builder',             icon:'request_quote',  link:['sales','quote'] },
+      { id:'sales-reports',  label:'Reports & My Performance',  icon:'analytics',      link:['sales','reports'] },
     ];
   }
 
-  /** Nav for Owner/Admin/Manager = Sales group + other top-level areas */
+  /** NEW: Customers group with child entries */
+  private customersGroup() {
+    return {
+      id: 'customers',
+      label: 'Customers',
+      icon: 'groups',
+      children: [
+        { id:'cust-dash', label:'Dashboard', icon:'insights', link:['customers','dashboard'] },
+        { id:'cust-list', label:'List',      icon:'list',     link:['customers'] },
+        { id:'cust-conv', label:'Conversations', icon:'forum',    link:['customers','conversations'] }, // <-- new
+      ]
+    };
+  }
+
+  /** Nav for Owner/Admin/Manager = Dashboard, Customers (group), Sales group, then others */
   private readonly navForManagers = computed<any[]>(() => ([
-    { id:'dash',   label: 'Dashboard', icon: 'dashboard',      link: ['dashboard'] },
+    { id:'dash',   label:'Dashboard', icon:'dashboard', link:['dashboard'] },
+    this.customersGroup(), // <-- Customers directly after Dashboard
     {
-      id:'sales',  label: 'Sales',     icon: 'sell',
+      id:'sales',  label:'Sales',     icon:'sell',
       children: this.salesChildren()
     },
-    { id:'inv',    label: 'Inventory', icon: 'inventory_2',    link: ['inventory'] },
-    { id:'svc',    label: 'Service',   icon: 'build',          link: ['service'] },
-    { id:'del',    label: 'Delivery',  icon: 'local_shipping', link: ['delivery'] },
-    { id:'rent',   label: 'Rentals',   icon: 'two_wheeler',    link: ['rentals'] },
-    { id:'sup',    label: 'Support',   icon: 'support_agent',  link: ['support'] },
-    { id:'set',    label: 'Settings',  icon: 'settings',       link: ['settings'] },
+    { id:'inv',    label:'Inventory', icon:'inventory_2',    link:['inventory'] },
+    { id:'svc',    label:'Service',   icon:'build',          link:['service'] },
+    { id:'del',    label:'Delivery',  icon:'local_shipping', link:['delivery'] },
+    { id:'rent',   label:'Rentals',   icon:'two_wheeler',    link:['rentals'] },
+    { id:'sup',    label:'Support',   icon:'support_agent',  link:['support'] },
+    { id:'set',    label:'Settings',  icon:'settings',       link:['settings'] },
   ]));
 
-  /** Nav for Sales Reps = all Sales items as main-level entries (requested order) + Settings */
+  /** Nav for Sales Reps = Dashboard, Customers (group), then Sales items + Settings */
   private readonly navForReps = computed<any[]>(() => ([
+    { id:'dash',  label:'Dashboard', icon:'dashboard', link:['dashboard'] },
+    this.customersGroup(), // <-- Customers group for reps too
     ...this.salesChildren(),
-    { id:'set', label:'Settings', icon:'settings', link:['settings'] },
+    { id:'set',   label:'Settings',  icon:'settings',  link:['settings'] },
   ]));
 
   /** Final nav exposed to the side-nav component */
@@ -149,9 +166,10 @@ export class LocationShellComponent {
     const r = this.roles();
     if (admin || r.has('MANAGER')) return this.navForManagers();
     if (r.has('SALES')) return this.navForReps();
-    // Fallback: minimal
+    // Fallback: minimal (still show Customers group)
     return [
       { id:'dash', label:'Dashboard', icon:'dashboard', link:['dashboard'] },
+      this.customersGroup(),
       { id:'set',  label:'Settings',  icon:'settings',  link:['settings'] },
     ];
   });

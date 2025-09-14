@@ -858,3 +858,9 @@ body.dark .user-settings {
 .hog-dialog .mat-mdc-select-arrow { color:#0f172a !important; }
 .hog-dialog .mdc-floating-label,
 .hog-dialog .mdc-floating-label--float-above { color:#334155 !important; }
+.mat-mdc-dialog-container .mat-mdc-dialog-title+.mat-mdc-dialog-content{ padding-top: 10px !Important; } //fix padding annoyance 
+.mdc-text-field--outlined .mdc-notched-outline{padding-top: 10px !important; } //fix padding annoyance
+/* Hide subscript space on compact filter rows */
+.filters .mat-mdc-form-field-subscript-wrapper {
+  display: none;              // no hint/errors in filters anyway
+}

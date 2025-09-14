@@ -81,6 +81,17 @@ export const LOCATION_ROUTES: Routes = [
           // Add more children later: deals, documents, performance, prospecting, tasks
         ],
       },
+      // Customers (nested)
+      {
+        path: 'customers',
+        children: [
+          { path: '', loadComponent: () => import('./customers/customers.page').then(m => m.CustomersPage), title: 'Customers' },
+          { path: 'dashboard', loadComponent: () => import('./customers/dashboard/customer-dashboard.page').then(m => m.CustomersDashboardPage), title: 'Customers Dashboard' },
+          { path: 'conversations', loadComponent: () => import('./customers/conversations/customer-conversations.page').then(m => m.CustomersConversationsPage), title: 'Conversations' },
+          { path: ':id', loadComponent: () => import('./customers/customer-detail/customer-detail.page').then(m => m.CustomerDetailPage), title: 'Customer' },
+        ]
+      },
+
 
       { path: 'inventory', loadComponent: () => import('./inventory/inventory.page').then(m => m.InventoryPage), title: 'Inventory' },
       { path: 'service',   loadComponent: () => import('./service/service.page').then(m => m.ServicePage),       title: 'Service' },
