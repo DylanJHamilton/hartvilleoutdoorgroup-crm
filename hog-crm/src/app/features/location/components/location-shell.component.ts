@@ -98,7 +98,9 @@ export class LocationShellComponent {
     return full || u?.name || 'User';
   });
 
+  /** Link to User Settings page (location-scoped). */
   settingsLink = computed<any[]>(() => ['/location', this.locationId(), 'settings']);
+
   signOut() { try { (this.auth as any)?.signOut?.(); } catch {} this.router.navigateByUrl('/auth/login'); }
 
   // ---- role-aware nav
@@ -149,7 +151,7 @@ export class LocationShellComponent {
     };
   }
 
-  /** Nav for Owner/Admin/Manager = Dashboard, Customers (group), Sales group, then others */
+  /** Nav for Owner/Admin/Manager (Settings appended last) */
   private readonly navForManagers = computed<any[]>(() => ([
     { id:'dash',   label:'Dashboard', icon:'dashboard', link:['dashboard'] },
     this.customersGroup(),
@@ -157,33 +159,45 @@ export class LocationShellComponent {
       id:'sales',  label:'Sales',     icon:'sell',
       children: this.salesChildren()
     },
+    this.supportGroup(),
     { id:'inv',    label:'Inventory', icon:'inventory_2',    link:['inventory'] },
     { id:'svc',    label:'Service',   icon:'build',          link:['service'] },
     { id:'del',    label:'Delivery',  icon:'local_shipping', link:['delivery'] },
     { id:'rent',   label:'Rentals',   icon:'two_wheeler',    link:['rentals'] },
-    this.supportGroup(), // <-- Support as a grouped section
-    { id:'set',    label:'Settings',  icon:'settings',       link:['settings'] },
+    { id:'reports',label:'Reports',   icon:'insights',       link:['reports'] }, // reports visible to OWNER/ADMIN/MANAGER
   ]));
 
-  /** Nav for Sales Reps = Dashboard, Customers (group), then Sales items + Settings */
+  /** Nav for Sales Reps (Settings appended last; Reports not visible to reps) */
   private readonly navForReps = computed<any[]>(() => ([
     { id:'dash',  label:'Dashboard', icon:'dashboard', link:['dashboard'] },
     this.customersGroup(),
     ...this.salesChildren(),
-    { id:'set',   label:'Settings',  icon:'settings',  link:['settings'] },
   ]));
 
-  /** Final nav exposed to the side-nav component */
+  /** Single source of truth for Settings item */
+  private SETTINGS_ITEM = () => ({
+    id: 'set',
+    label: 'Settings',
+    icon: 'settings',
+    link: ['settings'], // resolves under /location/:id/...
+  });
+
+  /** Final nav exposed to the side-nav component — Settings ALWAYS last */
   readonly navFiltered = computed<any[]>(() => {
     const admin = this.isAdminOwner();
     const r = this.roles();
-    if (admin || r.has('MANAGER')) return this.navForManagers();
-    if (r.has('SALES')) return this.navForReps();
-    // Fallback: minimal (still show Customers group)
-    return [
-      { id:'dash', label:'Dashboard', icon:'dashboard', link:['dashboard'] },
-      this.customersGroup(),
-      { id:'set',  label:'Settings',  icon:'settings',  link:['settings'] },
-    ];
+
+    const base = admin || r.has('MANAGER')
+      ? this.navForManagers()
+      : r.has('SALES')
+        ? this.navForReps()
+        : [
+            { id:'dash', label:'Dashboard', icon:'dashboard', link:['dashboard'] },
+            this.customersGroup(),
+          ];
+
+    // Guarantee Settings is last and unique
+    const withoutSettings = base.filter(item => item?.id !== 'set');
+    return [...withoutSettings, this.SETTINGS_ITEM()];
   });
 }

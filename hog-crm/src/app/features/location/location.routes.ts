@@ -120,7 +120,7 @@ export const LOCATION_ROUTES: Routes = [
         ]
       },
 
-      { path: 'reports',   loadComponent: () => import('./reports/reports.page').then(m => m.ReportsPage),       title: 'Reports' },
+      { path: 'reports',   loadComponent: () => import('./reports/reports.page').then(m => m.LocationReportsPage),       title: 'Reports' },
       { path: 'settings',  loadComponent: () => import('./settings/settings.page').then(m => m.SettingsPage),    title: 'Settings' },
     ],
   },
