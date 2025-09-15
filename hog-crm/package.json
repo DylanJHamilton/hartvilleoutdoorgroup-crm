@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --configuration=production",
-    "vercel-build": "ng build --configuration=production && echo '--- dist:' && ls -la dist || true && echo '--- dist/hog-crm:' && ls -la dist/hog-crm || true && echo '--- dist/hog-crm/browser:' && ls -la dist/hog-crm/browser || true && echo '--- index base tag ---' && (grep -i '<base' dist/hog-crm/index.html || grep -i '<base' dist/hog-crm/browser/index.html || true)",
+    "vercel-build": "ng build --configuration=production && echo '--- INDEX LOCATIONS ---' && find dist -maxdepth 4 -type f -name index.html -print && echo '--- DIST TREE (top 2 levels) ---' && find dist -maxdepth 2 -type d -print",
     "vercel-build:debug": "node -v && npm -v && npx ng version && npx ng build --configuration=production --verbose",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
