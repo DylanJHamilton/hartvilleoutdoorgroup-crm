@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 export interface ContractParty {
   name: string;
@@ -25,23 +26,63 @@ export interface ContractData {
 export class ContractsService {
   // keep a single in-flight loader so multiple clicks don’t re-import
   private pdfMakePromise?: Promise<any>;
+  private readonly platformId = inject(PLATFORM_ID);
 
   /** Call this early (e.g., ngOnInit) to avoid losing the user gesture on click. */
   preload(): void {
     void this.ensurePdfMake();
   }
 
+  /**
+   * Dynamically loads pdfmake in browser environments.
+   * - Handles Vercel/esbuild resolution quirks by falling back to explicit ".js" paths.
+   * - Guards against non-browser (future SSR) by returning a no-op shim.
+   */
   private async ensurePdfMake(): Promise<any> {
-    if (!this.pdfMakePromise) {
-      this.pdfMakePromise = (async () => {
-        const [{ default: pdfMake }, { default: pdfFonts }] = await Promise.all([
+    if (this.pdfMakePromise) return this.pdfMakePromise;
+
+    // If not in the browser, return a no-op shim so callers don’t crash.
+    if (!isPlatformBrowser(this.platformId)) {
+      this.pdfMakePromise = Promise.resolve({
+        createPdf() {
+          // minimal chain-compatible shim: open(), print(), download(), getBlob(cb)
+          return {
+            open() {/* no-op */},
+            print() {/* no-op */},
+            download(_: string) {/* no-op */},
+            getBlob(cb: (b: Blob) => void) { cb(new Blob()); }
+          };
+        }
+      });
+      return this.pdfMakePromise;
+    }
+
+    this.pdfMakePromise = (async () => {
+      let pdfMakeModule: any;
+      let pdfFontsModule: any;
+
+      // First try without extension; fall back to explicit .js if needed.
+      try {
+        [pdfMakeModule, pdfFontsModule] = await Promise.all([
           import('pdfmake/build/pdfmake'),
           import('pdfmake/build/vfs_fonts'),
         ]);
-        (pdfMake as any).vfs = (pdfFonts as any).pdfMake.vfs;
-        return pdfMake;
-      })();
-    }
+      } catch {
+        [pdfMakeModule, pdfFontsModule] = await Promise.all([
+          import('pdfmake/build/pdfmake.js'),
+          import('pdfmake/build/vfs_fonts.js'),
+        ]);
+      }
+
+      const pdfMake: any  = pdfMakeModule?.default ?? pdfMakeModule;
+      const fonts: any    = pdfFontsModule?.default ?? pdfFontsModule;
+
+      // pdfmake vfs can be exposed in different shapes depending on bundler
+      pdfMake.vfs = fonts?.pdfMake?.vfs ?? fonts?.vfs ?? pdfMake.vfs;
+
+      return pdfMake;
+    })();
+
     return this.pdfMakePromise;
   }
 
@@ -153,14 +194,15 @@ export class ContractsService {
   }
 
   async openInNewTab(data: ContractData) {
-    // Open a blank tab immediately to preserve the user gesture
-    const popup = window.open('', '_blank');
     const pdfMake = await this.ensurePdfMake();
+    // Open a blank tab immediately to preserve the user gesture (browser only).
+    const popup = isPlatformBrowser(this.platformId) ? window.open('', '_blank') : null;
+
     pdfMake.createPdf(this.buildDocDef(data)).getBlob((blob: Blob) => {
       const url = URL.createObjectURL(blob);
       if (popup) {
         popup.location.href = url;
-      } else {
+      } else if (isPlatformBrowser(this.platformId)) {
         // fallback if popup blocked
         const a = document.createElement('a');
         a.href = url; a.target = '_blank'; a.click();
@@ -170,7 +212,6 @@ export class ContractsService {
 
   async print(data: ContractData) {
     const pdfMake = await this.ensurePdfMake();
-    // Some browsers block programmatic print; opening tab is more reliable.
     pdfMake.createPdf(this.buildDocDef(data)).open();
   }
 
