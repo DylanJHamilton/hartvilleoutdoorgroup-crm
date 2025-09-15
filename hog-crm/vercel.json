@@ -2,5 +2,7 @@
   "framework": "angular",
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist/hog-crm",
-  "rewrites": [{ "source": "/((?!.*\\.).*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/((?!.*\\.).*)", "destination": "/index.html" }
+  ]
 }
