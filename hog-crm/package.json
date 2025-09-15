@@ -4,8 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --configuration=production",
-    "vercel-build": "ng build --configuration=production && echo '--- DIST ROOT ---' && ls -la dist && echo '--- APP DIST ---' && ls -la dist/hog-crm && echo '--- INDEX PREVIEW ---' && sed -n '1,30p' dist/hog-crm/index.html",
+    "vercel-build": "ng build --configuration=production",
+    "vercel-build:debug": "node -v && npm -v && npx ng version && npx ng build --configuration=production --verbose",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:hog-crm": "node dist/hog-crm/server/server.mjs"
