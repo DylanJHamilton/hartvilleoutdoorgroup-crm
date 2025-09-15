@@ -9,7 +9,7 @@
     "@ngneat/reactive-forms": "^5.0.2",
     "@ngrx/effects": "^20.0.0",
     "@ngrx/router-store": "^20.0.0",
-    "@ngrx/store": "^20.0.0",
+    "@ngrx/store": "^20.0.1",
     "@ngrx/store-devtools": "^20.0.0",
     "ag-grid-angular": "^34.1.2",
     "ag-grid-community": "^34.1.2",
@@ -26,6 +26,7 @@
     "pdfmake": "^0.2.20"
   },
   "devDependencies": {
+    "@types/pdfmake": "^0.2.11",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17"
