@@ -4,12 +4,19 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
-    "vercel-build": "cd hog-crm && npm ci && npm run vercel-build",
+    "build": "ng build --configuration=production",
+    "vercel-build": "ng build --configuration=production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:hog-crm": "node dist/hog-crm/server/server.mjs"
   },
+  "budgets": [
+  {
+    "type": "anyComponentStyle",
+    "maximumWarning": "10kb",
+    "maximumError": "12kb"
+  }
+  ],
   "prettier": {
     "printWidth": 100,
     "singleQuote": true,
